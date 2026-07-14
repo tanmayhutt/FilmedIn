@@ -49,9 +49,9 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-zinc-700">
                 <Image src={desktopUrl} alt="Desktop wallpaper" fill className="object-cover" />
               </div>
-              <Button asChild className="bg-zinc-100 text-zinc-900 hover:bg-zinc-300">
-                <a href={desktopUrl} target="_blank" rel="noreferrer" download>Download High-Res</a>
-              </Button>
+              <a href={desktopUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors bg-zinc-100 text-zinc-900 hover:bg-zinc-300 h-9 px-4 py-2 w-auto">
+                Download High-Res
+              </a>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-4 w-full">
@@ -78,9 +78,9 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               <div className="relative w-[56%] aspect-[9/16] rounded-lg overflow-hidden border border-zinc-700 mx-auto">
                 <Image src={mobileUrl} alt="Mobile wallpaper" fill className="object-cover" />
               </div>
-              <Button asChild className="bg-zinc-100 text-zinc-900 hover:bg-zinc-300">
-                <a href={mobileUrl} target="_blank" rel="noreferrer" download>Download High-Res</a>
-              </Button>
+              <a href={mobileUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors bg-zinc-100 text-zinc-900 hover:bg-zinc-300 h-9 px-4 py-2 w-auto">
+                Download High-Res
+              </a>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-4 w-full">
