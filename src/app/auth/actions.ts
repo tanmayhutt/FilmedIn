@@ -34,12 +34,48 @@ export async function loginClientAction(data: { email: string, password: string 
   return { success: true }
 }
 
+export async function loginWithOtpClientAction(email: string) {
+  const supabase = await createClient()
+  
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser: false,
+    },
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+  return { success: true }
+}
+
+export async function verifyOtpClientAction(email: string, token: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: 'email',
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+  return { success: true }
+}
+
 export async function signupClientAction(data: { email: string, password: string, username: string }) {
   const supabase = await createClient()
 
   const { data: authData, error } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,
+    options: {
+      data: {
+        username: data.username, // Save username in metadata so it's accessible in Email Templates
+      }
+    }
   })
 
   if (error) {
