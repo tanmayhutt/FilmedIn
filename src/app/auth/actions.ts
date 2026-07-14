@@ -65,6 +65,19 @@ export async function verifyOtpClientAction(email: string, token: string) {
   return { success: true }
 }
 
+export async function updatePasswordClientAction(password: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase.auth.updateUser({
+    password: password
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+  return { success: true }
+}
+
 export async function signupClientAction(data: { email: string, password: string, username: string }) {
   const supabase = await createClient()
 

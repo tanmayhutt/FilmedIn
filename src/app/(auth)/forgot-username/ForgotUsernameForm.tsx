@@ -3,14 +3,15 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { loginWithOtpClientAction, verifyOtpClientAction } from '@/app/auth/actions'
+import { loginWithOtpClientAction, verifyOtpClientAction, updatePasswordClientAction } from '@/app/auth/actions'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export function ForgotUsernameForm() {
-  const [step, setStep] = useState<'email' | 'otp'>('email')
+  const [step, setStep] = useState<'email' | 'otp' | 'password'>('email')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
+  const [newPassword, setNewPassword] = useState('')
   const [result, setResult] = useState<{ type: 'error' | 'success', message: string } | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -43,6 +44,25 @@ export function ForgotUsernameForm() {
       if (res.error) {
         setResult({ type: 'error', message: res.error })
       } else {
+        setResult({ type: 'success', message: 'Code verified! Please enter your new password.' })
+        setStep('password')
+      }
+    } catch (err) {
+      setResult({ type: 'error', message: 'Something went wrong.' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setResult(null)
+    try {
+      const res = await updatePasswordClientAction(newPassword)
+      if (res.error) {
+        setResult({ type: 'error', message: res.error })
+      } else {
         router.push('/profile')
       }
     } catch (err) {
@@ -55,7 +75,7 @@ export function ForgotUsernameForm() {
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
       <div className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
-        <h1 className="text-3xl font-semibold text-zinc-100 mb-6 text-center">Login via Email OTP</h1>
+        <h1 className="text-3xl font-semibold text-zinc-100 mb-6 text-center">Reset Password</h1>
         
         {step === 'email' ? (
           <form onSubmit={handleEmailSubmit} className="flex flex-col gap-2">
@@ -72,10 +92,10 @@ export function ForgotUsernameForm() {
               required
             />
             <Button type="submit" disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
-              {loading ? 'Sending Code...' : 'Send Login Code'}
+              {loading ? 'Sending Code...' : 'Send Reset Code'}
             </Button>
           </form>
-        ) : (
+        ) : step === 'otp' ? (
           <form onSubmit={handleOtpSubmit} className="flex flex-col gap-2">
             <label className="text-md font-medium text-zinc-300" htmlFor="otp">
               6-Digit Code
@@ -91,7 +111,25 @@ export function ForgotUsernameForm() {
               required
             />
             <Button type="submit" disabled={loading} className="bg-green-600 text-white hover:bg-green-500 w-full mb-2 h-12">
-              {loading ? 'Verifying...' : 'Verify & Login'}
+              {loading ? 'Verifying...' : 'Verify Code'}
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-2">
+            <label className="text-md font-medium text-zinc-300" htmlFor="newPassword">
+              New Password
+            </label>
+            <Input
+              className="mb-4 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700"
+              type="password"
+              name="newPassword"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password"
+              required
+            />
+            <Button type="submit" disabled={loading} className="bg-blue-600 text-white hover:bg-blue-500 w-full mb-2 h-12">
+              {loading ? 'Updating...' : 'Update Password & Login'}
             </Button>
           </form>
         )}
