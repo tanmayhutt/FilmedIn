@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { PRESET_AVATARS } from '@/lib/avatars'
-import { updateAvatar } from '@/app/profile/actions'
+import { updateAvatar, uploadCustomAvatar } from '@/app/profile/actions'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
+import { Upload } from 'lucide-react'
 
 interface Props {
   currentAvatar?: string
@@ -13,10 +14,24 @@ interface Props {
 export function AvatarSelector({ currentAvatar }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   const handleSelect = async (url: string) => {
     setLoading(true)
     await updateAvatar(url)
+    setLoading(false)
+    setIsOpen(false)
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setLoading(true)
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    await uploadCustomAvatar(formData)
     setLoading(false)
     setIsOpen(false)
   }
@@ -44,19 +59,48 @@ export function AvatarSelector({ currentAvatar }: Props) {
               </button>
             </div>
             
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 max-h-[60vh] overflow-y-auto pr-2 pb-2">
-              {PRESET_AVATARS.map((url, i) => (
-                <button
-                  key={i}
+            <div className="flex flex-col gap-6">
+              <div className="flex justify-center">
+                <input 
+                  type="file" 
+                  accept="image/png, image/jpeg, image/webp" 
+                  className="hidden" 
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                />
+                <Button 
+                  onClick={() => fileInputRef.current?.click()}
                   disabled={loading}
-                  onClick={() => handleSelect(url)}
-                  className={`relative aspect-square rounded-full overflow-hidden border-2 transition-all hover:scale-105 ${
-                    currentAvatar === url ? 'border-zinc-100 scale-105 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border-zinc-800 hover:border-zinc-600'
-                  }`}
+                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-2"
                 >
-                  <img src={url} alt="Preset avatar" className="w-full h-full object-cover bg-zinc-100" />
-                </button>
-              ))}
+                  <Upload className="w-4 h-4" />
+                  Upload Custom Image
+                </Button>
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-zinc-800"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-zinc-900 px-4 text-sm text-zinc-500">Or pick a preset</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 max-h-[50vh] overflow-y-auto pr-2 pb-2">
+                {PRESET_AVATARS.map((url, i) => (
+                  <button
+                    key={i}
+                    disabled={loading}
+                    onClick={() => handleSelect(url)}
+                    className={`relative aspect-square rounded-full overflow-hidden border-2 transition-all hover:scale-105 ${
+                      currentAvatar === url ? 'border-zinc-100 scale-105 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border-zinc-800 hover:border-zinc-600'
+                    }`}
+                  >
+                    <img src={url} alt="Preset avatar" className="w-full h-full object-cover bg-zinc-100" />
+                  </button>
+                ))}
+              </div>
             </div>
 
             {loading && (
