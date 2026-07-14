@@ -25,8 +25,9 @@ exports.updateAvatar = async (req, res) => {
 exports.uploadAvatar = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const publicUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-    const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl: publicUrl }, { new: true }).select('-passwordHash');
+    // Cloudinary returns the secure URL directly on req.file.path
+    const avatarUrl = req.file.path;
+    const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl }, { new: true }).select('-passwordHash');
     res.json(user);
   } catch (err) {
     console.error(err);
