@@ -1,39 +1,45 @@
-import Image from "next/image"
-import Link from "next/link"
-import { TMDBMovie, TMDBTVShow } from "@/lib/tmdb"
+import { Link } from 'react-router-dom'
+import { TMDBMovie, TMDBTVShow } from '@/lib/tmdb'
 
-interface MediaCardProps {
-  media: TMDBMovie | TMDBTVShow;
-}
+export function MediaCard({ media, disableLink = false }: { media: TMDBMovie | TMDBTVShow, disableLink?: boolean }) {
+  const isMovie = 'title' in media
+  const title = isMovie ? media.title : media.name
+  const date = isMovie ? media.release_date : media.first_air_date
+  const year = date ? new Date(date).getFullYear() : 'N/A'
+  
+  const href = `/${isMovie ? 'movie' : 'tv'}/${media.id}`
 
-export function MediaCard({ media }: MediaCardProps) {
-  const isMovie = 'title' in media;
-  const title = isMovie ? (media as TMDBMovie).title : (media as TMDBTVShow).name;
-  const posterPath = media.poster_path 
-    ? `https://image.tmdb.org/t/p/w500${media.poster_path}` 
-    : '/placeholder.png'; 
-  const href = isMovie ? `/movie/${media.id}` : `/tv/${media.id}`;
-
-  return (
-    <Link href={href} className="group relative w-[150px] md:w-[200px] flex-shrink-0 cursor-pointer overflow-hidden rounded-lg block">
-      <div className="aspect-[2/3] w-full relative bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+  const CardContent = (
+    <div className="w-[160px] sm:w-[200px] group relative flex flex-col gap-2 shrink-0">
+      <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800/50 transition-colors group-hover:border-zinc-700">
         {media.poster_path ? (
-          <Image 
-            src={posterPath} 
-            alt={title || "Media Poster"} 
-            fill 
-            className="object-cover transition-transform duration-300 group-hover:scale-105" 
-            sizes="(max-width: 768px) 150px, 200px"
+          <img
+            src={`https://image.tmdb.org/t/p/w500${media.poster_path}`}
+            alt={title}
+            loading="lazy"
+            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-zinc-600 text-xs text-center p-2">
-            No Image
+          <div className="absolute inset-0 flex items-center justify-center bg-zinc-900 text-zinc-600 text-xs text-center p-4">
+            No Image Available
           </div>
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-4">
-        <h3 className="text-zinc-50 font-medium text-sm line-clamp-2">{title}</h3>
+      <div className="flex flex-col">
+        <h3 className="font-semibold text-sm sm:text-base text-zinc-100 line-clamp-1 group-hover:text-white transition-colors">{title}</h3>
+        <p className="text-xs sm:text-sm text-zinc-500">{year} • {isMovie ? 'Movie' : 'TV Show'}</p>
       </div>
+    </div>
+  )
+
+  if (disableLink) {
+    return CardContent
+  }
+
+  return (
+    <Link to={href} className="outline-none focus-visible:ring-2 focus-visible:ring-zinc-600 rounded-lg">
+      {CardContent}
     </Link>
   )
 }

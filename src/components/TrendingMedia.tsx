@@ -1,13 +1,22 @@
-import { fetchTrendingMovies, fetchTrendingTV } from "@/lib/tmdb";
-import { MediaCard } from "@/components/MediaCard";
+import { useEffect, useState } from 'react'
+import { fetchTrendingMovies, fetchTrendingTV } from '@/lib/tmdb'
+import { MediaCard } from '@/components/MediaCard'
 
-export async function TrendingMovies() {
-  let movies: any[] = [];
-  try {
-    movies = await fetchTrendingMovies();
-  } catch (e) {
-    console.error("Failed to fetch trending movies", e);
-  }
+export function TrendingMovies() {
+  const [movies, setMovies] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchTrendingMovies().then(data => {
+      setMovies(data)
+      setLoading(false)
+    }).catch(e => {
+      console.error(e)
+      setLoading(false)
+    })
+  }, [])
+
+  if (loading) return <TrendingSkeleton />
 
   return (
     <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide px-2">
@@ -19,36 +28,44 @@ export async function TrendingMovies() {
         <div className="text-zinc-500 text-sm italic py-4">No movies found. Please configure your TMDB API Key.</div>
       )}
     </div>
-  );
+  )
 }
 
-export async function TrendingTV() {
-  let shows: any[] = [];
-  try {
-    shows = await fetchTrendingTV();
-  } catch (e) {
-    console.error("Failed to fetch trending tv", e);
-  }
+export function TrendingTV() {
+  const [shows, setShows] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchTrendingTV().then(data => {
+      setShows(data)
+      setLoading(false)
+    }).catch(e => {
+      console.error(e)
+      setLoading(false)
+    })
+  }, [])
+
+  if (loading) return <TrendingSkeleton />
 
   return (
     <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide px-2">
       {shows.length > 0 ? (
-        shows.map((tv: any) => (
-          <MediaCard key={tv.id} media={tv} />
+        shows.map((show: any) => (
+          <MediaCard key={show.id} media={show} />
         ))
       ) : (
         <div className="text-zinc-500 text-sm italic py-4">No TV shows found. Please configure your TMDB API Key.</div>
       )}
     </div>
-  );
+  )
 }
 
 export function TrendingSkeleton() {
   return (
     <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide px-2">
-      {[...Array(6)].map((_, i) => (
-        <div key={i} className="min-w-[160px] sm:min-w-[200px] aspect-[2/3] rounded-lg bg-zinc-900/50 animate-pulse border border-zinc-800/50"></div>
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="w-[160px] sm:w-[200px] h-[240px] sm:h-[300px] bg-zinc-900 rounded-lg animate-pulse shrink-0 border border-zinc-800" />
       ))}
     </div>
-  );
+  )
 }
