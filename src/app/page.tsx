@@ -5,8 +5,8 @@ import { MediaCard } from "@/components/MediaCard";
 
 export default async function Home() {
   // We'll try to fetch, if API key is missing it might throw, so we catch and provide empty arrays
-  let trendingMovies = [];
-  let trendingTV = [];
+  let trendingMovies: any[] = [];
+  let trendingTV: any[] = [];
   
   try {
     const [moviesData, tvData] = await Promise.all([
