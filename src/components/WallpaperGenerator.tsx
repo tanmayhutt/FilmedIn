@@ -26,8 +26,12 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
 
     try {
       const res = await generateWallpaper(tmdbId, mediaType, title, type)
-      if (type === 'desktop') setDesktopUrl(res.url)
-      else setMobileUrl(res.url)
+      if (res.error) {
+        setError(res.error)
+      } else if (res.url) {
+        if (type === 'desktop') setDesktopUrl(res.url)
+        else setMobileUrl(res.url)
+      }
     } catch (e: any) {
       setError(e.message || 'Failed to generate')
     } finally {

@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function generateWallpaper(tmdbId: number, mediaType: 'movie' | 'tv', promptBase: string, type: 'desktop' | 'mobile') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('You must be logged in to generate wallpapers')
+  if (!user) return { error: 'You must be logged in to generate wallpapers' }
 
   // Check if wallpaper exists
   const { data: existing } = await supabase
@@ -70,8 +70,8 @@ export async function generateWallpaper(tmdbId: number, mediaType: 'movie' | 'tv
     }
 
     return { url: publicUrl }
-  } catch (error) {
-    console.error(error)
-    throw new Error('Failed to generate wallpaper')
+  } catch (error: any) {
+    console.error("Wallpaper generation error:", error)
+    return { error: error.message || 'Failed to generate wallpaper' }
   }
 }
