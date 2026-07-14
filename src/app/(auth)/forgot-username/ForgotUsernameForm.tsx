@@ -63,6 +63,9 @@ export function ForgotUsernameForm() {
         <Link href="/login" className="text-sm text-zinc-400 hover:text-zinc-200">
           Remember it? Sign in
         </Link>
+        <Link href="/signup" className="text-sm text-zinc-400 hover:text-zinc-200">
+          Don't have an account? Sign up
+        </Link>
       </div>
     </div>
   )
