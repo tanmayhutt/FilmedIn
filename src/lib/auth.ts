@@ -1,48 +1,68 @@
-import { supabase } from './supabase'
+import { fetchApi } from './api'
 
 export async function loginWithPassword(email: string, password: string) {
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) return { error: error.message }
-  return { success: true }
+  try {
+    const res = await fetchApi('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    })
+    localStorage.setItem('token', res.token)
+    return { success: true }
+  } catch (err: any) {
+    return { error: err.message }
+  }
 }
 
 export async function signupClientAction(data: { email: string, password: string, username: string }) {
-  const { error } = await supabase.auth.signUp({
-    email: data.email,
-    password: data.password,
-    options: {
-      data: { username: data.username }
-    }
-  })
-  if (error) return { error: error.message }
-  return { success: true }
+  try {
+    await fetchApi('/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+    return { success: true }
+  } catch (err: any) {
+    return { error: err.message }
+  }
 }
 
 export async function loginWithOtpClientAction(email: string) {
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: false },
-  })
-  if (error) return { error: error.message }
-  return { success: true }
+  try {
+    await fetchApi('/auth/send-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    })
+    return { success: true }
+  } catch (err: any) {
+    return { error: err.message }
+  }
 }
 
 export async function verifyOtpClientAction(email: string, token: string) {
-  const { error } = await supabase.auth.verifyOtp({
-    email,
-    token,
-    type: 'email',
-  })
-  if (error) return { error: error.message }
-  return { success: true }
+  try {
+    const res = await fetchApi('/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp: token })
+    })
+    localStorage.setItem('token', res.token) // Temporary reset token
+    return { success: true }
+  } catch (err: any) {
+    return { error: err.message }
+  }
 }
 
 export async function updatePasswordClientAction(password: string) {
-  const { error } = await supabase.auth.updateUser({ password })
-  if (error) return { error: error.message }
-  return { success: true }
+  try {
+    await fetchApi('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ password })
+    })
+    return { success: true }
+  } catch (err: any) {
+    return { error: err.message }
+  }
 }
 
 export async function signout() {
-  await supabase.auth.signOut()
+  localStorage.removeItem('token')
+  return { success: true }
 }

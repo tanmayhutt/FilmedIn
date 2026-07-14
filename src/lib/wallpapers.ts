@@ -1,9 +1,12 @@
-import { supabase } from './supabase'
+import { fetchApi } from './api'
 
 export async function saveWallpaper(url: string, tmdbId: number, mediaType: 'movie' | 'tv') {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'Not authenticated' }
-  return { success: true, url }
+  try {
+    await fetchApi('/users/me') // Check auth
+    return { success: true, url }
+  } catch {
+    return { error: 'Not authenticated' }
+  }
 }
 
 export async function generateWallpaper(tmdbId: number, mediaType: 'movie' | 'tv', title: string, type: 'desktop' | 'mobile', style: string, forceRegenerate: boolean = false): Promise<{ success?: boolean; url?: string; error?: string }> {

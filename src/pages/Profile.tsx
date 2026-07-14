@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { fetchApi } from '@/lib/api'
 import { signout } from '@/lib/auth'
 import { getPlaylists, createPlaylist, deletePlaylist } from '@/lib/playlists'
 import { AvatarSelector } from '@/components/AvatarSelector'
@@ -10,28 +10,29 @@ import { Plus, LogOut, Trash2 } from 'lucide-react'
 
 export default function Profile() {
   const navigate = useNavigate()
-  const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
   const [playlists, setPlaylists] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [newPlaylistName, setNewPlaylistName] = useState('')
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate('/login')
-        return
-      }
-      setUser(session.user)
-      
-      Promise.all([
-        supabase.from('profiles').select('*').eq('id', session.user.id).single(),
-        getPlaylists()
-      ]).then(([{ data: profileData }, playlistsData]) => {
-        setProfile(profileData)
-        setPlaylists(playlistsData)
-        setLoading(false)
-      })
+    const token = localStorage.getItem('token')
+    if (!token) {
+      navigate('/login')
+      return
+    }
+
+    Promise.all([
+      fetchApi('/users/me'),
+      getPlaylists()
+    ]).then(([profileData, playlistsData]) => {
+      setProfile(profileData)
+      setPlaylists(playlistsData)
+      setLoading(false)
+    }).catch((err) => {
+      console.error(err)
+      localStorage.removeItem('token')
+      navigate('/login')
     })
   }, [navigate])
 
@@ -78,7 +79,7 @@ export default function Profile() {
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
               {profile?.username || 'User Profile'}
             </h1>
-            <p className="text-zinc-500 mb-4">{user?.email}</p>
+            <p className="text-zinc-500 mb-4">{profile?.email}</p>
             <AvatarSelector currentAvatar={profile?.avatar_url} />
           </div>
         </div>

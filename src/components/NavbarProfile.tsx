@@ -1,34 +1,26 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
-import { Link } from 'react-router-dom'
+import { fetchApi } from '@/lib/api'
+import { Link, useLocation } from 'react-router-dom'
 
 export function NavbarProfile() {
-  const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
+  const location = useLocation()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        supabase.from('profiles').select('avatar_url, username').eq('id', session.user.id).single()
-          .then(({ data }) => setProfile(data))
-      }
-    })
+    const token = localStorage.getItem('token')
+    if (token) {
+      fetchApi('/users/me')
+        .then(data => setProfile(data))
+        .catch(() => {
+          localStorage.removeItem('token')
+          setProfile(null)
+        })
+    } else {
+      setProfile(null)
+    }
+  }, [location])
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        supabase.from('profiles').select('avatar_url, username').eq('id', session.user.id).single()
-          .then(({ data }) => setProfile(data))
-      } else {
-        setProfile(null)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  if (!user) {
+  if (!profile) {
     return (
       <div className="flex items-center gap-4">
         <Link to="/login" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors">

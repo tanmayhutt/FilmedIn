@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { fetchApi } from '@/lib/api'
 import { fetchMovieDetails, fetchTVDetails } from '@/lib/tmdb'
 import { MediaCard } from '@/components/MediaCard'
 
@@ -14,37 +14,36 @@ export default function PlaylistDetails() {
     if (!id) return
     setLoading(true)
 
-    supabase.from('playlists').select('*').eq('id', id).single().then(({ data: playlistData }) => {
+    fetchApi(`/playlists/${id}`).then((playlistData) => {
       setPlaylist(playlistData)
       
       if (playlistData) {
-        supabase.from('playlist_items').select('*').eq('playlist_id', id).order('added_at', { ascending: false })
-          .then(({ data: itemsData }) => {
-            if (!itemsData) {
-              setItems([])
-              setLoading(false)
-              return
-            }
+        fetchApi(`/playlists/${id}/items`).then((itemsData) => {
+          if (!itemsData || itemsData.length === 0) {
+            setItems([])
+            setLoading(false)
+            return
+          }
 
-            Promise.all(itemsData.map(async (item: any) => {
-              try {
-                if (item.media_type === 'movie') {
-                  return await fetchMovieDetails(item.tmdb_id.toString())
-                } else {
-                  return await fetchTVDetails(item.tmdb_id.toString())
-                }
-              } catch {
-                return null
+          Promise.all(itemsData.map(async (item: any) => {
+            try {
+              if (item.media_type === 'movie') {
+                return await fetchMovieDetails(item.tmdb_id.toString())
+              } else {
+                return await fetchTVDetails(item.tmdb_id.toString())
               }
-            })).then(resolvedItems => {
-              setItems(resolvedItems.filter(Boolean))
-              setLoading(false)
-            })
+            } catch {
+              return null
+            }
+          })).then(resolvedItems => {
+            setItems(resolvedItems.filter(Boolean))
+            setLoading(false)
           })
+        }).catch(() => setLoading(false))
       } else {
         setLoading(false)
       }
-    })
+    }).catch(() => setLoading(false))
   }, [id])
 
   if (loading) {
