@@ -52,7 +52,7 @@ export default async function ProfilePage() {
           </div>
           
           <form action={signout}>
-            <Button variant="ghost" className="text-zinc-400 hover:text-white hidden sm:flex">Sign out</Button>
+            <Button type="submit" variant="ghost" className="text-zinc-400 hover:text-white hidden sm:flex">Sign out</Button>
           </form>
         </div>
       </header>
