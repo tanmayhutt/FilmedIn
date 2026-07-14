@@ -5,7 +5,6 @@ import { PRESET_AVATARS } from '@/lib/avatars'
 import { updateAvatar } from '@/app/profile/actions'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import Image from 'next/image'
 
 interface Props {
   currentAvatar?: string
@@ -55,7 +54,7 @@ export function AvatarSelector({ currentAvatar }: Props) {
                     currentAvatar === url ? 'border-zinc-100 scale-105 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border-zinc-800 hover:border-zinc-600'
                   }`}
                 >
-                  <Image src={url} alt="Preset avatar" fill className="object-cover bg-zinc-100" />
+                  <img src={url} alt="Preset avatar" className="w-full h-full object-cover bg-zinc-100" />
                 </button>
               ))}
             </div>

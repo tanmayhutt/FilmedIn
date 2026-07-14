@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Folder } from 'lucide-react'
 
 import { AvatarSelector } from '@/components/AvatarSelector'
-import Image from 'next/image'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -38,7 +37,7 @@ export default async function ProfilePage() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-zinc-800 bg-zinc-900 shrink-0">
               {profile?.avatar_url ? (
-                <Image src={profile.avatar_url} alt="Profile" fill className="object-cover bg-zinc-100" />
+                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover bg-zinc-100" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-4xl text-zinc-700 bg-zinc-950">
                   {profile?.username?.charAt(0).toUpperCase()}
