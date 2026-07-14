@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { generateWallpaper } from '@/lib/wallpapers'
+import { generateWallpaper } from '@/services/wallpaper.service'
 import { Spinner } from '@/components/ui/spinner'
 import { RefreshCw, Download } from 'lucide-react'
 

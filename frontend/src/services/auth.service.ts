@@ -1,4 +1,4 @@
-import { fetchApi } from './api'
+import { fetchApi } from '@/services/api.client'
 
 export async function loginWithPassword(email: string, password: string) {
   try {

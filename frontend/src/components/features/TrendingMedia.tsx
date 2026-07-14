@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { fetchTrendingMovies, fetchTrendingTV } from '@/lib/tmdb'
-import { MediaCard } from '@/components/MediaCard'
+import { fetchTrendingMovies, fetchTrendingTV } from '@/services/tmdb.service'
+import { MediaCard } from '@/components/features/MediaCard'
 
 export function TrendingMovies() {
   const [movies, setMovies] = useState<any[]>([])

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { TMDBMovie, TMDBTVShow } from '@/lib/tmdb'
+import { TMDBMovie, TMDBTVShow } from '@/services/tmdb.service'
 
 export function MediaCard({ media, disableLink = false }: { media: TMDBMovie | TMDBTVShow, disableLink?: boolean }) {
   const isMovie = 'title' in media

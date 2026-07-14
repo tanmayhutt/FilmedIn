@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { TrendingMovies, TrendingTV } from '@/components/TrendingMedia'
+import { TrendingMovies, TrendingTV } from '@/components/features/TrendingMedia'
 import { useNavigate } from 'react-router-dom'
 
 export default function Home() {

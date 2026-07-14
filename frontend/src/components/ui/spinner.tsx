@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 export interface SpinnerProps extends React.SVGProps<SVGSVGElement> {}
 

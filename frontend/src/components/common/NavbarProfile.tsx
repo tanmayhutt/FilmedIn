@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchApi } from '@/lib/api'
+import { fetchApi } from '@/services/api.client'
 import { Link, useLocation } from 'react-router-dom'
 
 export function NavbarProfile() {

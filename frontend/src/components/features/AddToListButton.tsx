@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Plus } from 'lucide-react'
-import { addToList, getPlaylists } from '@/lib/playlists'
+import { addToList, getPlaylists } from '@/services/playlist.service'
 
 export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaType: 'movie' | 'tv' }) {
   const [playlists, setPlaylists] = useState<any[]>([])

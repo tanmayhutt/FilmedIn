@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { signupClientAction } from '@/lib/auth'
+import { signupClientAction } from '@/services/auth.service'
 
 export default function Signup() {
   const [email, setEmail] = useState('')

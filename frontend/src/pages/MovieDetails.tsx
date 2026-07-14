@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { fetchMovieDetails, TMDBMovie } from '@/lib/tmdb'
-import { AddToListButton } from '@/components/AddToListButton'
-import { WallpaperGenerator } from '@/components/WallpaperGenerator'
+import { fetchMovieDetails, TMDBMovie } from '@/services/tmdb.service'
+import { AddToListButton } from '@/components/features/AddToListButton'
+import { WallpaperGenerator } from '@/components/features/WallpaperGenerator'
 
 export default function MovieDetails() {
   const { id } = useParams<{ id: string }>()

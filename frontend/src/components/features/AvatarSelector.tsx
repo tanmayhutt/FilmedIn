@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { PRESET_AVATARS } from '@/lib/avatars'
-import { updateAvatar, uploadCustomAvatar } from '@/lib/profileActions'
+import { PRESET_AVATARS } from '@/utils/avatars'
+import { updateAvatar, uploadCustomAvatar } from '@/services/user.service'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { Upload } from 'lucide-react'

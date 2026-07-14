@@ -1,5 +1,5 @@
 import { Routes, Route, Link } from 'react-router-dom'
-import { NavbarProfile } from '@/components/NavbarProfile'
+import { NavbarProfile } from '@/components/common/NavbarProfile'
 
 // Pages
 import Home from '@/pages/Home'

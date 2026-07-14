@@ -1,4 +1,4 @@
-import { fetchApi } from './api'
+import { fetchApi } from '@/services/api.client'
 
 export async function saveWallpaper(url: string, tmdbId: number, mediaType: 'movie' | 'tv') {
   try {

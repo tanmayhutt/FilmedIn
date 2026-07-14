@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { searchMedia, TMDBMovie, TMDBTVShow } from '@/lib/tmdb'
-import { MediaCard } from '@/components/MediaCard'
+import { searchMedia, TMDBMovie, TMDBTVShow } from '@/services/tmdb.service'
+import { MediaCard } from '@/components/features/MediaCard'
 
 export default function Search() {
   const [searchParams] = useSearchParams()

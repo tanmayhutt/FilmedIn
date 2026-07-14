@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { fetchTVDetails, TMDBTVShow } from '@/lib/tmdb'
-import { AddToListButton } from '@/components/AddToListButton'
-import { WallpaperGenerator } from '@/components/WallpaperGenerator'
+import { fetchTVDetails, TMDBTVShow } from '@/services/tmdb.service'
+import { AddToListButton } from '@/components/features/AddToListButton'
+import { WallpaperGenerator } from '@/components/features/WallpaperGenerator'
 
 export default function TVDetails() {
   const { id } = useParams<{ id: string }>()

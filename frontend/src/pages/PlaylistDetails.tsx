@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { fetchApi } from '@/lib/api'
-import { fetchMovieDetails, fetchTVDetails } from '@/lib/tmdb'
-import { MediaCard } from '@/components/MediaCard'
+import { fetchApi } from '@/services/api.client'
+import { fetchMovieDetails, fetchTVDetails } from '@/services/tmdb.service'
+import { MediaCard } from '@/components/features/MediaCard'
 
 export default function PlaylistDetails() {
   const { id } = useParams<{ id: string }>()

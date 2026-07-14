@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { loginWithPassword } from '@/lib/auth'
+import { loginWithPassword } from '@/services/auth.service'
 
 export default function Login() {
   const [email, setEmail] = useState('')
