@@ -44,3 +44,15 @@ export async function searchMedia(query: string): Promise<(TMDBMovie | TMDBTVSho
   // Filter for only movies and tv shows
   return data.results.filter((item: any) => item.media_type === 'movie' || item.media_type === 'tv');
 }
+
+export async function fetchMovieDetails(id: string) {
+  const res = await fetch(`${TMDB_BASE_URL}/movie/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits`);
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function fetchTVDetails(id: string) {
+  const res = await fetch(`${TMDB_BASE_URL}/tv/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits`);
+  if (!res.ok) return null;
+  return res.json();
+}
