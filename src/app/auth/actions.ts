@@ -23,27 +23,23 @@ export async function login(formData: FormData) {
   redirect('/profile')
 }
 
-export async function signup(formData: FormData) {
+export async function signupClientAction(data: { email: string, password: string, username: string }) {
   const supabase = await createClient()
 
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const username = formData.get('username') as string || email.split('@')[0];
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
+  const { data: authData, error } = await supabase.auth.signUp({
+    email: data.email,
+    password: data.password,
   })
 
   if (error) {
-    redirect('/signup?message=Could not create user')
+    return { error: error.message }
   }
 
-  if (data.user) {
+  if (authData.user) {
     // Insert into profiles
     const { error: profileError } = await supabase.from('profiles').insert({
-      id: data.user.id,
-      username: username,
+      id: authData.user.id,
+      username: data.username,
     });
 
     if (profileError) {
@@ -54,15 +50,14 @@ export async function signup(formData: FormData) {
     const playlists = ['Watching', 'Plan to Watch', 'Watched'];
     for (const name of playlists) {
       await supabase.from('playlists').insert({
-        user_id: data.user.id,
+        user_id: authData.user.id,
         name: name,
         type: 'system',
       });
     }
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/profile')
+  return { success: true }
 }
 
 export async function signout() {
