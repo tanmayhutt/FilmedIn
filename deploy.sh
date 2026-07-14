@@ -77,7 +77,7 @@ echo -e "\n${YELLOW}[5/6] Verifying services...${NC}"
 sleep 5 # Wait a few seconds for services to boot
 
 BACKEND_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/users/me 2>/dev/null || echo "000")
-FRONTEND_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ 2>/dev/null || echo "000")
+FRONTEND_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/ 2>/dev/null || echo "000")
 
 # Note: Backend returns 401 Unauthorized for /me without token, which means the server is UP!
 if [ "$BACKEND_RESPONSE" = "401" ] || [ "$BACKEND_RESPONSE" = "200" ]; then
@@ -87,9 +87,9 @@ else
 fi
 
 if [ "$FRONTEND_RESPONSE" = "200" ]; then
-    echo -e "   Frontend (port 3000): ${GREEN}✅ OK${NC}"
+    echo -e "   Frontend (port 3001): ${GREEN}✅ OK${NC}"
 else
-    echo -e "   Frontend (port 3000): ${RED}❌ HTTP $FRONTEND_RESPONSE${NC}"
+    echo -e "   Frontend (port 3001): ${RED}❌ HTTP $FRONTEND_RESPONSE${NC}"
 fi
 
 # ---------- Done ----------
@@ -100,7 +100,7 @@ echo -e "${BLUE}========================================${NC}"
 echo ""
 echo "Your services are running at:"
 echo "  Backend:  http://localhost:5000"
-echo "  Frontend: http://localhost:3000"
+echo "  Frontend: http://localhost:3001"
 echo "  MongoDB:  mongodb://localhost:27017"
 echo ""
 echo "If Vercel proxy is configured, your app is live on Vercel!"

@@ -32,7 +32,7 @@ services:
         VITE_TMDB_API_KEY: ${VITE_TMDB_API_KEY}
     container_name: filmedin-frontend
     ports:
-      - "3000:80"
+      - "3001:80"
     depends_on:
       - backend
     restart: unless-stopped
