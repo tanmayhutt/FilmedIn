@@ -4,14 +4,14 @@ import { NavbarProfile } from '@/components/NavbarProfile'
 // Pages
 import Home from '@/pages/Home'
 // We will import these once we create them
-// import Search from '@/pages/Search'
-// import MovieDetails from '@/pages/MovieDetails'
-// import TVDetails from '@/pages/TVDetails'
-// import Profile from '@/pages/Profile'
-// import PlaylistDetails from '@/pages/PlaylistDetails'
-// import Login from '@/pages/Login'
-// import Signup from '@/pages/Signup'
-// import ForgotPassword from '@/pages/ForgotPassword'
+import Search from '@/pages/Search'
+import MovieDetails from '@/pages/MovieDetails'
+import TVDetails from '@/pages/TVDetails'
+import Profile from '@/pages/Profile'
+import PlaylistDetails from '@/pages/PlaylistDetails'
+import Login from '@/pages/Login'
+import Signup from '@/pages/Signup'
+import ForgotPassword from '@/pages/ForgotPassword'
 
 export default function App() {
   return (
@@ -25,14 +25,14 @@ export default function App() {
       <div className="flex-1 flex flex-col">
         <Routes>
           <Route path="/" element={<Home />} />
-          {/* <Route path="/search" element={<Search />} />
-          <Route path="/movie/:id" element={<MovieDetails />} />
-          <Route path="/tv/:id" element={<TVDetails />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/profile/playlist/:id" element={<PlaylistDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-username" element={<ForgotPassword />} /> */}
+          <Route path="/forgot-username" element={<ForgotPassword />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/movie/:id" element={<MovieDetails />} />
+          <Route path="/tv/:id" element={<TVDetails />} />
+          <Route path="/profile/playlist/:id" element={<PlaylistDetails />} />
         </Routes>
       </div>
     </>

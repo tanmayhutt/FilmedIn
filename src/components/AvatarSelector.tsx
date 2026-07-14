@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { PRESET_AVATARS } from '@/lib/avatars'
-import { updateAvatar, uploadCustomAvatar } from '@/app/profile/actions'
+import { updateAvatar, uploadCustomAvatar } from '@/lib/profileActions'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { Upload } from 'lucide-react'
@@ -21,6 +21,7 @@ export function AvatarSelector({ currentAvatar }: Props) {
     await updateAvatar(url)
     setLoading(false)
     setIsOpen(false)
+    window.location.reload()
   }
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +35,7 @@ export function AvatarSelector({ currentAvatar }: Props) {
     await uploadCustomAvatar(formData)
     setLoading(false)
     setIsOpen(false)
+    window.location.reload()
   }
 
   return (

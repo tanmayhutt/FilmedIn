@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { generateWallpaper } from '@/app/actions/wallpapers'
-import Image from 'next/image'
+import { generateWallpaper } from '@/lib/wallpapers'
 import { Spinner } from '@/components/ui/spinner'
 import { RefreshCw, Download } from 'lucide-react'
 
@@ -85,7 +84,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
           {desktopUrl ? (
             <div className="flex flex-col gap-4 w-full items-center">
               <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-zinc-700/50 group">
-                <Image src={desktopUrl} alt="Desktop wallpaper" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img src={desktopUrl} alt="Desktop wallpaper" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                   <a href={desktopUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-100 text-zinc-900 hover:bg-white h-10 px-6 font-medium">
                     <Download size={18} /> Download
@@ -127,7 +126,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
           {mobileUrl ? (
             <div className="flex flex-col gap-4 w-full items-center">
               <div className="relative w-[60%] aspect-[9/16] rounded-xl overflow-hidden shadow-2xl border border-zinc-700/50 mx-auto group">
-                <Image src={mobileUrl} alt="Mobile wallpaper" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img src={mobileUrl} alt="Mobile wallpaper" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-4">
                   <a href={mobileUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-100 text-zinc-900 hover:bg-white h-10 px-6 font-medium">
                     <Download size={18} /> Save
