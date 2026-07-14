@@ -31,7 +31,7 @@ export default async function LoginPage(props: {
           placeholder="••••••••"
           required
         />
-        <Button className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
+        <Button type="submit" className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
           Sign In
         </Button>
         {searchParams?.message && (

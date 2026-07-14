@@ -46,7 +46,7 @@ export function ForgotUsernameForm() {
           required
         />
         
-        <Button disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
+        <Button type="submit" disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
           {loading ? 'Searching...' : 'Find Username'}
         </Button>
         

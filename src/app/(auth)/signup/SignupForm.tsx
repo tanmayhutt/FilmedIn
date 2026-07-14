@@ -110,7 +110,7 @@ export function SignupForm() {
           />
         </div>
 
-        <Button disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
+        <Button type="submit" disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
           {loading ? 'Creating account...' : 'Sign Up'}
         </Button>
         
