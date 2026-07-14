@@ -5,22 +5,19 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
-export async function login(formData: FormData) {
+export async function loginClientAction(data: { email: string, password: string }) {
   const supabase = await createClient()
 
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
-
-  const { error } = await supabase.auth.signInWithPassword(data)
+  const { error } = await supabase.auth.signInWithPassword({
+    email: data.email,
+    password: data.password,
+  })
 
   if (error) {
-    redirect('/login?message=Could not authenticate user')
+    return { error: error.message }
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/profile')
+  return { success: true }
 }
 
 export async function signupClientAction(data: { email: string, password: string, username: string }) {
