@@ -33,10 +33,8 @@ export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaTy
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="secondary" className="gap-2 bg-zinc-800 text-white hover:bg-zinc-700 border-0 h-10 px-4 rounded-full">
-          <Plus className="w-4 h-4" /> Add to List
-        </Button>
+      <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 text-sm font-medium transition-colors bg-zinc-800 text-white hover:bg-zinc-700 border-0 h-10 px-4 rounded-full">
+        <Plus className="w-4 h-4" /> Add to List
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-zinc-900 border-zinc-800 text-zinc-100 min-w-[200px]">
         {loading ? (
