@@ -14,6 +14,20 @@ export async function loginClientAction(data: { email: string, password: string 
   })
 
   if (error) {
+    if (error.message === 'Invalid login credentials') {
+      try {
+        const { data: { users } } = await supabaseAdmin.auth.admin.listUsers()
+        const userExists = users.some(u => u.email?.toLowerCase() === data.email.toLowerCase())
+        
+        if (!userExists) {
+          return { error: "You don't have an account! Please sign up to create one." }
+        } else {
+          return { error: "Incorrect password. Please try again." }
+        }
+      } catch (err) {
+        return { error: "Invalid login credentials." }
+      }
+    }
     return { error: error.message }
   }
 
