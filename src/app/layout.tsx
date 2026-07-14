@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 };
 
 import Link from 'next/link';
+import { NavbarProfile } from '@/components/NavbarProfile';
 
 export default function RootLayout({
   children,
@@ -22,7 +23,7 @@ export default function RootLayout({
         <nav className="w-full border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <Link href="/" className="font-bold text-xl tracking-tighter">FilmedIn</Link>
-            <Link href="/profile" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors">Profile</Link>
+            <NavbarProfile />
           </div>
         </nav>
         <div className="flex-1">
