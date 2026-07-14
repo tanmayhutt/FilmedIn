@@ -1,15 +1,11 @@
-const express = require('express');
-const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const User = require('../models/User');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
-// Signup
-router.post('/signup', async (req, res) => {
+exports.signup = async (req, res) => {
   try {
     const { email, password, username } = req.body;
     let user = await User.findOne({ email });
@@ -26,10 +22,9 @@ router.post('/signup', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-});
+};
 
-// Login
-router.post('/login', async (req, res) => {
+exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -46,10 +41,9 @@ router.post('/login', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-});
+};
 
-// Send OTP
-router.post('/send-otp', async (req, res) => {
+exports.sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -57,25 +51,18 @@ router.post('/send-otp', async (req, res) => {
 
     const otp = crypto.randomInt(100000, 999999).toString();
     user.otp = otp;
-    user.otpExpires = Date.now() + 15 * 60 * 1000; // 15 mins
+    user.otpExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    // Mock sending email via Nodemailer
     console.log(`[EMAIL MOCK] Sending OTP ${otp} to ${email}`);
-    
-    // In production, configure nodemailer SMTP here:
-    // const transporter = nodemailer.createTransport({...});
-    // await transporter.sendMail({ from: '...', to: email, subject: 'Your FilmedIn OTP', text: `Your code is ${otp}` });
-
     res.json({ success: true, message: 'OTP Sent' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-});
+};
 
-// Verify OTP
-router.post('/verify-otp', async (req, res) => {
+exports.verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
     const user = await User.findOne({ email });
@@ -85,7 +72,6 @@ router.post('/verify-otp', async (req, res) => {
       return res.status(400).json({ error: 'Invalid or Expired OTP' });
     }
 
-    // OTP matches! Generate a temporary token to allow resetting password
     const payload = { user: { id: user.id, canResetPassword: true } };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
 
@@ -94,11 +80,9 @@ router.post('/verify-otp', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-});
+};
 
-// Reset Password
-const auth = require('../middleware/auth');
-router.post('/reset-password', auth, async (req, res) => {
+exports.resetPassword = async (req, res) => {
   try {
     if (!req.user.canResetPassword) return res.status(401).json({ error: 'Unauthorized' });
     
@@ -117,6 +101,4 @@ router.post('/reset-password', auth, async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-});
-
-module.exports = router;
+};
