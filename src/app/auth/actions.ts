@@ -48,9 +48,11 @@ export async function signupClientAction(data: { email: string, password: string
 
   if (authData.user) {
     // Insert into profiles
+    const { getRandomAvatar } = await import('@/lib/avatars');
     const { error: profileError } = await supabase.from('profiles').insert({
       id: authData.user.id,
       username: data.username,
+      avatar_url: getRandomAvatar(),
     });
 
     if (profileError) {
