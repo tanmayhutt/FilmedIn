@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { loginWithPassword } from '@/services/auth.service'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -23,8 +25,13 @@ export default function Login() {
       } else {
         navigate('/profile')
       }
-    } catch (err) {
-      setError('Something went wrong.')
+    } catch (err: any) {
+      const msg = err?.message || ''
+      if (msg === 'Invalid Credentials') {
+        setError("No account found with these credentials. Check your details or sign up below.")
+      } else {
+        setError('Something went wrong. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -43,6 +50,7 @@ export default function Login() {
             className="mb-4 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700"
             type="email"
             name="email"
+            id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
@@ -51,21 +59,33 @@ export default function Login() {
           <label className="text-md font-medium text-zinc-300" htmlFor="password">
             Password
           </label>
-          <Input
-            className="mb-6 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700"
-            type="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
+          <div className="relative mb-6">
+            <Input
+              className="bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700 pr-10"
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+
           <Button type="submit" disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
             {loading ? 'Signing in...' : 'Sign In'}
           </Button>
 
           {error && (
-            <p className="mt-4 p-4 bg-red-900/50 border border-red-800/50 text-red-200 text-center rounded-lg">
+            <p className="mt-4 p-4 bg-red-900/50 border border-red-800/50 text-red-200 text-center rounded-lg text-sm">
               {error}
             </p>
           )}
