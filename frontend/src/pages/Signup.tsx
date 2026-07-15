@@ -9,7 +9,9 @@ export default function Signup() {
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -19,6 +21,12 @@ export default function Signup() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.")
+      setLoading(false)
+      return
+    }
     
     try {
       const res = await signupClientAction({ email, password, username })
@@ -93,6 +101,29 @@ export default function Signup() {
                 tabIndex={-1}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            <label className="text-md font-medium text-zinc-300" htmlFor="confirmPassword">
+              Confirm Password
+            </label>
+            <div className="relative mb-6">
+              <Input
+                className="bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700 pr-10"
+                type={showConfirmPassword ? 'text' : 'password'}
+                name="confirmPassword"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             <Button type="submit" disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
