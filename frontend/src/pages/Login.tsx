@@ -52,7 +52,7 @@ export default function Login() {
           </label>
           <Input
             className="mb-4 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700"
-            type="email"
+            type="text"
             name="email"
             id="email"
             value={email}

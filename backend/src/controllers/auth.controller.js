@@ -58,7 +58,7 @@ exports.login = async (req, res) => {
     let { email, password } = req.body;
     email = (email || '').trim();
     const user = await User.findOne({ 
-      $or: [{ email: email.toLowerCase() }, { username: email }]
+      $or: [{ email: email.toLowerCase() }, { username: email.toLowerCase() }]
     });
     if (!user) return res.status(400).json({ error: 'Invalid Credentials' });
 
@@ -80,7 +80,7 @@ exports.sendOtp = async (req, res) => {
     let { email } = req.body;
     email = (email || '').trim();
     const user = await User.findOne({ 
-      $or: [{ email: email.toLowerCase() }, { username: email }]
+      $or: [{ email: email.toLowerCase() }, { username: email.toLowerCase() }]
     });
     if (!user) return res.status(400).json({ error: 'No user with this email' });
 
@@ -103,7 +103,7 @@ exports.verifyOtp = async (req, res) => {
     email = (email || '').trim();
     otp = (otp || '').trim();
     const user = await User.findOne({ 
-      $or: [{ email: email.toLowerCase() }, { username: email }]
+      $or: [{ email: email.toLowerCase() }, { username: email.toLowerCase() }]
     });
     if (!user) return res.status(400).json({ error: 'Invalid Request' });
 

@@ -12,6 +12,9 @@ const playlistRoutes = require('./routes/playlists');
 const app  = express();
 const PORT = process.env.PORT || 5000;
 
+// ─── Trust Proxy (Vercel/Cloudflare) ──────────────────────────────────────────
+app.set('trust proxy', 1);
+
 // ─── Security Headers ─────────────────────────────────────────────────────────
 app.use(helmet());
 
