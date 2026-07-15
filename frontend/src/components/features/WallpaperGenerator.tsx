@@ -78,89 +78,121 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Desktop Wallpaper */}
-        <div className="flex flex-col gap-4 items-center bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800/50 backdrop-blur-sm transition-all hover:bg-zinc-900/80">
-          <h3 className="text-white font-medium text-lg">Desktop (16:9)</h3>
-          {desktopUrl ? (
-            <div className="flex flex-col gap-4 w-full items-center">
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-zinc-700/50 group">
-                <img src={desktopUrl} alt="Desktop wallpaper" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                  <a href={desktopUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-100 text-zinc-900 hover:bg-white h-10 px-6 font-medium">
-                    <Download size={18} /> Download
-                  </a>
+        {/* Desktop Wallpaper Section */}
+        <div className="flex flex-col justify-between items-center bg-zinc-900/30 p-8 rounded-3xl border border-zinc-800/50 backdrop-blur-sm transition-all hover:bg-zinc-900/50">
+          <h3 className="text-white font-medium text-lg mb-6">Desktop (16:9)</h3>
+          
+          {/* Laptop Silhouette Mockup */}
+          <div className="relative w-full max-w-[450px] mx-auto mb-8">
+            {/* Screen */}
+            <div className="relative w-full aspect-video rounded-t-xl border-[8px] border-b-[12px] border-zinc-950 bg-zinc-950 shadow-2xl flex items-center justify-center overflow-hidden group">
+              {/* Camera dot */}
+              <div className="absolute top-1 inset-x-0 flex justify-center z-10">
+                <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
+              </div>
+              
+              {/* Content */}
+              {desktopUrl ? (
+                <>
+                  <img src={desktopUrl} alt="Desktop wallpaper" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 z-20">
+                    <a href={desktopUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-6 font-medium shadow-xl">
+                      <Download size={18} /> Download
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <div className="w-full h-full bg-zinc-900/50 flex flex-col items-center justify-center shadow-inner text-zinc-500">
+                  <span className="text-sm font-medium">Ready</span>
                 </div>
-              </div>
-              <div className="flex w-full gap-3 mt-2">
-                <Button 
-                  onClick={() => handleGenerate('desktop', true)} 
-                  disabled={loadingDesktop}
-                  variant="outline"
-                  className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                >
-                  {loadingDesktop ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                  {loadingDesktop ? 'Generating...' : 'Regenerate'}
-                </Button>
-              </div>
+              )}
             </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4 w-full h-full justify-center">
-              <div className="w-full aspect-video rounded-xl bg-zinc-950/50 border border-zinc-800/50 flex items-center justify-center text-zinc-600 shadow-inner">
-                Ready to generate
-              </div>
+            {/* Keyboard Base */}
+            <div className="relative w-[110%] -ml-[5%] h-3 bg-zinc-700 rounded-b-xl rounded-t-sm flex justify-center shadow-2xl overflow-hidden border-t border-zinc-600">
+              <div className="w-1/4 h-1.5 bg-zinc-600 rounded-b-md"></div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex w-full max-w-[450px] gap-3 mt-auto">
+            {desktopUrl ? (
+              <Button 
+                onClick={() => handleGenerate('desktop', true)} 
+                disabled={loadingDesktop}
+                variant="outline"
+                className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-full h-12"
+              >
+                {loadingDesktop ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                {loadingDesktop ? 'Generating...' : 'Regenerate'}
+              </Button>
+            ) : (
               <Button 
                 onClick={() => handleGenerate('desktop')} 
                 disabled={loadingDesktop}
-                className="bg-zinc-100 text-zinc-900 hover:bg-zinc-300 w-full rounded-full h-10 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                className="flex-1 bg-zinc-100 text-zinc-900 hover:bg-zinc-300 rounded-full h-12 shadow-[0_0_20px_rgba(255,255,255,0.1)] font-medium text-base"
               >
                 {loadingDesktop ? <Spinner className="w-5 h-5 mr-2" /> : null}
-                {loadingDesktop ? 'Generating...' : 'Generate High-Res'}
+                {loadingDesktop ? 'Generating...' : 'Generate Wallpaper'}
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
-        {/* Mobile Wallpaper */}
-        <div className="flex flex-col gap-4 items-center bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800/50 backdrop-blur-sm transition-all hover:bg-zinc-900/80">
-          <h3 className="text-white font-medium text-lg">Mobile (9:16)</h3>
-          {mobileUrl ? (
-            <div className="flex flex-col gap-4 w-full items-center">
-              <div className="relative w-[60%] aspect-[9/16] rounded-xl overflow-hidden shadow-2xl border border-zinc-700/50 mx-auto group">
-                <img src={mobileUrl} alt="Mobile wallpaper" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-4">
-                  <a href={mobileUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-100 text-zinc-900 hover:bg-white h-10 px-6 font-medium">
-                    <Download size={18} /> Save
-                  </a>
+        {/* Mobile Wallpaper Section */}
+        <div className="flex flex-col justify-between items-center bg-zinc-900/30 p-8 rounded-3xl border border-zinc-800/50 backdrop-blur-sm transition-all hover:bg-zinc-900/50">
+          <h3 className="text-white font-medium text-lg mb-6">Mobile (9:16)</h3>
+          
+          {/* Phone Silhouette Mockup */}
+          <div className="relative w-full max-w-[200px] mx-auto mb-8">
+            <div className="relative w-full aspect-[9/19.5] rounded-[2.5rem] border-[10px] border-zinc-950 bg-zinc-950 shadow-2xl flex items-center justify-center overflow-hidden group">
+              {/* Dynamic Island */}
+              <div className="absolute top-0 inset-x-0 h-5 flex justify-center z-20">
+                <div className="w-[35%] h-full bg-zinc-950 rounded-b-xl"></div>
+              </div>
+              
+              {/* Content */}
+              {mobileUrl ? (
+                <>
+                  <img src={mobileUrl} alt="Mobile wallpaper" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-30">
+                    <a href={mobileUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-5 font-medium shadow-xl">
+                      <Download size={18} /> Save
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <div className="w-full h-full bg-zinc-900/50 flex flex-col items-center justify-center shadow-inner text-zinc-500">
+                  <span className="text-xs font-medium">Ready</span>
                 </div>
-              </div>
-              <div className="flex w-full gap-3 mt-2 justify-center px-4">
-                <Button 
-                  onClick={() => handleGenerate('mobile', true)} 
-                  disabled={loadingMobile}
-                  variant="outline"
-                  className="flex-1 max-w-[200px] bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                >
-                  {loadingMobile ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                  {loadingMobile ? 'Generating...' : 'Regenerate'}
-                </Button>
-              </div>
+              )}
             </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4 w-full h-full justify-center">
-              <div className="w-[60%] aspect-[9/16] rounded-xl bg-zinc-950/50 border border-zinc-800/50 flex items-center justify-center text-zinc-600 mx-auto shadow-inner">
-                Ready to generate
-              </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex w-full max-w-[200px] gap-3 mt-auto">
+            {mobileUrl ? (
+              <Button 
+                onClick={() => handleGenerate('mobile', true)} 
+                disabled={loadingMobile}
+                variant="outline"
+                className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-full h-12"
+              >
+                {loadingMobile ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                {loadingMobile ? 'Generating...' : 'Regenerate'}
+              </Button>
+            ) : (
               <Button 
                 onClick={() => handleGenerate('mobile')} 
                 disabled={loadingMobile}
-                className="bg-zinc-100 text-zinc-900 hover:bg-zinc-300 w-full max-w-[200px] rounded-full h-10 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                className="flex-1 bg-zinc-100 text-zinc-900 hover:bg-zinc-300 rounded-full h-12 shadow-[0_0_20px_rgba(255,255,255,0.1)] font-medium text-base"
               >
                 {loadingMobile ? <Spinner className="w-5 h-5 mr-2" /> : null}
-                {loadingMobile ? 'Generating...' : 'Generate High-Res'}
+                {loadingMobile ? 'Generating...' : 'Generate'}
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
+
       </div>
     </div>
   )
