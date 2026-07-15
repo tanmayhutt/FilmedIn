@@ -77,7 +77,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
         <p className="text-zinc-500 text-sm mt-1">Select a style to customize the AI generation (powered by Flux).</p>
       </div>
 
-      <div className="flex flex-col gap-8 mt-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
         {/* Desktop Wallpaper Section */}
         <div className="flex flex-col justify-between items-center bg-zinc-900/30 p-8 rounded-3xl border border-zinc-800/50 backdrop-blur-sm transition-all hover:bg-zinc-900/50">
           <h3 className="text-white font-medium text-lg mb-6">Desktop (16:9)</h3>
