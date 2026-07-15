@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const User = require('../models/User');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
@@ -91,26 +91,22 @@ exports.sendOtp = async (req, res) => {
     user.otpExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT || 587,
-        secure: process.env.SMTP_SECURE === 'true', // true for 465, false for 587
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
-
-      const mailOptions = {
-        from: `"FilmedIn" <${process.env.SMTP_USER}>`,
+    if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      
+      const { data, error } = await resend.emails.send({
+        from: 'FilmedIn <onboarding@resend.dev>',
         to: email,
         subject: 'Your FilmedIn Password Reset Code',
         text: `Hello ${user.username},\n\nYour password reset code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
-      };
+      });
 
-      await transporter.sendMail(mailOptions);
-      console.log(`[EMAIL] Sent real OTP to ${email}`);
+      if (error) {
+        console.error('[EMAIL ERROR]', error);
+        return res.status(500).json({ error: 'Server error while sending email' });
+      }
+
+      console.log(`[EMAIL] Sent real OTP via Resend to ${email}`);
     } else {
       console.log(`[EMAIL MOCK] Missing SMTP config. Mock OTP ${otp} to ${email}`);
     }
