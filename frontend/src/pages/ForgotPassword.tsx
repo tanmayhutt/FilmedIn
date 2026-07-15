@@ -135,7 +135,11 @@ export default function ForgotPassword() {
               </p>
               <button 
                 type="button" 
-                onClick={() => setStep('email')}
+                onClick={() => {
+                  setStep('email')
+                  setResult(null)
+                  setOtp('')
+                }}
                 className="text-xs text-zinc-500 hover:text-zinc-300 underline transition-colors"
               >
                 (Wrong email? Change it)
