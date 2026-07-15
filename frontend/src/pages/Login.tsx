@@ -48,7 +48,7 @@ export default function Login() {
         
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           <label className="text-md font-medium text-zinc-300" htmlFor="email">
-            Email
+            Email or Username
           </label>
           <Input
             className="mb-4 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700"
@@ -57,7 +57,7 @@ export default function Login() {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder="you@example.com or moviefan99"
             required
           />
           <label className="text-md font-medium text-zinc-300" htmlFor="password">
@@ -96,7 +96,7 @@ export default function Login() {
 
           <div className="flex flex-col gap-4 mt-6 text-center text-sm">
             <Link to="/forgot-password" className="text-zinc-400 hover:text-white transition-colors">
-              Forgot Password?
+              Forgot Credentials?
             </Link>
             <div className="text-zinc-500">
               Don't have an account?{' '}

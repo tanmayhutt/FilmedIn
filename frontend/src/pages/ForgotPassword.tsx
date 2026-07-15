@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { loginWithOtpClientAction, verifyOtpClientAction, updatePasswordClientAction } from '@/services/auth.service'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function ForgotPassword() {
   const [step, setStep] = useState<'email' | 'otp' | 'password'>('email')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [newPassword, setNewPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [result, setResult] = useState<{ type: 'error' | 'success', message: string } | null>(null)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -76,20 +78,20 @@ export default function ForgotPassword() {
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
       <div className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
-        <h1 className="text-3xl font-semibold text-zinc-100 mb-6 text-center">Reset Password</h1>
+        <h1 className="text-3xl font-semibold text-zinc-100 mb-6 text-center">Reset Credentials</h1>
         
         {step === 'email' ? (
           <form onSubmit={handleEmailSubmit} className="flex flex-col gap-2">
             <label className="text-md font-medium text-zinc-300" htmlFor="email">
-              Account Email
+              Account Email or Username
             </label>
             <Input
               className="mb-4 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700"
-              type="email"
+              type="text"
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="you@example.com or moviefan99"
               required
             />
             <Button type="submit" disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
@@ -120,15 +122,26 @@ export default function ForgotPassword() {
             <label className="text-md font-medium text-zinc-300" htmlFor="newPassword">
               New Password
             </label>
-            <Input
-              className="mb-4 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700"
-              type="password"
-              name="newPassword"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Enter new password"
-              required
-            />
+            <div className="relative mb-4">
+              <Input
+                className="bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700 pr-10"
+                type={showPassword ? 'text' : 'password'}
+                name="newPassword"
+                id="newPassword"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
             <Button type="submit" disabled={loading} className="bg-blue-600 text-white hover:bg-blue-500 w-full mb-2 h-12">
               {loading ? 'Updating...' : 'Update Password & Login'}
             </Button>

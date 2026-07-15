@@ -27,7 +27,9 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ 
+      $or: [{ email: email.toLowerCase() }, { username: email }]
+    });
     if (!user) return res.status(400).json({ error: 'Invalid Credentials' });
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
@@ -46,7 +48,9 @@ exports.login = async (req, res) => {
 exports.sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ 
+      $or: [{ email: email.toLowerCase() }, { username: email }]
+    });
     if (!user) return res.status(400).json({ error: 'No user with this email' });
 
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -65,7 +69,9 @@ exports.sendOtp = async (req, res) => {
 exports.verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ 
+      $or: [{ email: email.toLowerCase() }, { username: email }]
+    });
     if (!user) return res.status(400).json({ error: 'Invalid Request' });
 
     if (user.otp !== otp || user.otpExpires < Date.now()) {
