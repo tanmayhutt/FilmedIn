@@ -39,8 +39,8 @@ export function NavbarProfile() {
         {profile?.username || 'Profile'}
       </span>
       <div className="w-10 h-10 rounded-full border-2 border-zinc-800 group-hover:border-zinc-600 overflow-hidden bg-zinc-900 flex items-center justify-center shrink-0">
-        {profile?.avatar_url ? (
-          <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover bg-zinc-100" />
+        {profile?.avatarUrl ? (
+          <img src={profile.avatarUrl} alt="Profile" className="w-full h-full object-cover bg-zinc-100" />
         ) : (
           <span className="text-zinc-500 font-medium">
             {profile?.username?.charAt(0).toUpperCase() || '?'}

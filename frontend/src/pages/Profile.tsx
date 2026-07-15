@@ -67,8 +67,8 @@ export default function Profile() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-12 gap-4">
         <div className="flex items-center gap-6">
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-zinc-900 border-4 border-zinc-800 shrink-0">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover bg-zinc-100" />
+            {profile?.avatarUrl ? (
+              <img src={profile.avatarUrl} alt="Profile" className="w-full h-full object-cover bg-zinc-100" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-zinc-600 text-3xl font-medium">
                 {profile?.username?.charAt(0).toUpperCase() || '?'}
@@ -80,7 +80,7 @@ export default function Profile() {
               {profile?.username || 'User Profile'}
             </h1>
             <p className="text-zinc-500 mb-4">{profile?.email}</p>
-            <AvatarSelector currentAvatar={profile?.avatar_url} />
+            <AvatarSelector currentAvatar={profile?.avatarUrl} />
           </div>
         </div>
         
