@@ -21,7 +21,11 @@ export default function Login() {
     try {
       const res = await loginWithPassword(email, password)
       if (res.error) {
-        setError(res.error)
+        if (res.error === 'Invalid Credentials') {
+          setError("No account found with these details. Please check your spelling or sign up below.")
+        } else {
+          setError(res.error)
+        }
       } else {
         navigate('/profile')
       }
