@@ -119,13 +119,18 @@ export default function ForgotPassword() {
           </form>
         ) : step === 'otp' ? (
           <form onSubmit={handleOtpSubmit} className="flex flex-col gap-2">
-            {username && (
-              <div className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800 mb-2">
-                <p className="text-sm text-zinc-400 text-center">
-                  Resetting password for: <span className="font-semibold text-zinc-200">@{username}</span>
-                </p>
-              </div>
-            )}
+            <div className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800 mb-2 flex flex-col items-center gap-1">
+              <p className="text-sm text-zinc-400 text-center">
+                A code was sent to: <span className="font-semibold text-zinc-200">{email}</span>
+              </p>
+              <button 
+                type="button" 
+                onClick={() => setStep('email')}
+                className="text-xs text-zinc-500 hover:text-zinc-300 underline transition-colors"
+              >
+                (Wrong email? Change it)
+              </button>
+            </div>
             <label className="text-md font-medium text-zinc-300" htmlFor="otp">
               6-Digit Code
             </label>
@@ -139,7 +144,7 @@ export default function ForgotPassword() {
               maxLength={6}
               required
             />
-            <Button type="submit" disabled={loading} className="bg-green-600 text-white hover:bg-green-500 w-full mb-2 h-12">
+            <Button type="submit" disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
               {loading ? 'Verifying...' : 'Verify Code'}
             </Button>
             
@@ -177,7 +182,7 @@ export default function ForgotPassword() {
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            <Button type="submit" disabled={loading} className="bg-blue-600 text-white hover:bg-blue-500 w-full mb-2 h-12">
+            <Button type="submit" disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
               {loading ? 'Updating...' : 'Update Password & Login'}
             </Button>
           </form>
@@ -186,8 +191,8 @@ export default function ForgotPassword() {
         {result && (
           <p className={`mt-4 p-4 text-center rounded-lg border ${
             result.type === 'error' 
-              ? 'bg-red-900/50 border-red-800/50 text-red-200' 
-              : 'bg-green-900/50 border-green-800/50 text-green-200'
+              ? 'bg-red-900/20 border-red-900/50 text-red-400' 
+              : 'bg-zinc-900 border-zinc-800 text-zinc-200'
           }`}>
             {result.message}
           </p>

@@ -49,9 +49,9 @@ export default function Signup() {
         <h1 className="text-3xl font-semibold text-zinc-100 mb-6 text-center">Create Account</h1>
         
         {success ? (
-          <div className="p-6 bg-green-900/20 border border-green-800/50 text-green-400 text-center rounded-lg space-y-4">
-            <h3 className="font-semibold text-xl">Account Created!</h3>
-            <p>Welcome to FilmedIn.</p>
+          <div className="p-6 bg-zinc-900 border border-zinc-800 text-zinc-200 text-center rounded-lg space-y-4">
+            <h3 className="font-semibold text-xl text-zinc-100">Account Created!</h3>
+            <p className="text-zinc-400">Welcome to FilmedIn.</p>
             <p className="text-sm opacity-80">Redirecting to login...</p>
           </div>
         ) : (
