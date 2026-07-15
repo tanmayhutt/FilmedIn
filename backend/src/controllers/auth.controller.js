@@ -7,7 +7,18 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
 exports.signup = async (req, res) => {
   try {
-    const { email, password, username } = req.body;
+    let { email, password, username } = req.body;
+    email = (email || '').trim();
+    username = (username || '').trim();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email address' });
+    }
+
+    if (!username || username.length < 3 || username.length > 30) {
+      return res.status(400).json({ error: 'Username must be between 3 and 30 characters' });
+    }
     
     if (!password || password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
@@ -44,7 +55,8 @@ exports.signup = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+    email = (email || '').trim();
     const user = await User.findOne({ 
       $or: [{ email: email.toLowerCase() }, { username: email }]
     });
@@ -65,7 +77,8 @@ exports.login = async (req, res) => {
 
 exports.sendOtp = async (req, res) => {
   try {
-    const { email } = req.body;
+    let { email } = req.body;
+    email = (email || '').trim();
     const user = await User.findOne({ 
       $or: [{ email: email.toLowerCase() }, { username: email }]
     });
@@ -86,7 +99,9 @@ exports.sendOtp = async (req, res) => {
 
 exports.verifyOtp = async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    let { email, otp } = req.body;
+    email = (email || '').trim();
+    otp = (otp || '').trim();
     const user = await User.findOne({ 
       $or: [{ email: email.toLowerCase() }, { username: email }]
     });
@@ -95,6 +110,11 @@ exports.verifyOtp = async (req, res) => {
     if (user.otp !== otp || user.otpExpires < Date.now()) {
       return res.status(400).json({ error: 'Invalid or Expired OTP' });
     }
+
+    // Invalidate OTP immediately after successful verification to prevent replay attacks
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
 
     const payload = { user: { id: user.id, canResetPassword: true } };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
@@ -111,6 +131,10 @@ exports.resetPassword = async (req, res) => {
     if (!req.user.canResetPassword) return res.status(401).json({ error: 'Unauthorized' });
     
     const { password } = req.body;
+
+    if (!password || password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
