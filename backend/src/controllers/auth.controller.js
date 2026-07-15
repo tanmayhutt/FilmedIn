@@ -156,10 +156,16 @@ exports.resetPassword = async (req, res) => {
     if (!password || password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
+    const user = await User.findById(req.user.id);
+    
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (isMatch) {
+      return res.status(400).json({ error: 'New password cannot be the same as the old password' });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    const user = await User.findById(req.user.id);
     user.passwordHash = passwordHash;
     user.otp = null;
     user.otpExpires = null;

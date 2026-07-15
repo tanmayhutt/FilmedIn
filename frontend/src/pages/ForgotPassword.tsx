@@ -11,7 +11,9 @@ export default function ForgotPassword() {
   const [username, setUsername] = useState<string | null>(null)
   const [otp, setOtp] = useState('')
   const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [result, setResult] = useState<{ type: 'error' | 'success', message: string } | null>(null)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -78,6 +80,14 @@ export default function ForgotPassword() {
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (newPassword !== confirmPassword) {
+      setResult({ type: 'error', message: 'Passwords do not match.' })
+      return
+    }
+    if (newPassword.length < 6) {
+      setResult({ type: 'error', message: 'Password must be at least 6 characters long.' })
+      return
+    }
     setLoading(true)
     setResult(null)
     try {
@@ -162,7 +172,7 @@ export default function ForgotPassword() {
             <label className="text-md font-medium text-zinc-300" htmlFor="newPassword">
               New Password
             </label>
-            <div className="relative mb-4">
+            <div className="relative mb-2">
               <Input
                 className="bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700 pr-10"
                 type={showPassword ? 'text' : 'password'}
@@ -182,6 +192,31 @@ export default function ForgotPassword() {
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+            
+            <label className="text-md font-medium text-zinc-300 mt-2" htmlFor="confirmPassword">
+              Confirm Password
+            </label>
+            <div className="relative mb-4">
+              <Input
+                className="bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700 pr-10"
+                type={showConfirmPassword ? 'text' : 'password'}
+                name="confirmPassword"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            
             <Button type="submit" disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
               {loading ? 'Updating...' : 'Update Password & Login'}
             </Button>
