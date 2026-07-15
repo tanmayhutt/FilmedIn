@@ -64,6 +64,11 @@ export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
 docker compose build
 
+# ---------- Cleanup Database ----------
+
+echo -e "\n${YELLOW}[3.5/6] Cleaning up database duplicates...${NC}"
+docker compose run --rm backend node scripts/fix-db.js || echo -e "${RED}⚠️  Cleanup script failed but continuing...${NC}"
+
 # ---------- Start containers ----------
 
 echo -e "\n${YELLOW}[4/6] Starting containers...${NC}"

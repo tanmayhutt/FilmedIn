@@ -8,8 +8,26 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 exports.signup = async (req, res) => {
   try {
     const { email, password, username } = req.body;
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ error: 'User already exists' });
+    
+    if (!password || password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+      return res.status(400).json({ error: 'Username can only contain letters, numbers, and underscores' });
+    }
+
+    let user = await User.findOne({ 
+      $or: [{ email: email.toLowerCase() }, { username: username.toLowerCase() }]
+    });
+
+    if (user) {
+      if (user.email.toLowerCase() === email.toLowerCase()) {
+        return res.status(400).json({ error: 'Email already registered' });
+      }
+      return res.status(400).json({ error: 'Username already taken' });
+    }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
