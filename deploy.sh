@@ -67,7 +67,8 @@ docker compose build
 # ---------- Start containers ----------
 
 echo -e "\n${YELLOW}[4/6] Starting containers...${NC}"
-docker compose down 2>/dev/null || true
+docker compose down --remove-orphans 2>/dev/null || true
+docker rm -f filmedin-backend filmedin-frontend filmedin-mongodb 2>/dev/null || true
 docker compose up -d
 echo -e "${GREEN}✅ Containers started${NC}"
 
