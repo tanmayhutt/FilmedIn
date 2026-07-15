@@ -71,8 +71,8 @@ export default function Login() {
           )}
 
           <div className="flex flex-col gap-4 mt-6 text-center text-sm">
-            <Link to="/forgot-username" className="text-zinc-400 hover:text-white transition-colors">
-              Login via Email OTP
+            <Link to="/forgot-password" className="text-zinc-400 hover:text-white transition-colors">
+              Forgot Password?
             </Link>
             <div className="text-zinc-500">
               Don't have an account?{' '}
