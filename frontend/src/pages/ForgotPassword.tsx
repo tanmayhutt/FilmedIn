@@ -20,7 +20,11 @@ export default function ForgotPassword() {
     try {
       const res = await loginWithOtpClientAction(email)
       if (res.error) {
-        setResult({ type: 'error', message: res.error })
+        if (res.error === 'No user with this email') {
+          setResult({ type: 'error', message: "We couldn't find an account with that email. Please check your spelling or sign up." })
+        } else {
+          setResult({ type: 'error', message: res.error })
+        }
       } else {
         setResult({ type: 'success', message: 'A 6-digit code has been sent to your email.' })
         setStep('otp')
