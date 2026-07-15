@@ -21,7 +21,7 @@ export default function ForgotPassword() {
       const res = await loginWithOtpClientAction(email)
       if (res.error) {
         if (res.error === 'No user with this email') {
-          setResult({ type: 'error', message: "We couldn't find an account with that email. Please check your spelling or sign up." })
+          setResult({ type: 'error', message: "Account not found." })
         } else {
           setResult({ type: 'error', message: res.error })
         }
@@ -146,9 +146,13 @@ export default function ForgotPassword() {
         )}
 
         <div className="flex flex-col gap-4 mt-6 text-center text-sm">
+          <Link to="/login" className="text-zinc-400 hover:text-white transition-colors">
+            Back to login
+          </Link>
           <div className="text-zinc-500">
-            <Link to="/login" className="text-white hover:underline transition-colors font-medium">
-              Back to login
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-white hover:underline transition-colors font-medium">
+              Sign up
             </Link>
           </div>
         </div>
