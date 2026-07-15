@@ -8,6 +8,7 @@ const rateLimit = require('express-rate-limit');
 const authRoutes     = require('./routes/auth');
 const userRoutes     = require('./routes/users');
 const playlistRoutes = require('./routes/playlists');
+const tmdbRoutes     = require('./routes/tmdb');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -62,6 +63,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth',      authLimiter, authRoutes);
 app.use('/api/users',     apiLimiter,  userRoutes);
 app.use('/api/playlists', apiLimiter,  playlistRoutes);
+app.use('/api/tmdb',      apiLimiter,  tmdbRoutes);
 
 app.get('/', (req, res) => res.send('FilmedIn API is running'));
 

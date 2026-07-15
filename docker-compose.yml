@@ -12,6 +12,7 @@ services:
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
       RESEND_API_KEY: ${RESEND_API_KEY}
+      TMDB_API_KEY: ${VITE_TMDB_API_KEY}
     ports:
       - "5000:5000"
     restart: unless-stopped
