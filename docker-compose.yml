@@ -19,7 +19,6 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/api}
         VITE_TMDB_API_KEY: ${VITE_TMDB_API_KEY}
     container_name: filmedin-frontend
     ports:
