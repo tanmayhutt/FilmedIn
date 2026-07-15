@@ -27,11 +27,11 @@ export async function signupClientAction(data: { email: string, password: string
 
 export async function loginWithOtpClientAction(email: string) {
   try {
-    await fetchApi('/auth/send-otp', {
+    const res = await fetchApi('/auth/send-otp', {
       method: 'POST',
       body: JSON.stringify({ email })
     })
-    return { success: true }
+    return { success: true, username: res.username }
   } catch (err: any) {
     return { error: err.message }
   }

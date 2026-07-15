@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const User = require('../models/User');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
@@ -79,21 +80,45 @@ exports.sendOtp = async (req, res) => {
   try {
     let { email } = req.body;
     email = (email || '').trim();
-    const user = await User.findOne({ 
-      $or: [{ email: email.toLowerCase() }, { username: email.toLowerCase() }]
-    });
-    if (!user) return res.status(400).json({ error: 'No user with this email' });
+    
+    // Only search by email for reset flow
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (!user) return res.status(400).json({ error: 'No account found with this email address.' });
 
     const otp = crypto.randomInt(100000, 999999).toString();
     user.otp = otp;
     user.otpExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    console.log(`[EMAIL MOCK] Sending OTP ${otp} to ${email}`);
-    res.json({ success: true, message: 'OTP Sent' });
+    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT || 587,
+        secure: process.env.SMTP_SECURE === 'true', // true for 465, false for 587
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      const mailOptions = {
+        from: `"FilmedIn" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: 'Your FilmedIn Password Reset Code',
+        text: `Hello ${user.username},\n\nYour password reset code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`[EMAIL] Sent real OTP to ${email}`);
+    } else {
+      console.log(`[EMAIL MOCK] Missing SMTP config. Mock OTP ${otp} to ${email}`);
+    }
+
+    res.json({ success: true, message: 'OTP Sent', username: user.username });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error while sending email' });
   }
 };
 

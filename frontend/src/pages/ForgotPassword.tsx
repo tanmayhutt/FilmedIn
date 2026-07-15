@@ -8,6 +8,7 @@ import { Eye, EyeOff } from 'lucide-react'
 export default function ForgotPassword() {
   const [step, setStep] = useState<'email' | 'otp' | 'password'>('email')
   const [email, setEmail] = useState('')
+  const [username, setUsername] = useState<string | null>(null)
   const [otp, setOtp] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -28,8 +29,26 @@ export default function ForgotPassword() {
           setResult({ type: 'error', message: res.error })
         }
       } else {
+        setUsername(res.username)
         setResult({ type: 'success', message: 'A 6-digit code has been sent to your email.' })
         setStep('otp')
+      }
+    } catch (err) {
+      setResult({ type: 'error', message: 'Something went wrong.' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
+    setLoading(true)
+    setResult(null)
+    try {
+      const res = await loginWithOtpClientAction(email)
+      if (res.error) {
+        setResult({ type: 'error', message: res.error })
+      } else {
+        setResult({ type: 'success', message: 'A new 6-digit code has been sent!' })
       }
     } catch (err) {
       setResult({ type: 'error', message: 'Something went wrong.' })
@@ -83,15 +102,15 @@ export default function ForgotPassword() {
         {step === 'email' ? (
           <form onSubmit={handleEmailSubmit} className="flex flex-col gap-2">
             <label className="text-md font-medium text-zinc-300" htmlFor="email">
-              Account Email or Username
+              Account Email Address
             </label>
             <Input
               className="mb-4 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-700"
-              type="text"
+              type="email"
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com or moviefan99"
+              placeholder="you@example.com"
               required
             />
             <Button type="submit" disabled={loading} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 w-full mb-2 h-12">
@@ -100,6 +119,13 @@ export default function ForgotPassword() {
           </form>
         ) : step === 'otp' ? (
           <form onSubmit={handleOtpSubmit} className="flex flex-col gap-2">
+            {username && (
+              <div className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800 mb-2">
+                <p className="text-sm text-zinc-400 text-center">
+                  Resetting password for: <span className="font-semibold text-zinc-200">@{username}</span>
+                </p>
+              </div>
+            )}
             <label className="text-md font-medium text-zinc-300" htmlFor="otp">
               6-Digit Code
             </label>
@@ -116,6 +142,15 @@ export default function ForgotPassword() {
             <Button type="submit" disabled={loading} className="bg-green-600 text-white hover:bg-green-500 w-full mb-2 h-12">
               {loading ? 'Verifying...' : 'Verify Code'}
             </Button>
+            
+            <button 
+              type="button" 
+              onClick={handleResendOtp}
+              disabled={loading}
+              className="text-sm text-zinc-400 hover:text-white transition-colors mt-2"
+            >
+              Didn't receive a code? Resend
+            </button>
           </form>
         ) : (
           <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-2">
