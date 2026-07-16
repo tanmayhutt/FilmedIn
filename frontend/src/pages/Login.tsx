@@ -27,7 +27,7 @@ export default function Login() {
           setError(res.error)
         }
       } else {
-        navigate('/profile')
+        navigate('/')
       }
     } catch (err: any) {
       const msg = err?.message || ''

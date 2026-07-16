@@ -95,7 +95,7 @@ export default function ForgotPassword() {
       if (res.error) {
         setResult({ type: 'error', message: res.error })
       } else {
-        navigate('/profile')
+        navigate('/')
       }
     } catch (err) {
       setResult({ type: 'error', message: 'Something went wrong.' })
