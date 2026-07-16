@@ -122,96 +122,116 @@ function buildSvg(palette, width, height, style, themeMode) {
     </svg>`;
   }
 
-  if (style === 'Radial Glow') {
-    // Glowing orbs on deep background — proper filter bounds so circles don't get clipped
-    const orbs = [
-      { cx: 0.22, cy: 0.28, r: 0.44, ci: 0, op: 0.92 },
-      { cx: 0.78, cy: 0.72, r: 0.50, ci: 2, op: 0.82 },
-      { cx: 0.68, cy: 0.18, r: 0.32, ci: 3, op: 0.70 },
-      { cx: 0.28, cy: 0.80, r: 0.30, ci: 4 % c.length, op: 0.60 },
-      { cx: 0.52, cy: 0.50, r: 0.22, ci: 1, op: 0.50 }
-    ];
-    const orbSvgs = orbs.map(o =>
-      `<circle cx="${o.cx*W}" cy="${o.cy*H}" r="${Math.min(W,H)*o.r}" fill="${c[o.ci].hex}" opacity="${o.op}"/>`
-    );
+  if (style === 'Paper Cutout') {
     return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="bggrad" cx="50%" cy="50%" r="70%">
-          <stop offset="0%"   stop-color="${themeShift(c[1].r, c[1].g, c[1].b, themeMode)}" stop-opacity="0.5"/>
-          <stop offset="100%" stop-color="${bg}"/>
-        </radialGradient>
-        <filter id="bigblur" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="55"/>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="15" stdDeviation="15" flood-color="#000" flood-opacity="0.3"/>
         </filter>
       </defs>
-      <rect width="${W}" height="${H}" fill="url(#bggrad)"/>
-      <g filter="url(#bigblur)">${orbSvgs.join('\n')}</g>
+      <rect width="${W}" height="${H}" fill="${c[0].hex}"/>
+      <path d="M0,${H*0.2} C${W*0.3},${H*0.1} ${W*0.7},${H*0.4} ${W},${H*0.2} L${W},${H} L0,${H} Z" fill="${c[1].hex}" filter="url(#shadow)"/>
+      <path d="M0,${H*0.4} C${W*0.4},${H*0.6} ${W*0.6},${H*0.3} ${W},${H*0.5} L${W},${H} L0,${H} Z" fill="${c[2].hex}" filter="url(#shadow)"/>
+      <path d="M0,${H*0.6} C${W*0.2},${H*0.8} ${W*0.8},${H*0.5} ${W},${H*0.7} L${W},${H} L0,${H} Z" fill="${c[3].hex}" filter="url(#shadow)"/>
+      <path d="M0,${H*0.8} C${W*0.5},${H*0.7} ${W*0.5},${H*0.9} ${W},${H*0.85} L${W},${H} L0,${H} Z" fill="${c[4].hex}" filter="url(#shadow)"/>
     </svg>`;
   }
 
-  if (style === 'Atmospheric Fade') {
-    // Rich diagonal + a cross-axis overlay for depth
+  if (style === 'Fluid Grain') {
     return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="diag" x1="0%" y1="0%" x2="100%" y2="100%">
-          ${c.slice(0,5).map((col,i) =>
-            `<stop offset="${Math.round(i*100/(c.slice(0,5).length-1))}%" stop-color="${col.hex}"/>`
-          ).join('\n')}
-        </linearGradient>
-        <linearGradient id="cross" x1="100%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%"   stop-color="${c[2].hex}" stop-opacity="0.5"/>
-          <stop offset="40%"  stop-color="${c[0].hex}" stop-opacity="0.1"/>
-          <stop offset="100%" stop-color="${c[4%c.length].hex}" stop-opacity="0.5"/>
-        </linearGradient>
-      </defs>
-      <rect width="${W}" height="${H}" fill="url(#diag)"/>
-      <rect width="${W}" height="${H}" fill="url(#cross)"/>
-    </svg>`;
-  }
-
-  if (style === 'Glassmorphism') {
-    // Bokeh blobs + visible grid lines — the grid gives the "glass panel" feel
-    const lineColor = themeMode === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
-    const blobs = [
-      { cx: 0.12, cy: 0.20, r: 0.52, ci: 0, op: 1.0 },
-      { cx: 0.88, cy: 0.78, r: 0.58, ci: 2, op: 0.9 },
-      { cx: 0.75, cy: 0.15, r: 0.40, ci: 3, op: 0.8 },
-      { cx: 0.22, cy: 0.82, r: 0.44, ci: 4 % c.length, op: 0.7 },
-      { cx: 0.50, cy: 0.50, r: 0.30, ci: 1, op: 0.65 }
-    ];
-    return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="bokeh" x="-80%" y="-80%" width="260%" height="260%">
-          <feGaussianBlur stdDeviation="75"/>
+        <filter id="grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+          <feColorMatrix type="matrix" values="1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 0.1 0" />
+        </filter>
+        <filter id="blur">
+          <feGaussianBlur stdDeviation="100"/>
         </filter>
       </defs>
       <rect width="${W}" height="${H}" fill="${bg}"/>
-      <g filter="url(#bokeh)">
-        ${blobs.map(b => `<circle cx="${b.cx*W}" cy="${b.cy*H}" r="${Math.min(W,H)*b.r}" fill="${c[b.ci].hex}" opacity="${b.op}"/>`).join('\n')}
+      <g filter="url(#blur)">
+        <circle cx="${W*0.2}" cy="${H*0.2}" r="${W*0.6}" fill="${c[0].hex}"/>
+        <circle cx="${W*0.8}" cy="${H*0.8}" r="${W*0.5}" fill="${c[1].hex}"/>
+        <circle cx="${W*0.9}" cy="${H*0.2}" r="${W*0.4}" fill="${c[2].hex}"/>
+        <circle cx="${W*0.2}" cy="${H*0.9}" r="${W*0.5}" fill="${c[3].hex}"/>
       </g>
-      ${Array.from({length:7},(_,i)=>`<line x1="0" y1="${H*(i+1)/8}" x2="${W}" y2="${H*(i+1)/8}" stroke="${lineColor}" stroke-width="1"/>`).join('\n')}
-      ${Array.from({length:9},(_,i)=>`<line x1="${W*(i+1)/10}" y1="0" x2="${W*(i+1)/10}" y2="${H}" stroke="${lineColor}" stroke-width="1"/>`).join('\n')}
+      <rect width="${W}" height="${H}" filter="url(#grain)"/>
     </svg>`;
   }
 
-  // Soft Pastels — very soft ellipses with heavy blur, light or dark canvas
-  const pastelBg = themeMode === 'light' ? '#ffffff' : '#080808';
+  if (style === 'Abstract Bauhaus') {
+    return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="${W}" height="${H}" fill="${bg}"/>
+      <circle cx="${W*0.3}" cy="${H*0.2}" r="${W*0.2}" fill="${c[0].hex}" opacity="0.9"/>
+      <rect x="${W*0.6}" y="${H*0.1}" width="${W*0.3}" height="${W*0.3}" fill="${c[1].hex}" opacity="0.9"/>
+      <polygon points="${W*0.1},${H*0.6} ${W*0.4},${H*0.6} ${W*0.25},${H*0.4}" fill="${c[2].hex}" opacity="0.9"/>
+      <circle cx="${W*0.7}" cy="${H*0.7}" r="${W*0.25}" fill="${c[3].hex}" opacity="0.9"/>
+      <rect x="${W*0.2}" y="${H*0.7}" width="${W*0.4}" height="${W*0.1}" fill="${c[4].hex}" opacity="0.9" transform="rotate(-30 ${W*0.2} ${H*0.7})"/>
+      <path d="M${W*0.5},${H*0.35} A${W*0.2},${W*0.2} 0 0,1 ${W*0.9},${H*0.35} Z" fill="${c[5].hex}" opacity="0.9"/>
+    </svg>`;
+  }
+
+  if (style === 'Neon Retro-Wave') {
+    return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#050510"/>
+          <stop offset="100%" stop-color="${c[0].hex}"/>
+        </linearGradient>
+        <linearGradient id="sun" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="${c[1].hex}"/>
+          <stop offset="100%" stop-color="${c[2].hex}"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="15" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <rect width="${W}" height="${H}" fill="url(#sky)"/>
+      <circle cx="${W*0.5}" cy="${H*0.5}" r="${W*0.3}" fill="url(#sun)" filter="url(#glow)"/>
+      <rect x="0" y="${H*0.45}" width="${W}" height="${H*0.01}" fill="url(#sky)"/>
+      <rect x="0" y="${H*0.49}" width="${W}" height="${H*0.015}" fill="url(#sky)"/>
+      <rect x="0" y="${H*0.54}" width="${W}" height="${H*0.02}" fill="url(#sky)"/>
+      <rect x="0" y="${H*0.6}" width="${W}" height="${H*0.03}" fill="url(#sky)"/>
+      <rect x="0" y="${H*0.65}" width="${W}" height="${H*0.35}" fill="#050510"/>
+      <g stroke="${c[3].hex}" stroke-width="2" filter="url(#glow)" opacity="0.6">
+        ${Array.from({length: 10}).map((_, i) => {
+          const y = H*0.65 + Math.pow(i/9, 2) * H*0.35;
+          return `<line x1="0" y1="${y}" x2="${W}" y2="${y}"/>`;
+        }).join('\\n')}
+        ${Array.from({length: 11}).map((_, i) => {
+          const xTop = W * 0.5 + (i - 5) * (W * 0.05);
+          const xBottom = W * 0.5 + (i - 5) * (W * 0.3);
+          return `<line x1="${xTop}" y1="${H*0.65}" x2="${xBottom}" y2="${H}"/>`;
+        }).join('\\n')}
+      </g>
+    </svg>`;
+  }
+
+  // Fallback to Glassmorphism
+  const lineColor = themeMode === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const blobs = [
+    { cx: 0.12, cy: 0.20, r: 0.52, ci: 0, op: 1.0 },
+    { cx: 0.88, cy: 0.78, r: 0.58, ci: 2, op: 0.9 },
+    { cx: 0.75, cy: 0.15, r: 0.40, ci: 3, op: 0.8 },
+    { cx: 0.22, cy: 0.82, r: 0.44, ci: 4 % c.length, op: 0.7 },
+    { cx: 0.50, cy: 0.50, r: 0.30, ci: 1, op: 0.65 }
+  ];
   return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <filter id="wash" x="-60%" y="-60%" width="220%" height="220%">
-        <feGaussianBlur stdDeviation="110"/>
+      <filter id="bokeh" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="75"/>
       </filter>
     </defs>
-    <rect width="${W}" height="${H}" fill="${pastelBg}"/>
-    <g filter="url(#wash)">
-      ${c.map((col, i) => {
-        const cx = ((i * 79 + 8) % 100);
-        const cy = ((i * 53 + 12) % 100);
-        const rx = Math.min(W, H) * (0.42 + (i % 3) * 0.12);
-        const ry = Math.min(W, H) * (0.32 + (i % 2) * 0.18);
-        return `<ellipse cx="${cx}%" cy="${cy}%" rx="${rx}" ry="${ry}" fill="${col.hex}" opacity="${0.85 - i * 0.05}"/>`;
-      }).join('\n')}
+    <rect width="${W}" height="${H}" fill="${bg}"/>
+    <g filter="url(#bokeh)">
+      ${blobs.map(b => `<circle cx="${b.cx*W}" cy="${b.cy*H}" r="${Math.min(W,H)*b.r}" fill="${c[b.ci].hex}" opacity="${b.op}"/>`).join('\n')}
     </g>
+    ${Array.from({length:7},(_,i)=>`<line x1="0" y1="${H*(i+1)/8}" x2="${W}" y2="${H*(i+1)/8}" stroke="${lineColor}" stroke-width="1"/>`).join('\n')}
+    ${Array.from({length:9},(_,i)=>`<line x1="${W*(i+1)/10}" y1="0" x2="${W*(i+1)/10}" y2="${H}" stroke="${lineColor}" stroke-width="1"/>`).join('\n')}
   </svg>`;
 }
 

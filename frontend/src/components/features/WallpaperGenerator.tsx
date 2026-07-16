@@ -13,11 +13,12 @@ interface Props {
 }
 
 const STYLE_TAGS = [
+  "Paper Cutout",
+  "Fluid Grain",
+  "Abstract Bauhaus",
+  "Neon Retro-Wave",
   "Linear Mesh",
-  "Radial Glow",
-  "Atmospheric Fade",
-  "Glassmorphism",
-  "Soft Pastels"
+  "Glassmorphism"
 ]
 
 export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
