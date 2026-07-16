@@ -160,14 +160,38 @@ function buildSvg(palette, width, height, style, themeMode) {
   }
 
   if (style === 'Abstract Bauhaus') {
+    let dots = '';
+    for(let dx=0; dx<4; dx++){
+      for(let dy=0; dy<4; dy++){
+        dots += `<circle cx="${W*0.7 + dx*W*0.05}" cy="${H*0.6 + dy*W*0.05}" r="${W*0.015}"/>\n`;
+      }
+    }
+    
     return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
       <rect width="${W}" height="${H}" fill="${bg}"/>
-      <circle cx="${W*0.3}" cy="${H*0.2}" r="${W*0.2}" fill="${c[0].hex}" opacity="0.9"/>
-      <rect x="${W*0.6}" y="${H*0.1}" width="${W*0.3}" height="${W*0.3}" fill="${c[1].hex}" opacity="0.9"/>
-      <polygon points="${W*0.1},${H*0.6} ${W*0.4},${H*0.6} ${W*0.25},${H*0.4}" fill="${c[2].hex}" opacity="0.9"/>
-      <circle cx="${W*0.7}" cy="${H*0.7}" r="${W*0.25}" fill="${c[3].hex}" opacity="0.9"/>
-      <rect x="${W*0.2}" y="${H*0.7}" width="${W*0.4}" height="${W*0.1}" fill="${c[4].hex}" opacity="0.9" transform="rotate(-30 ${W*0.2} ${H*0.7})"/>
-      <path d="M${W*0.5},${H*0.35} A${W*0.2},${W*0.2} 0 0,1 ${W*0.9},${H*0.35} Z" fill="${c[5].hex}" opacity="0.9"/>
+      
+      <!-- Massive background arch -->
+      <path d="M0,${H*0.8} A${W*0.6},${W*0.6} 0 0,1 ${W*1.2},${H*0.8} Z" fill="${c[0].hex}" opacity="0.8"/>
+      
+      <!-- Off-center concentric circles -->
+      <circle cx="${W*0.8}" cy="${H*0.25}" r="${W*0.35}" fill="${c[1].hex}" opacity="0.85"/>
+      <circle cx="${W*0.8}" cy="${H*0.25}" r="${W*0.2}" fill="${bg}"/>
+      <circle cx="${W*0.8}" cy="${H*0.25}" r="${W*0.1}" fill="${c[2].hex}"/>
+
+      <!-- Floating stripes -->
+      <g transform="rotate(-45 ${W*0.2} ${H*0.5})">
+        <rect x="${W*0.1}" y="${H*0.4}" width="${W*0.5}" height="${W*0.03}" fill="${c[3].hex}"/>
+        <rect x="${W*0.1}" y="${H*0.45}" width="${W*0.5}" height="${W*0.03}" fill="${c[3].hex}"/>
+        <rect x="${W*0.1}" y="${H*0.5}" width="${W*0.5}" height="${W*0.03}" fill="${c[3].hex}"/>
+      </g>
+
+      <!-- Sharp Triangle -->
+      <polygon points="${W*0.1},${H*0.7} ${W*0.5},${H*0.7} ${W*0.1},${H*0.9}" fill="${c[4].hex}" opacity="0.9"/>
+      
+      <!-- Staggered grid -->
+      <g fill="${c[5].hex}">
+        ${dots}
+      </g>
     </svg>`;
   }
 
@@ -311,9 +335,9 @@ const generateWallpaper = async (req, res) => {
     const height = type === 'desktop' ? 1080 : 1920;
     const svg = buildSvg(themedPalette, width, height, style, themeMode);
 
-    // 7. Render SVG → JPEG
+    // 7. Render SVG → PNG
     const finalBuffer = await sharp(Buffer.from(svg))
-      .jpeg({ quality: 94 })
+      .png()
       .toBuffer();
 
     return res.json({ success: true, base64: finalBuffer.toString('base64') });

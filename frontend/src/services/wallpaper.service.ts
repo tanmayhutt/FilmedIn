@@ -21,7 +21,7 @@ export async function generateWallpaper(tmdbId: number, mediaType: 'movie' | 'tv
     }
     
     // The backend returns a base64 string
-    return { success: true, url: `data:image/jpeg;base64,${res.base64}` };
+    return { success: true, url: `data:image/png;base64,${res.base64}` };
   } catch (err: any) {
     return { error: err.message || 'Failed to generate wallpaper' };
   }

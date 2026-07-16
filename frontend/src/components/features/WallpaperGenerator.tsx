@@ -128,7 +128,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
                 <>
                   <img src={desktopUrl} alt="Desktop wallpaper" className={`w-full h-full object-cover transition-all duration-700 ${loadingDesktop ? 'opacity-50 blur-sm scale-110' : 'opacity-100 blur-0 group-hover:scale-105'}`} />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 z-20">
-                    <a href={desktopUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-6 font-medium shadow-xl">
+                    <a href={desktopUrl} target="_blank" rel="noreferrer" download="filmedin-desktop-wallpaper.png" className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-6 font-medium shadow-xl">
                       <Download size={18} /> Download
                     </a>
                   </div>
@@ -177,7 +177,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
                 <>
                   <img src={mobileUrl} alt="Mobile wallpaper" className={`w-full h-full object-cover transition-all duration-700 ${loadingMobile ? 'opacity-50 blur-sm scale-110' : 'opacity-100 blur-0 group-hover:scale-105'}`} />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-30">
-                    <a href={mobileUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-5 font-medium shadow-xl">
+                    <a href={mobileUrl} target="_blank" rel="noreferrer" download="filmedin-mobile-wallpaper.png" className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-5 font-medium shadow-xl">
                       <Download size={18} /> Save
                     </a>
                   </div>
