@@ -30,8 +30,26 @@ const generateWallpaper = async (req, res) => {
       throw new Error('No image was returned from the API.');
     }
   } catch (error) {
-    console.error('Error generating wallpaper:', error);
-    res.status(500).json({ error: 'Failed to generate wallpaper. Please try again later.' });
+    console.error('Error generating wallpaper via Gemini:', error.message);
+    
+    // Fallback to pollinations.ai if Gemini API fails (e.g. key has no Imagen access)
+    try {
+      const { title, type, style } = req.body;
+      const width = type === 'desktop' ? 1920 : 1080;
+      const height = type === 'desktop' ? 1080 : 1920;
+      const fallbackUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(`Cinematic wallpaper of ${title} in ${style} style`)}?width=${width}&height=${height}&nologo=true`;
+      
+      // Fetch the image to base64
+      const imgRes = await fetch(fallbackUrl);
+      if (!imgRes.ok) throw new Error('Fallback failed');
+      const buffer = await imgRes.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString('base64');
+      
+      return res.json({ success: true, base64 });
+    } catch (fallbackError) {
+      console.error('Fallback error:', fallbackError.message);
+      res.status(500).json({ error: 'Failed to generate wallpaper. Please try again later.' });
+    }
   }
 };
 

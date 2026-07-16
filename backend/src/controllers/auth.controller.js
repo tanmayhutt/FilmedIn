@@ -61,10 +61,10 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ 
       $or: [{ email: email.toLowerCase() }, { username: email.toLowerCase() }]
     });
-    if (!user) return res.status(400).json({ error: 'Invalid Credentials' });
+    if (!user) return res.status(400).json({ error: 'No account found with this email or username' });
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) return res.status(400).json({ error: 'Invalid Credentials' });
+    if (!isMatch) return res.status(400).json({ error: 'Incorrect password' });
 
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
