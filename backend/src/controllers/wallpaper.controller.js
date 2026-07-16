@@ -2,7 +2,7 @@ const sharp = require('sharp');
 
 const generateWallpaper = async (req, res) => {
   try {
-    const { tmdbId, mediaType, style, type } = req.body;
+    const { tmdbId, mediaType, style, type, themeMode = 'dark' } = req.body;
 
     if (!tmdbId || !mediaType) {
       return res.status(400).json({ error: 'Missing TMDB ID or Media Type' });
@@ -23,8 +23,8 @@ const generateWallpaper = async (req, res) => {
     let imageUrl = null;
     
     if (data.backdrops && data.backdrops.length > 0) {
-      // Pick a random backdrop from the top 10 (or less if fewer exist) to ensure variety but keep quality
-      const maxIndex = Math.min(data.backdrops.length, 10);
+      // Pick a random backdrop from the top 15 to ensure variety
+      const maxIndex = Math.min(data.backdrops.length, 15);
       const randomIndex = Math.floor(Math.random() * maxIndex);
       imageUrl = `https://image.tmdb.org/t/p/w1280${data.backdrops[randomIndex].file_path}`;
     } else if (data.posters && data.posters.length > 0) {
@@ -45,106 +45,62 @@ const generateWallpaper = async (req, res) => {
     const arrayBuffer = await imgFetch.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // 4. Extract Color Palette using sharp
-    // Resize to 3x3 (9 pixels) using nearest neighbor to get raw dominant colors
-    const { data: pixelData, info } = await sharp(buffer)
-      .resize(3, 3, { kernel: 'nearest' })
-      .raw()
-      .toBuffer({ resolveWithObject: true });
-
-    let colors = [];
-    for (let i = 0; i < pixelData.length; i += info.channels) {
-      const r = pixelData[i];
-      const g = pixelData[i+1];
-      const b = pixelData[i+2];
-      colors.push(`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`);
-    }
-
-    // 5. Generate SVG composition based on style
+    // 4. Process image based on theme and style
     const width = type === 'desktop' ? 1920 : 1080;
     const height = type === 'desktop' ? 1080 : 1920;
     
-    let svg = '';
-    let blurAmount = 0;
+    let processedImage = sharp(buffer).resize(width, height, { fit: 'cover' });
 
-    if (style === 'Linear Mesh') {
-      svg = `
-        <svg width="${width}" height="${height}">
-          <defs>
-            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="${colors[0]}" />
-              <stop offset="50%" stop-color="${colors[4]}" />
-              <stop offset="100%" stop-color="${colors[8]}" />
-            </linearGradient>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#g1)" />
-        </svg>
-      `;
-    } else if (style === 'Radial Glow') {
-      svg = `
-        <svg width="${width}" height="${height}">
-          <defs>
-            <radialGradient id="r1" cx="50%" cy="50%" r="75%">
-              <stop offset="0%" stop-color="${colors[4]}" />
-              <stop offset="100%" stop-color="${colors[1]}" />
-            </radialGradient>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#r1)" />
-        </svg>
-      `;
-    } else if (style === 'Atmospheric Fade') {
-      svg = `
-        <svg width="${width}" height="${height}">
-          <defs>
-            <linearGradient id="a1" x1="50%" y1="100%" x2="50%" y2="0%">
-              <stop offset="0%" stop-color="${colors[7]}" />
-              <stop offset="100%" stop-color="${colors[2]}" />
-            </linearGradient>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#a1)" />
-        </svg>
-      `;
-    } else if (style === 'Glassmorphism') {
-      // Mesh gradient approach: Draw scattered circles and heavily blur
-      svg = `
-        <svg width="${width}" height="${height}">
-          <rect width="100%" height="100%" fill="${colors[4]}" />
-          <circle cx="20%" cy="20%" r="40%" fill="${colors[0]}" />
-          <circle cx="80%" cy="80%" r="50%" fill="${colors[8]}" />
-          <circle cx="70%" cy="20%" r="30%" fill="${colors[2]}" />
-          <circle cx="20%" cy="80%" r="45%" fill="${colors[6]}" />
-        </svg>
-      `;
-      blurAmount = 150;
-    } else { // Soft Pastels
-      svg = `
-        <svg width="${width}" height="${height}">
-          <defs>
-            <linearGradient id="p" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="${colors[3]}" />
-              <stop offset="50%" stop-color="${colors[4]}" />
-              <stop offset="100%" stop-color="${colors[5]}" />
-            </linearGradient>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#p)" />
-          <rect width="100%" height="100%" fill="#ffffff" fill-opacity="0.2" />
-        </svg>
-      `;
+    // Base optical blur to create the organic gradient
+    // Different styles can have different blur amounts
+    let blurAmount = 100;
+    
+    if (style === 'Glassmorphism') blurAmount = 60;
+    if (style === 'Atmospheric Fade') blurAmount = 150;
+    if (style === 'Soft Pastels') blurAmount = 80;
+    
+    processedImage = processedImage.blur(blurAmount);
+
+    // Apply Light/Dark Mode modulation
+    if (themeMode === 'dark') {
+      if (style === 'Soft Pastels') {
+        processedImage = processedImage.modulate({ brightness: 0.7, saturation: 1.1 });
+      } else if (style === 'Atmospheric Fade') {
+        processedImage = processedImage.modulate({ brightness: 0.4, saturation: 1.3 });
+      } else {
+        processedImage = processedImage.modulate({ brightness: 0.5, saturation: 1.2 });
+      }
+    } else { // Light Mode
+      if (style === 'Soft Pastels') {
+        processedImage = processedImage.modulate({ brightness: 1.5, saturation: 0.8 });
+      } else if (style === 'Atmospheric Fade') {
+        processedImage = processedImage.modulate({ brightness: 1.2, saturation: 1.1 });
+      } else {
+        processedImage = processedImage.modulate({ brightness: 1.3, saturation: 1.0 });
+      }
     }
 
-    // 6. Render SVG to image buffer
-    let processedImage = sharp(Buffer.from(svg));
-    if (blurAmount > 0) {
-      processedImage = processedImage.blur(blurAmount);
-    }
+    // Generate noise/grain overlay dynamically using SVG
+    // We create an SVG with a noise filter and composite it over the image
+    const noiseSvg = `
+      <svg width="${width}" height="${height}">
+        <filter id="noise">
+          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#noise)" opacity="0.08" />
+      </svg>
+    `;
+    
+    processedImage = processedImage.composite([{ input: Buffer.from(noiseSvg), blend: 'overlay' }]);
 
+    // 5. Render to JPEG buffer
     const finalBuffer = await processedImage.jpeg({ quality: 90 }).toBuffer();
     const base64Image = finalBuffer.toString('base64');
 
     return res.json({ success: true, base64: base64Image });
 
   } catch (error) {
-    console.error('Error generating algorithmic wallpaper:', error);
+    console.error('Error generating organic algorithmic wallpaper:', error);
     res.status(500).json({ error: 'Failed to generate wallpaper. Please try again later.' });
   }
 };

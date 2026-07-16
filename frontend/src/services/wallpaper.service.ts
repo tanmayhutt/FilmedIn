@@ -9,11 +9,11 @@ export async function saveWallpaper(url: string, tmdbId: number, mediaType: 'mov
   }
 }
 
-export async function generateWallpaper(tmdbId: number, mediaType: 'movie' | 'tv', title: string, type: 'desktop' | 'mobile', style: string, forceRegenerate: boolean = false): Promise<{ success?: boolean; url?: string; error?: string }> {
+export async function generateWallpaper(tmdbId: number, mediaType: 'movie' | 'tv', title: string, type: 'desktop' | 'mobile', style: string, themeMode: 'light' | 'dark' = 'dark', forceRegenerate: boolean = false): Promise<{ success?: boolean; url?: string; error?: string }> {
   try {
     const res = await fetchApi('/wallpapers/generate', {
       method: 'POST',
-      body: JSON.stringify({ tmdbId, mediaType, title, type, style, forceRegenerate })
+      body: JSON.stringify({ tmdbId, mediaType, title, type, style, themeMode, forceRegenerate })
     });
     
     if (res.error) {

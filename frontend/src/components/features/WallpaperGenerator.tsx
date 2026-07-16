@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { generateWallpaper } from '@/services/wallpaper.service'
 import { Spinner } from '@/components/ui/spinner'
-import { RefreshCw, Download } from 'lucide-react'
+import { RefreshCw, Download, Moon, Sun } from 'lucide-react'
 
 interface Props {
   tmdbId: number
@@ -27,14 +27,15 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
   const [mobileUrl, setMobileUrl] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [activeTag, setActiveTag] = useState<string>(STYLE_TAGS[0])
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark')
 
-  const handleGenerate = async (type: 'desktop' | 'mobile', forceRegenerate: boolean = false) => {
+  const handleGenerate = async (type: 'desktop' | 'mobile', forceRegenerate: boolean = false, currentTag: string = activeTag, currentTheme: 'dark' | 'light' = themeMode) => {
     setError('')
     if (type === 'desktop') setLoadingDesktop(true)
     else setLoadingMobile(true)
 
     try {
-      const res = await generateWallpaper(tmdbId, mediaType, title, type, activeTag, forceRegenerate)
+      const res = await generateWallpaper(tmdbId, mediaType, title, type, currentTag, currentTheme, forceRegenerate)
       if (res.error) {
         setError(res.error)
       } else if (res.url) {
@@ -49,13 +50,47 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
     }
   }
 
+  // Auto-generate on mount and when tag/theme changes
+  useEffect(() => {
+    handleGenerate('desktop', true, activeTag, themeMode)
+    handleGenerate('mobile', true, activeTag, themeMode)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTag, themeMode, tmdbId])
+
   return (
     <div className="flex flex-col gap-8 w-full">
       {error && <p className="text-red-500 bg-red-950/50 p-4 rounded border border-red-900">{error}</p>}
       
-      {/* Style Tags Selector */}
-      <div className="flex flex-col gap-3">
-        <h3 className="text-white font-medium text-lg">Choose an Art Style</h3>
+      {/* Configuration Header */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-1">
+          <div>
+            <h3 className="text-white font-medium text-lg">Algorithmic Aesthetic</h3>
+            <p className="text-zinc-500 text-sm mt-1">Select a style to customize the wallpaper layout and texture.</p>
+          </div>
+          
+          {/* Theme Toggle */}
+          <div className="flex bg-zinc-900 rounded-full p-1 border border-zinc-800 self-start sm:self-auto">
+            <button
+              onClick={() => setThemeMode('dark')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                themeMode === 'dark' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <Moon size={14} /> Dark
+            </button>
+            <button
+              onClick={() => setThemeMode('light')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                themeMode === 'light' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <Sun size={14} /> Light
+            </button>
+          </div>
+        </div>
+
+        {/* Style Tags Selector */}
         <div className="flex flex-wrap gap-2">
           {STYLE_TAGS.map(tag => (
             <button
@@ -71,7 +106,6 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
             </button>
           ))}
         </div>
-        <p className="text-zinc-500 text-sm mt-1">Select a style to customize the AI generation (powered by Flux).</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
@@ -91,7 +125,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               {/* Content */}
               {desktopUrl ? (
                 <>
-                  <img src={desktopUrl} alt="Desktop wallpaper" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src={desktopUrl} alt="Desktop wallpaper" className={`w-full h-full object-cover transition-all duration-700 ${loadingDesktop ? 'opacity-50 blur-sm scale-110' : 'opacity-100 blur-0 group-hover:scale-105'}`} />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 z-20">
                     <a href={desktopUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-6 font-medium shadow-xl">
                       <Download size={18} /> Download
@@ -100,7 +134,8 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
                 </>
               ) : (
                 <div className="w-full h-full bg-zinc-900/50 flex flex-col items-center justify-center shadow-inner text-zinc-500">
-                  <span className="text-sm font-medium">Ready</span>
+                  <Spinner className="w-6 h-6 mb-2" />
+                  <span className="text-sm font-medium">Generating...</span>
                 </div>
               )}
             </div>
@@ -112,26 +147,15 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
 
           {/* Action Buttons */}
           <div className="flex w-full max-w-[450px] gap-3 mt-auto">
-            {desktopUrl ? (
-              <Button 
-                onClick={() => handleGenerate('desktop', true)} 
-                disabled={loadingDesktop}
-                variant="outline"
-                className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-full h-12"
-              >
-                {loadingDesktop ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                {loadingDesktop ? 'Generating...' : 'Regenerate'}
-              </Button>
-            ) : (
-              <Button 
-                onClick={() => handleGenerate('desktop')} 
-                disabled={loadingDesktop}
-                className="flex-1 bg-zinc-100 text-zinc-900 hover:bg-zinc-300 rounded-full h-12 shadow-[0_0_20px_rgba(255,255,255,0.1)] font-medium text-base"
-              >
-                {loadingDesktop ? <Spinner className="w-5 h-5 mr-2" /> : null}
-                {loadingDesktop ? 'Generating...' : 'Generate Wallpaper'}
-              </Button>
-            )}
+            <Button 
+              onClick={() => handleGenerate('desktop', true)} 
+              disabled={loadingDesktop}
+              variant="outline"
+              className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-full h-12"
+            >
+              {loadingDesktop ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+              {loadingDesktop ? 'Shuffling...' : 'Shuffle Scene 🎲'}
+            </Button>
           </div>
         </div>
 
@@ -150,7 +174,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               {/* Content */}
               {mobileUrl ? (
                 <>
-                  <img src={mobileUrl} alt="Mobile wallpaper" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src={mobileUrl} alt="Mobile wallpaper" className={`w-full h-full object-cover transition-all duration-700 ${loadingMobile ? 'opacity-50 blur-sm scale-110' : 'opacity-100 blur-0 group-hover:scale-105'}`} />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-30">
                     <a href={mobileUrl} target="_blank" rel="noreferrer" download className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-5 font-medium shadow-xl">
                       <Download size={18} /> Save
@@ -159,7 +183,8 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
                 </>
               ) : (
                 <div className="w-full h-full bg-zinc-900/50 flex flex-col items-center justify-center shadow-inner text-zinc-500">
-                  <span className="text-xs font-medium">Ready</span>
+                  <Spinner className="w-5 h-5 mb-2" />
+                  <span className="text-xs font-medium">Generating...</span>
                 </div>
               )}
             </div>
@@ -167,26 +192,15 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
 
           {/* Action Buttons */}
           <div className="flex w-full max-w-[200px] gap-3 mt-auto">
-            {mobileUrl ? (
-              <Button 
-                onClick={() => handleGenerate('mobile', true)} 
-                disabled={loadingMobile}
-                variant="outline"
-                className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-full h-12"
-              >
-                {loadingMobile ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                {loadingMobile ? 'Generating...' : 'Regenerate'}
-              </Button>
-            ) : (
-              <Button 
-                onClick={() => handleGenerate('mobile')} 
-                disabled={loadingMobile}
-                className="flex-1 bg-zinc-100 text-zinc-900 hover:bg-zinc-300 rounded-full h-12 shadow-[0_0_20px_rgba(255,255,255,0.1)] font-medium text-base"
-              >
-                {loadingMobile ? <Spinner className="w-5 h-5 mr-2" /> : null}
-                {loadingMobile ? 'Generating...' : 'Generate'}
-              </Button>
-            )}
+            <Button 
+              onClick={() => handleGenerate('mobile', true)} 
+              disabled={loadingMobile}
+              variant="outline"
+              className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-full h-12"
+            >
+              {loadingMobile ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+              {loadingMobile ? 'Shuffling...' : 'Shuffle Scene 🎲'}
+            </Button>
           </div>
         </div>
 
