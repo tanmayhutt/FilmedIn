@@ -117,10 +117,10 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
           {/* Laptop Silhouette Mockup */}
           <div className="relative w-full max-w-[450px] mx-auto mb-8">
             {/* Screen */}
-            <div className="relative w-full aspect-video rounded-t-xl border-[8px] border-b-[12px] border-zinc-950 bg-zinc-950 shadow-2xl flex items-center justify-center overflow-hidden group">
+            <div className="relative w-full aspect-video rounded-t-xl border-[4px] border-b-[12px] border-zinc-950 bg-zinc-950 shadow-2xl flex items-center justify-center overflow-hidden group">
               {/* MacBook Notch */}
-              <div className="absolute top-0 inset-x-0 mx-auto w-[15%] h-5 bg-zinc-950 rounded-b-xl z-20 flex justify-center items-center">
-                <div className="w-1.5 h-1.5 bg-zinc-800 rounded-full border border-black/50 shadow-inner"></div>
+              <div className="absolute top-0 inset-x-0 mx-auto w-[12%] h-[12px] bg-zinc-950 rounded-b-md z-20 flex justify-center items-center pb-[2px]">
+                <div className="w-[4px] h-[4px] bg-zinc-800 rounded-full border border-black/50 shadow-inner"></div>
               </div>
               
               {/* Content */}
@@ -141,8 +141,8 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               )}
             </div>
             {/* Keyboard Base */}
-            <div className="relative w-[110%] -ml-[5%] h-3 bg-zinc-700 rounded-b-xl rounded-t-sm flex justify-center shadow-2xl overflow-hidden border-t border-zinc-600">
-              <div className="w-1/4 h-1.5 bg-zinc-600 rounded-b-md"></div>
+            <div className="relative w-[114%] -ml-[7%] h-2.5 bg-[#2a2a2a] rounded-b-xl rounded-t-sm flex justify-center shadow-2xl overflow-hidden border-t border-[#333]">
+              <div className="w-1/4 h-1 bg-[#1a1a1a] rounded-b-md opacity-80"></div>
             </div>
           </div>
 
@@ -166,9 +166,9 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
           
           {/* Phone Silhouette Mockup */}
           <div className="relative w-full max-w-[200px] mx-auto mb-8">
-            <div className="relative w-full aspect-[9/19.5] rounded-[2.5rem] border-[10px] border-zinc-950 bg-zinc-950 shadow-2xl flex items-center justify-center overflow-hidden group">
+            <div className="relative w-full aspect-[9/19.5] rounded-[2rem] border-[6px] border-zinc-950 bg-zinc-950 shadow-2xl flex items-center justify-center overflow-hidden group">
               {/* Dynamic Island */}
-              <div className="absolute top-3 inset-x-0 mx-auto w-[32%] h-7 bg-black rounded-full z-20 flex justify-end items-center px-1.5 shadow-[0_0_1px_rgba(255,255,255,0.1)]">
+              <div className="absolute top-[6px] inset-x-0 mx-auto w-[64px] h-[18px] bg-black rounded-full z-20 flex justify-end items-center px-1.5 shadow-[0_0_1px_rgba(255,255,255,0.1)]">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#111] border border-white/5 shadow-inner flex justify-center items-center">
                   <div className="w-1 h-1 rounded-full bg-blue-900/40"></div>
                 </div>
