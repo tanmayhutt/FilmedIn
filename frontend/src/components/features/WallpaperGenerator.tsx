@@ -118,9 +118,9 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
           <div className="relative w-full max-w-[450px] mx-auto mb-8">
             {/* Screen */}
             <div className="relative w-full aspect-video rounded-t-xl border-[8px] border-b-[12px] border-zinc-950 bg-zinc-950 shadow-2xl flex items-center justify-center overflow-hidden group">
-              {/* Camera dot */}
-              <div className="absolute top-1 inset-x-0 flex justify-center z-10">
-                <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
+              {/* MacBook Notch */}
+              <div className="absolute top-0 inset-x-0 mx-auto w-[15%] h-5 bg-zinc-950 rounded-b-xl z-20 flex justify-center items-center">
+                <div className="w-1.5 h-1.5 bg-zinc-800 rounded-full border border-black/50 shadow-inner"></div>
               </div>
               
               {/* Content */}
@@ -168,8 +168,10 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
           <div className="relative w-full max-w-[200px] mx-auto mb-8">
             <div className="relative w-full aspect-[9/19.5] rounded-[2.5rem] border-[10px] border-zinc-950 bg-zinc-950 shadow-2xl flex items-center justify-center overflow-hidden group">
               {/* Dynamic Island */}
-              <div className="absolute top-0 inset-x-0 h-5 flex justify-center z-20">
-                <div className="w-[35%] h-full bg-zinc-950 rounded-b-xl"></div>
+              <div className="absolute top-3 inset-x-0 mx-auto w-[32%] h-7 bg-black rounded-full z-20 flex justify-end items-center px-1.5 shadow-[0_0_1px_rgba(255,255,255,0.1)]">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#111] border border-white/5 shadow-inner flex justify-center items-center">
+                  <div className="w-1 h-1 rounded-full bg-blue-900/40"></div>
+                </div>
               </div>
               
               {/* Content */}
