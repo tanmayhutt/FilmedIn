@@ -1,5 +1,6 @@
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { NavbarProfile } from '@/components/common/NavbarProfile'
+import { Logo } from '@/components/common/Logo'
 
 // Pages
 import Home from '@/pages/Home'
@@ -18,7 +19,7 @@ export default function App() {
     <>
       <nav className="w-full border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="font-bold text-xl tracking-tighter">FilmedIn</Link>
+          <Logo />
           <NavbarProfile />
         </div>
       </nav>
