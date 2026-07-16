@@ -155,7 +155,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-full h-12"
             >
               {loadingDesktop ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-              {loadingDesktop ? 'Shuffling...' : 'Shuffle Scene 🎲'}
+              {loadingDesktop ? 'Shuffling...' : 'Shuffle Scene'}
             </Button>
           </div>
         </div>
@@ -200,7 +200,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-full h-12"
             >
               {loadingMobile ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-              {loadingMobile ? 'Shuffling...' : 'Shuffle Scene 🎲'}
+              {loadingMobile ? 'Shuffling...' : 'Shuffle Scene'}
             </Button>
           </div>
         </div>
