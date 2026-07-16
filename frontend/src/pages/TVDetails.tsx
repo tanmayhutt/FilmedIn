@@ -115,7 +115,7 @@ export default function TVDetails() {
       </div>
 
       <div className="mt-16 w-full border-t border-zinc-800/50 pt-16">
-        <h2 className="text-3xl font-bold text-zinc-100 mb-8">Generate AI Wallpapers</h2>
+        <h2 className="text-3xl font-bold text-zinc-100 mb-8">Generate Wallpapers</h2>
         <WallpaperGenerator tmdbId={show.id} mediaType="tv" title={show.name} />
       </div>
     </main>
