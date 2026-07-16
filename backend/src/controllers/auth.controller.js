@@ -66,6 +66,58 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) return res.status(400).json({ error: 'Incorrect password' });
 
+    // Generate and send OTP for 2FA
+    const otp = crypto.randomInt(100000, 999999).toString();
+    user.otp = otp;
+    user.otpExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const { data, error } = await resend.emails.send({
+        from: 'FilmedIn <onboarding@resend.dev>',
+        to: user.email,
+        subject: 'Your FilmedIn Login Code',
+        text: `Hello ${user.username},\n\nYour login code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
+      });
+
+      if (error) {
+        console.error('[EMAIL ERROR]', error);
+        return res.status(500).json({ error: 'Server error while sending OTP email' });
+      }
+      console.log(`[EMAIL] Sent login OTP via Resend to ${user.email}`);
+    } else {
+      console.log(`[EMAIL MOCK] Missing SMTP config. Mock login OTP ${otp} to ${user.email}`);
+    }
+
+    res.json({ requireOtp: true, email: user.email, message: 'OTP sent to your email.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.verifyLoginOtp = async (req, res) => {
+  try {
+    let { email, otp } = req.body;
+    email = (email || '').trim();
+    otp = (otp || '').trim();
+    
+    const user = await User.findOne({ 
+      $or: [{ email: email.toLowerCase() }, { username: email.toLowerCase() }]
+    });
+    
+    if (!user) return res.status(400).json({ error: 'Invalid Request' });
+
+    if (user.otp !== otp || user.otpExpires < Date.now()) {
+      return res.status(400).json({ error: 'Invalid or Expired OTP' });
+    }
+
+    // Invalidate OTP immediately after successful verification
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 

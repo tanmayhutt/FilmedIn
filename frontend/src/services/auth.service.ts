@@ -6,6 +6,27 @@ export async function loginWithPassword(email: string, password: string) {
       method: 'POST',
       body: JSON.stringify({ email, password })
     })
+    
+    if (res.requireOtp) {
+      return { success: true, requireOtp: true, email: res.email }
+    }
+    
+    // Fallback if no OTP required (though the new flow always requires it)
+    if (res.token) {
+      localStorage.setItem('token', res.token)
+    }
+    return { success: true }
+  } catch (err: any) {
+    return { error: err.message }
+  }
+}
+
+export async function verifyLoginOtpAction(email: string, otp: string) {
+  try {
+    const res = await fetchApi('/auth/verify-login-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp })
+    })
     localStorage.setItem('token', res.token)
     return { success: true }
   } catch (err: any) {
