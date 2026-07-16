@@ -13,14 +13,11 @@ interface Props {
 }
 
 const STYLE_TAGS = [
-  "Cinematic",
-  "Studio Ghibli",
-  "Cyberpunk",
-  "Minimalist",
-  "Synthwave",
-  "Oil Painting",
-  "Watercolor",
-  "Dark Fantasy"
+  "Linear Mesh",
+  "Radial Glow",
+  "Atmospheric Fade",
+  "Glassmorphism",
+  "Soft Pastels"
 ]
 
 export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {

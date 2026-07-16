@@ -19,16 +19,16 @@ const generateWallpaper = async (req, res) => {
     
     const data = await tmdbRes.json();
     
-    // 2. Select the best backdrop (or poster for mobile if preferred, but backdrop cropped looks great)
+    // 2. Shuffle and pick a random backdrop
     let imageUrl = null;
     
-    // Find highest rated textless backdrop
     if (data.backdrops && data.backdrops.length > 0) {
-      // TMDB already sorts by vote_average
-      const bestBackdrop = data.backdrops.find(b => b.iso_639_1 === null) || data.backdrops[0];
-      imageUrl = `https://image.tmdb.org/t/p/original${bestBackdrop.file_path}`;
+      // Pick a random backdrop from the top 10 (or less if fewer exist) to ensure variety but keep quality
+      const maxIndex = Math.min(data.backdrops.length, 10);
+      const randomIndex = Math.floor(Math.random() * maxIndex);
+      imageUrl = `https://image.tmdb.org/t/p/w1280${data.backdrops[randomIndex].file_path}`;
     } else if (data.posters && data.posters.length > 0) {
-      imageUrl = `https://image.tmdb.org/t/p/original${data.posters[0].file_path}`;
+      imageUrl = `https://image.tmdb.org/t/p/w780${data.posters[0].file_path}`;
     }
 
     if (!imageUrl) {
@@ -45,36 +45,98 @@ const generateWallpaper = async (req, res) => {
     const arrayBuffer = await imgFetch.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // 4. Process the image with sharp based on style and device type
+    // 4. Extract Color Palette using sharp
+    // Resize to 3x3 (9 pixels) using nearest neighbor to get raw dominant colors
+    const { data: pixelData, info } = await sharp(buffer)
+      .resize(3, 3, { kernel: 'nearest' })
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    let colors = [];
+    for (let i = 0; i < pixelData.length; i += info.channels) {
+      const r = pixelData[i];
+      const g = pixelData[i+1];
+      const b = pixelData[i+2];
+      colors.push(`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`);
+    }
+
+    // 5. Generate SVG composition based on style
     const width = type === 'desktop' ? 1920 : 1080;
     const height = type === 'desktop' ? 1080 : 1920;
+    
+    let svg = '';
+    let blurAmount = 0;
 
-    let processedImage = sharp(buffer).resize(width, height, { fit: 'cover' });
-
-    // Algorithmic composition based on selected style
-    if (style === 'Minimalist') {
-      processedImage = processedImage
-        .blur(100) // Huge blur to create a gradient map
-        .modulate({ brightness: 0.8, saturation: 1.2 }); // Deepen the colors
-    } else if (style === 'Cyberpunk' || style === 'Synthwave') {
-      processedImage = processedImage
-        .blur(30)
-        .tint({ r: 255, g: 0, b: 150 }) // Neon pink tint overlay
-        .modulate({ brightness: 0.7, saturation: 1.5 });
-    } else if (style === 'Dark Fantasy') {
-      processedImage = processedImage
-        .blur(20)
-        .modulate({ brightness: 0.5, saturation: 0.8 }); // Darken and desaturate
-    } else if (style === 'Watercolor' || style === 'Oil Painting') {
-      processedImage = processedImage
-        .blur(15)
-        .modulate({ saturation: 1.4 }); // Enhance colors slightly
-    } else if (style === 'Studio Ghibli') {
-      processedImage = processedImage
-        .blur(10)
-        .modulate({ brightness: 1.1, saturation: 1.3 });
+    if (style === 'Linear Mesh') {
+      svg = `
+        <svg width="${width}" height="${height}">
+          <defs>
+            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="${colors[0]}" />
+              <stop offset="50%" stop-color="${colors[4]}" />
+              <stop offset="100%" stop-color="${colors[8]}" />
+            </linearGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#g1)" />
+        </svg>
+      `;
+    } else if (style === 'Radial Glow') {
+      svg = `
+        <svg width="${width}" height="${height}">
+          <defs>
+            <radialGradient id="r1" cx="50%" cy="50%" r="75%">
+              <stop offset="0%" stop-color="${colors[4]}" />
+              <stop offset="100%" stop-color="${colors[1]}" />
+            </radialGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#r1)" />
+        </svg>
+      `;
+    } else if (style === 'Atmospheric Fade') {
+      svg = `
+        <svg width="${width}" height="${height}">
+          <defs>
+            <linearGradient id="a1" x1="50%" y1="100%" x2="50%" y2="0%">
+              <stop offset="0%" stop-color="${colors[7]}" />
+              <stop offset="100%" stop-color="${colors[2]}" />
+            </linearGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#a1)" />
+        </svg>
+      `;
+    } else if (style === 'Glassmorphism') {
+      // Mesh gradient approach: Draw scattered circles and heavily blur
+      svg = `
+        <svg width="${width}" height="${height}">
+          <rect width="100%" height="100%" fill="${colors[4]}" />
+          <circle cx="20%" cy="20%" r="40%" fill="${colors[0]}" />
+          <circle cx="80%" cy="80%" r="50%" fill="${colors[8]}" />
+          <circle cx="70%" cy="20%" r="30%" fill="${colors[2]}" />
+          <circle cx="20%" cy="80%" r="45%" fill="${colors[6]}" />
+        </svg>
+      `;
+      blurAmount = 150;
+    } else { // Soft Pastels
+      svg = `
+        <svg width="${width}" height="${height}">
+          <defs>
+            <linearGradient id="p" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="${colors[3]}" />
+              <stop offset="50%" stop-color="${colors[4]}" />
+              <stop offset="100%" stop-color="${colors[5]}" />
+            </linearGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#p)" />
+          <rect width="100%" height="100%" fill="#ffffff" fill-opacity="0.2" />
+        </svg>
+      `;
     }
-    // "Cinematic" just returns the high-res cropped image as is.
+
+    // 6. Render SVG to image buffer
+    let processedImage = sharp(Buffer.from(svg));
+    if (blurAmount > 0) {
+      processedImage = processedImage.blur(blurAmount);
+    }
 
     const finalBuffer = await processedImage.jpeg({ quality: 90 }).toBuffer();
     const base64Image = finalBuffer.toString('base64');
