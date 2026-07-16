@@ -64,16 +64,21 @@ export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
 docker compose build
 
+# ---------- Stop old containers FIRST (before anything else) ----------
+
+echo -e "\n${YELLOW}[3.5/6] Stopping old containers...${NC}"
+docker compose down --remove-orphans 2>/dev/null || true
+docker rm -f filmedin-backend filmedin-frontend 2>/dev/null || true
+echo -e "${GREEN}✅ Old containers removed${NC}"
+
 # ---------- Cleanup Database ----------
 
-echo -e "\n${YELLOW}[3.5/6] Cleaning up database duplicates...${NC}"
+echo -e "\n${YELLOW}[4/6] Cleaning up database duplicates...${NC}"
 docker compose run --rm backend node scripts/fix-db.js || echo -e "${RED}⚠️  Cleanup script failed but continuing...${NC}"
 
 # ---------- Start containers ----------
 
-echo -e "\n${YELLOW}[4/6] Starting containers...${NC}"
-docker compose down --remove-orphans 2>/dev/null || true
-docker rm -f filmedin-backend filmedin-frontend filmedin-mongodb 2>/dev/null || true
+echo -e "\n${YELLOW}[4.5/6] Starting containers...${NC}"
 docker compose up -d
 echo -e "${GREEN}✅ Containers started${NC}"
 
