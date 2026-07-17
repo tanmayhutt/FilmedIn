@@ -62,7 +62,7 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
   }
 
   const getRatingColor = (rating: number | null) => {
-    if (!rating) return 'bg-zinc-800 text-transparent'; // No rating or aired yet
+    if (!rating) return 'bg-zinc-800 text-zinc-600'; // No rating or aired yet
     if (rating >= 9.0) return 'bg-[#186a3b] text-white'; // Awesome (Dark Green)
     if (rating >= 8.0) return 'bg-[#2ecc71] text-zinc-900'; // Great (Bright Green)
     if (rating >= 7.0) return 'bg-[#f1c40f] text-zinc-900'; // Good (Yellow)

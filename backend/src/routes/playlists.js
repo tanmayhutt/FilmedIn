@@ -8,6 +8,7 @@ router.post('/', auth, playlistController.createPlaylist);
 router.delete('/:id', auth, playlistController.deletePlaylist);
 
 router.post('/items', auth, playlistController.addItem);
+router.delete('/:playlistId/items/:tmdbId', auth, playlistController.removeItem);
 router.get('/:id/items', auth, playlistController.getItems);
 router.get('/:id', auth, playlistController.getPlaylist);
 

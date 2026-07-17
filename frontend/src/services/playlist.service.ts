@@ -10,11 +10,11 @@ export async function getPlaylists() {
   }
 }
 
-export async function createPlaylist(name: string) {
+export async function createPlaylist(name: string, description: string = '') {
   try {
     const data = await fetchApi('/playlists', {
       method: 'POST',
-      body: JSON.stringify({ name })
+      body: JSON.stringify({ name, description })
     })
     return { success: true, playlist: data }
   } catch (err: any) {
@@ -40,5 +40,16 @@ export async function addToList(playlistId: string, tmdbId: number, mediaType: '
     return { success: true, message: 'Added to playlist!' }
   } catch (err: any) {
     return { error: err.message || 'Error adding to playlist' }
+  }
+}
+
+export async function removeFromList(playlistId: string, tmdbId: number) {
+  try {
+    await fetchApi(`/playlists/${playlistId}/items/${tmdbId}`, {
+      method: 'DELETE'
+    })
+    return { success: true, message: 'Removed from playlist' }
+  } catch (err: any) {
+    return { error: err.message || 'Error removing from playlist' }
   }
 }

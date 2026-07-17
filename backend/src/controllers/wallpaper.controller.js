@@ -1,4 +1,8 @@
 const sharp = require('sharp');
+const NodeCache = require('node-cache');
+
+// Cache TMDB image lists for 24 hours (86400 seconds)
+const tmdbImageCache = new NodeCache({ stdTTL: 86400, checkperiod: 3600 });
 
 // Convert RGB to HSL
 function rgbToHsl(r, g, b) {
@@ -267,13 +271,22 @@ const generateWallpaper = async (req, res) => {
       return res.status(400).json({ error: 'Missing TMDB ID or Media Type' });
     }
 
-    // 1. Fetch image list from TMDB
-    const tmdbRes = await fetch(
-      `https://api.themoviedb.org/3/${mediaType === 'tv' ? 'tv' : 'movie'}/${tmdbId}/images?api_key=${process.env.TMDB_API_KEY}`
-    );
-    if (!tmdbRes.ok) throw new Error('Failed to fetch from TMDB API');
+    // 1. Fetch image list from TMDB (with Cache)
+    const axios = require('axios');
+    const cacheKey = `images_${mediaType}_${tmdbId}`;
+    let data = tmdbImageCache.get(cacheKey);
 
-    const data = await tmdbRes.json();
+    if (!data) {
+      const tmdbRes = await axios.get(
+        `https://api.tmdb.org/3/${mediaType === 'tv' ? 'tv' : 'movie'}/${tmdbId}/images?api_key=${process.env.TMDB_API_KEY}`,
+        { headers: { 
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        } }
+      );
+      data = tmdbRes.data;
+      tmdbImageCache.set(cacheKey, data);
+    }
     const pool = [...(data.backdrops || []), ...(data.posters || [])].slice(0, 20);
     if (!pool.length) throw new Error('No images found for this media.');
 
@@ -282,10 +295,12 @@ const generateWallpaper = async (req, res) => {
 
     // 3. Fetch and extract vivid palettes in parallel
     const palettes = await Promise.allSettled(chosen.map(async (item) => {
-      const url = `https://image.tmdb.org/t/p/w500${item.file_path}`;
-      const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-      if (!r.ok) return [];
-      const buf = Buffer.from(await r.arrayBuffer());
+      const url = `https://wsrv.nl/?url=image.tmdb.org/t/p/w500${item.file_path}`;
+      const r = await axios.get(url, { 
+        responseType: 'arraybuffer',
+        headers: { 'User-Agent': 'Mozilla/5.0' } 
+      });
+      const buf = Buffer.from(r.data);
       return extractVividPalette(buf, 4);
     }));
 

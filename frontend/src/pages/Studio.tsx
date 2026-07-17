@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ChevronLeft } from 'lucide-react'
 import { STUDIOS } from '@/lib/studios'
 import { GenreRow } from '@/components/features/GenreRow'
 
@@ -57,7 +56,22 @@ export default function Studio() {
     )
   }
 
-  const genres = studio.type === 'movie' ? MOVIE_GENRES : TV_GENRES
+  const [activeTab, setActiveTab] = useState<'movie' | 'tv'>(studio.type)
+
+  const activeGenres = activeTab === 'movie' ? MOVIE_GENRES : TV_GENRES
+
+  const getIds = () => {
+    if (activeTab === 'movie') {
+      return { companyId: studio.tmdbCompanyId, networkId: undefined }
+    } else {
+      return { 
+        companyId: studio.tmdbNetworkId ? undefined : studio.tmdbCompanyId, 
+        networkId: studio.tmdbNetworkId 
+      }
+    }
+  }
+
+  const { companyId, networkId } = getIds()
 
   return (
     <main className="flex-1 flex flex-col w-full pb-16">
@@ -68,34 +82,59 @@ export default function Studio() {
       >
         <div className="absolute inset-0 bg-black/60 pointer-events-none" />
         
-        {/* Back Button */}
-        <div className="absolute top-6 left-6 z-20">
-          <Link to="/" className="inline-flex items-center gap-2 text-zinc-300 hover:text-white transition-colors bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full border border-zinc-700 hover:border-zinc-500">
-            <ChevronLeft size={16} />
-            <span className="text-sm font-medium">Back</span>
-          </Link>
-        </div>
+
 
         {/* Logo */}
-        <div className="relative z-10 scale-150 sm:scale-150 drop-shadow-2xl animate-in fade-in zoom-in-95 duration-700">
-          {studio.logo}
+        <div className="relative z-10 w-[80%] max-w-[400px] h-[150px] flex items-center justify-center drop-shadow-[0_2px_10px_rgba(255,255,255,0.2)] animate-in fade-in zoom-in-95 duration-700">
+          <img src={studio.logoUrl} alt={studio.name} className="max-w-full max-h-full object-contain" />
         </div>
       </div>
 
       {/* ── Content Rows ── */}
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-12 space-y-12">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
         
-        {/* We use a loop of GenreRows but limit to top ones for performance, or show all. Let's show all. */}
-        {genres.map(genre => (
-          <GenreRow 
-            key={genre.id} 
-            title={genre.label} 
-            genreId={genre.id} 
-            type={studio.type}
-            companyId={studio.type === 'movie' ? studio.tmdbId : undefined}
-            networkId={studio.type === 'tv' ? studio.tmdbId : undefined}
-          />
-        ))}
+        {/* Tabs */}
+        <div className="flex items-center justify-center gap-4 border-b border-zinc-800/50 pb-4">
+          <button 
+            onClick={() => setActiveTab('movie')}
+            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
+              activeTab === 'movie' 
+                ? 'bg-zinc-100 text-zinc-900 shadow-lg' 
+                : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800'
+            }`}
+          >
+            Movies
+          </button>
+          <button 
+            onClick={() => setActiveTab('tv')}
+            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
+              activeTab === 'tv' 
+                ? 'bg-zinc-100 text-zinc-900 shadow-lg' 
+                : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800'
+            }`}
+          >
+            TV Shows
+          </button>
+        </div>
+
+        <div className="space-y-12">
+          {(!companyId && !networkId) ? (
+            <div className="text-center py-12 text-zinc-500">
+              No {activeTab === 'movie' ? 'movies' : 'TV shows'} available for this studio.
+            </div>
+          ) : (
+            activeGenres.map(genre => (
+              <GenreRow 
+                key={`${activeTab}-${genre.id}`} 
+                title={genre.label} 
+                genreId={genre.id} 
+                type={activeTab}
+                companyId={companyId}
+                networkId={networkId}
+              />
+            ))
+          )}
+        </div>
 
       </div>
     </main>

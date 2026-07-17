@@ -35,9 +35,9 @@ export function GenreRow({ title, genreId, type, companyId, networkId }: GenreRo
     setLoading(true)
     let fetcher = fetchByGenre(genreId, type);
     if (companyId) {
-      fetcher = fetchByCompany(companyId, genreId);
+      fetcher = fetchByCompany(companyId, genreId, type);
     } else if (networkId) {
-      fetcher = fetchByNetwork(networkId, genreId);
+      fetcher = fetchByNetwork(networkId, genreId, type);
     }
     
     fetcher.then(data => {

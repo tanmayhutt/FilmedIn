@@ -1,5 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { Navbar } from '@/components/common/Navbar'
+import { ScrollToTop } from '@/components/common/ScrollToTop'
+import { Toaster } from 'react-hot-toast'
 
 // Pages
 import Home from '@/pages/Home'
@@ -19,6 +21,14 @@ import Explore from '@/pages/Explore'
 export default function App() {
   return (
     <>
+      <Toaster position="bottom-right" toastOptions={{
+        style: {
+          background: '#18181b',
+          color: '#fff',
+          border: '1px solid #27272a'
+        }
+      }} />
+      <ScrollToTop />
       <Navbar />
       <div className="flex-1 flex flex-col">
         <Routes>

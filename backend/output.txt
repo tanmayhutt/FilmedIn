@@ -1,0 +1,3 @@
+◇ injected env (10) from .env // tip: ⌘ suppress logs { quiet: true }
+Wallpaper generation error: fetch failed
+Done

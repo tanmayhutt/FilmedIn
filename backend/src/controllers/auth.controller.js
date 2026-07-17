@@ -3,14 +3,19 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { Resend } = require('resend');
 const User = require('../models/User');
+const Playlist = require('../models/Playlist');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('FATAL ERROR: JWT_SECRET is not defined in environment variables.');
+  process.exit(1);
+}
 
 exports.signup = async (req, res) => {
   try {
     let { email, password, username } = req.body;
-    email = (email || '').trim();
-    username = (username || '').trim();
+    email = String(email || '').trim();
+    username = String(username || '').trim();
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -20,7 +25,7 @@ exports.signup = async (req, res) => {
     if (!username || username.length < 3 || username.length > 30) {
       return res.status(400).json({ error: 'Username must be between 3 and 30 characters' });
     }
-    
+
     if (!password || password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
@@ -30,7 +35,7 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ error: 'Username can only contain letters, numbers, and underscores' });
     }
 
-    let user = await User.findOne({ 
+    let user = await User.findOne({
       $or: [{ email: email.toLowerCase() }, { username: username.toLowerCase() }]
     });
 
@@ -47,6 +52,13 @@ exports.signup = async (req, res) => {
     user = new User({ email, username, passwordHash });
     await user.save();
 
+    // Create preset playlists for the new user
+    await Playlist.insertMany([
+      { userId: user._id, name: 'Watchlist', type: 'system' },
+      { userId: user._id, name: 'Currently Watching', type: 'system' },
+      { userId: user._id, name: 'Watched', type: 'system' }
+    ]);
+
     res.status(201).json({ success: true });
   } catch (err) {
     console.error(err);
@@ -57,8 +69,8 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     let { email, password } = req.body;
-    email = (email || '').trim();
-    const user = await User.findOne({ 
+    email = String(email || '').trim();
+    const user = await User.findOne({
       $or: [{ email: email.toLowerCase() }, { username: email.toLowerCase() }]
     });
     if (!user) return res.status(400).json({ error: 'No account found with this email or username' });
@@ -73,19 +85,26 @@ exports.login = async (req, res) => {
     await user.save();
 
     if (process.env.RESEND_API_KEY) {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      const { data, error } = await resend.emails.send({
-        from: 'FilmedIn <onboarding@resend.dev>',
-        to: user.email,
-        subject: 'Your FilmedIn Login Code',
-        text: `Hello ${user.username},\n\nYour login code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
-      });
+      try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const { data, error } = await resend.emails.send({
+          from: 'FilmedIn <onboarding@resend.dev>',
+          to: user.email,
+          subject: 'Your FilmedIn Login Code',
+          text: `Hello ${user.username},\n\nYour login code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
+        });
 
-      if (error) {
-        console.error('[EMAIL ERROR]', error);
-        return res.status(500).json({ error: 'Server error while sending OTP email' });
+        if (error) {
+          console.error('[EMAIL ERROR]', error);
+          console.log(`[DEV FALLBACK] Since email failed (likely due to Resend sandbox limits), your login OTP is: ${otp}`);
+          // Don't return 500, let the user check the console for the OTP
+        } else {
+          console.log(`[EMAIL] Sent login OTP via Resend to ${user.email}`);
+        }
+      } catch (err) {
+        console.error('[EMAIL EXCEPTION]', err);
+        console.log(`[DEV FALLBACK] Your login OTP is: ${otp}`);
       }
-      console.log(`[EMAIL] Sent login OTP via Resend to ${user.email}`);
     } else {
       console.log(`[EMAIL MOCK] Missing SMTP config. Mock login OTP ${otp} to ${user.email}`);
     }
@@ -100,13 +119,13 @@ exports.login = async (req, res) => {
 exports.verifyLoginOtp = async (req, res) => {
   try {
     let { email, otp } = req.body;
-    email = (email || '').trim();
-    otp = (otp || '').trim();
-    
-    const user = await User.findOne({ 
+    email = String(email || '').trim();
+    otp = String(otp || '').trim();
+
+    const user = await User.findOne({
       $or: [{ email: email.toLowerCase() }, { username: email.toLowerCase() }]
     });
-    
+
     if (!user) return res.status(400).json({ error: 'Invalid Request' });
 
     if (user.otp !== otp || user.otpExpires < Date.now()) {
@@ -131,11 +150,11 @@ exports.verifyLoginOtp = async (req, res) => {
 exports.sendOtp = async (req, res) => {
   try {
     let { email } = req.body;
-    email = (email || '').trim();
-    
+    email = String(email || '').trim();
+
     // Only search by email for reset flow
     const user = await User.findOne({ email: email.toLowerCase() });
-    
+
     if (!user) return res.status(400).json({ error: 'No account found with this email address.' });
 
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -145,7 +164,7 @@ exports.sendOtp = async (req, res) => {
 
     if (process.env.RESEND_API_KEY) {
       const resend = new Resend(process.env.RESEND_API_KEY);
-      
+
       const { data, error } = await resend.emails.send({
         from: 'FilmedIn <onboarding@resend.dev>',
         to: email,
@@ -173,9 +192,9 @@ exports.sendOtp = async (req, res) => {
 exports.verifyOtp = async (req, res) => {
   try {
     let { email, otp } = req.body;
-    email = (email || '').trim();
-    otp = (otp || '').trim();
-    const user = await User.findOne({ 
+    email = String(email || '').trim();
+    otp = String(otp || '').trim();
+    const user = await User.findOne({
       $or: [{ email: email.toLowerCase() }, { username: email.toLowerCase() }]
     });
     if (!user) return res.status(400).json({ error: 'Invalid Request' });
@@ -202,14 +221,14 @@ exports.verifyOtp = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   try {
     if (!req.user.canResetPassword) return res.status(401).json({ error: 'Unauthorized' });
-    
+
     const { password } = req.body;
 
     if (!password || password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
     const user = await User.findById(req.user.id);
-    
+
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (isMatch) {
       return res.status(400).json({ error: 'New password cannot be the same as the old password' });

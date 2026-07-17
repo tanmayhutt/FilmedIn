@@ -2,7 +2,14 @@ import { Link } from 'react-router-dom'
 import { TMDBMovie, TMDBTVShow } from '@/services/tmdb.service'
 import { Star } from 'lucide-react'
 
-function RatingBadge({ rating }: { rating: number }) {
+function RatingBadge({ rating, isUnreleased }: { rating: number, isUnreleased: boolean }) {
+  if (isUnreleased) {
+    return (
+      <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md text-[10px] font-bold text-white bg-blue-600/90 backdrop-blur-sm z-10 uppercase tracking-wider">
+        Unreleased
+      </div>
+    )
+  }
   if (!rating || rating === 0) return null
   const color = rating >= 7.5 ? 'bg-yellow-500/90' : rating >= 6 ? 'bg-zinc-700/90' : 'bg-red-900/80'
   return (
@@ -13,18 +20,26 @@ function RatingBadge({ rating }: { rating: number }) {
   )
 }
 
-export function MediaCard({ media, disableLink = false }: { media: TMDBMovie | TMDBTVShow, disableLink?: boolean }) {
+export function MediaCard({ media, disableLink = false, actionButton }: { media: TMDBMovie | TMDBTVShow, disableLink?: boolean, actionButton?: React.ReactNode }) {
   const isMovie = 'title' in media
   const title = isMovie ? media.title : media.name
   const date = isMovie ? media.release_date : media.first_air_date
   const year = date ? new Date(date).getFullYear() : 'N/A'
-  const rating = media.vote_average ?? 0
+  
+  // Check if unreleased
+  const isUnreleased = date ? new Date(date).getTime() > Date.now() : false
+  const rating = isUnreleased ? 0 : (media.vote_average ?? 0)
   
   const href = `/${isMovie ? 'movie' : 'tv'}/${media.id}`
 
   const CardContent = (
     <div className="w-[160px] sm:w-[200px] group relative flex flex-col gap-2 shrink-0">
       <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800/50 transition-colors group-hover:border-zinc-700">
+        {actionButton && (
+          <div className="absolute top-2 right-2 z-20">
+            {actionButton}
+          </div>
+        )}
         {media.poster_path ? (
           <img
             src={`https://image.tmdb.org/t/p/w500${media.poster_path}`}
@@ -37,7 +52,7 @@ export function MediaCard({ media, disableLink = false }: { media: TMDBMovie | T
             No Image Available
           </div>
         )}
-        <RatingBadge rating={rating} />
+        <RatingBadge rating={rating} isUnreleased={isUnreleased} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
       <div className="flex flex-col">

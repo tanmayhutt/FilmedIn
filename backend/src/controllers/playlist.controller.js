@@ -1,13 +1,42 @@
 const Playlist = require('../models/Playlist');
 const PlaylistItem = require('../models/PlaylistItem');
 
+const NodeCache = require('node-cache');
+const posterCache = new NodeCache({ stdTTL: 86400 });
+
+async function getPosterPath(tmdbId, mediaType) {
+  const cacheKey = `${mediaType}_${tmdbId}_poster`;
+  let poster = posterCache.get(cacheKey);
+  if (poster) return poster;
+  
+  try {
+    const url = `https://api.tmdb.org/3/${mediaType}/${tmdbId}?api_key=${process.env.TMDB_API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    poster = data.poster_path;
+    if (poster) posterCache.set(cacheKey, poster);
+    return poster;
+  } catch (e) {
+    return null;
+  }
+}
+
 exports.getPlaylists = async (req, res) => {
   try {
     const playlists = await Playlist.find({ userId: req.user.id }).sort({ createdAt: -1 }).lean();
     for (let pl of playlists) {
-      const count = await PlaylistItem.countDocuments({ playlistId: pl._id });
-      pl.playlist_items = [{ count }];
+      const items = await PlaylistItem.find({ playlistId: pl._id }).sort({ createdAt: -1 });
+      pl.playlist_items = [{ count: items.length }];
       pl.id = pl._id.toString();
+      
+      const previewItems = items.slice(0, 3);
+      const posters = [];
+      for (const item of previewItems) {
+         const path = await getPosterPath(item.tmdbId, item.mediaType);
+         if (path) posters.push(`https://image.tmdb.org/t/p/w500${path}`);
+      }
+      pl.preview_posters = posters;
     }
     res.json(playlists);
   } catch (err) {
@@ -18,10 +47,10 @@ exports.getPlaylists = async (req, res) => {
 
 exports.createPlaylist = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, description } = req.body;
     if (!name) return res.status(400).json({ error: 'Name is required' });
 
-    const newPlaylist = new Playlist({ userId: req.user.id, name, type: 'custom' });
+    const newPlaylist = new Playlist({ userId: req.user.id, name, description: description || '', type: 'custom' });
     await newPlaylist.save();
     
     const plObj = newPlaylist.toObject();
@@ -74,6 +103,22 @@ exports.getItems = async (req, res) => {
     const items = await PlaylistItem.find({ playlistId: req.params.id }).sort({ createdAt: -1 });
     const formatted = items.map(i => ({ ...i.toObject(), id: i._id.toString(), tmdb_id: i.tmdbId, media_type: i.mediaType }));
     res.json(formatted);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.removeItem = async (req, res) => {
+  try {
+    const { playlistId, tmdbId } = req.params;
+    
+    const playlist = await Playlist.findById(playlistId);
+    if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
+    if (playlist.userId.toString() !== req.user.id) return res.status(401).json({ error: 'Unauthorized' });
+
+    await PlaylistItem.deleteOne({ playlistId, tmdbId });
+    res.json({ success: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

@@ -3,26 +3,32 @@ import { fetchApi } from './api.client';
 export interface TMDBMovie {
   id: number;
   title: string;
-  poster_path: string;
-  backdrop_path: string;
   overview: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
   release_date: string;
   vote_average: number;
+  vote_count: number;
   media_type?: 'movie';
   runtime?: number;
-  credits?: any;
+  genres?: { id: number; name: string }[];
+  credits?: {
+    cast: { id: number; name: string; character: string; profile_path: string | null }[];
+  };
 }
 
 export interface TMDBTVShow {
   id: number;
   name: string;
-  poster_path: string;
-  backdrop_path: string;
   overview: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
   first_air_date: string;
   vote_average: number;
+  vote_count: number;
   media_type?: 'tv';
   number_of_seasons?: number;
+  genres?: { id: number; name: string }[];
   credits?: any;
 }
 
@@ -66,23 +72,23 @@ export async function fetchByGenre(genreId: number, type: 'movie' | 'tv' = 'movi
   }
 }
 
-export async function fetchByCompany(companyId: number, genreId?: number): Promise<TMDBMovie[]> {
+export async function fetchByCompany(companyId: number, genreId?: number, type: 'movie' | 'tv' = 'movie'): Promise<(TMDBMovie | TMDBTVShow)[]> {
   try {
-    let url = `/tmdb/company?company_id=${companyId}`;
+    let url = `/tmdb/company?company_id=${companyId}&type=${type}`;
     if (genreId) url += `&genre_id=${genreId}`;
     const data = await fetchApi(url);
-    return (data.results || []).map((item: any) => ({ ...item, media_type: 'movie' }));
+    return (data.results || []).map((item: any) => ({ ...item, media_type: type }));
   } catch {
     return [];
   }
 }
 
-export async function fetchByNetwork(networkId: number, genreId?: number): Promise<TMDBTVShow[]> {
+export async function fetchByNetwork(networkId: number, genreId?: number, type: 'movie' | 'tv' = 'tv'): Promise<(TMDBMovie | TMDBTVShow)[]> {
   try {
-    let url = `/tmdb/network?network_id=${networkId}`;
+    let url = `/tmdb/network?network_id=${networkId}&type=${type}`;
     if (genreId) url += `&genre_id=${genreId}`;
     const data = await fetchApi(url);
-    return (data.results || []).map((item: any) => ({ ...item, media_type: 'tv' }));
+    return (data.results || []).map((item: any) => ({ ...item, media_type: type }));
   } catch {
     return [];
   }

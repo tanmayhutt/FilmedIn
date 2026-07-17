@@ -45,6 +45,8 @@ export default function MovieDetails() {
     return <main className="p-12 text-center">Movie not found.</main>
   }
 
+  const isUnreleased = movie.release_date ? new Date(movie.release_date).getTime() > Date.now() : false
+
   return (
     <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in">
       <Link to="/" className="text-zinc-500 hover:text-white mb-8 inline-block transition-colors">
@@ -82,12 +84,24 @@ export default function MovieDetails() {
                 <span>{Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m</span>
               </>
             )}
-            {movie.vote_average > 0 && (
-              <span className="flex items-center gap-1.5 bg-yellow-500/15 border border-yellow-500/30 text-yellow-400 font-bold text-sm px-3 py-1 rounded-full">
-                <Star className="w-3.5 h-3.5 fill-yellow-400 stroke-none" />
-                {movie.vote_average.toFixed(1)}
-                <span className="text-yellow-600 font-normal text-xs">/ 10</span>
+            {movie.genres?.map((g: any) => (
+              <span key={g.id} className="text-sm text-zinc-400 bg-zinc-800/60 px-3 py-1 rounded-full">
+                {g.name}
               </span>
+            ))}
+            
+            {isUnreleased ? (
+              <span className="flex items-center gap-1.5 bg-blue-500/15 border border-blue-500/30 text-blue-400 font-bold text-sm px-3 py-1 rounded-full">
+                Unreleased: {new Date(movie.release_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </span>
+            ) : (
+              movie.vote_average > 0 && movie.vote_count > 5 && (
+                <span className="flex items-center gap-1.5 bg-yellow-500/15 border border-yellow-500/30 text-yellow-400 font-bold text-sm px-3 py-1 rounded-full">
+                  <Star className="w-3.5 h-3.5 fill-yellow-400 stroke-none" />
+                  {movie.vote_average.toFixed(1)}
+                  <span className="text-yellow-600 font-normal text-xs">/ 10</span>
+                </span>
+              )
             )}
           </div>
 

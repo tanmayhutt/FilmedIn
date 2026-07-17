@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Plus } from 'lucide-react'
 import { addToList, getPlaylists } from '@/services/playlist.service'
+import toast from 'react-hot-toast'
 
 export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaType: 'movie' | 'tv' }) {
   const [playlists, setPlaylists] = useState<any[]>([])
@@ -25,11 +26,13 @@ export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaTy
   const handleAdd = async (playlistId: string) => {
     try {
       const res = await addToList(playlistId, tmdbId, mediaType)
-      alert(res.message || "Added to playlist!")
+      toast.success(res.message || "Added to playlist!")
     } catch (e) {
-      alert("Error adding to playlist.")
+      toast.error("Error adding to playlist.")
     }
   }
+
+  const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
 
   return (
     <DropdownMenu>
@@ -49,6 +52,8 @@ export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaTy
               {pl.name}
             </DropdownMenuItem>
           ))
+        ) : hasToken ? (
+          <DropdownMenuItem disabled>No lists created yet. Go to profile to create one.</DropdownMenuItem>
         ) : (
           <DropdownMenuItem disabled>Sign in to add to lists</DropdownMenuItem>
         )}

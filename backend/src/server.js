@@ -17,8 +17,29 @@ const PORT = process.env.PORT || 5000;
 // ─── Trust Proxy (Vercel/Cloudflare) ──────────────────────────────────────────
 app.set('trust proxy', 1);
 
-// ─── Security Headers ─────────────────────────────────────────────────────────
+// ─── Security Headers & Sanitization ──────────────────────────────────────────
 app.use(helmet());
+
+// Custom NoSQL Injection Sanitizer (Express 5 compatible)
+const sanitizeNoSql = (obj) => {
+  if (obj instanceof Object) {
+    for (const key in obj) {
+      if (key.startsWith('$')) {
+        delete obj[key];
+      } else {
+        sanitizeNoSql(obj[key]);
+      }
+    }
+  }
+};
+
+app.use((req, res, next) => {
+  if (req.body) sanitizeNoSql(req.body);
+  if (req.params) sanitizeNoSql(req.params);
+  if (req.query) sanitizeNoSql(req.query); // Mutate keys instead of reassigning req.query
+  next();
+});
+
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.url}`);
   next();
