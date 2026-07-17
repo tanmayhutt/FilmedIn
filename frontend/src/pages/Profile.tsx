@@ -6,7 +6,7 @@ import { getPlaylists, createPlaylist, deletePlaylist } from '@/services/playlis
 import { AvatarSelector } from '@/components/features/AvatarSelector'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, LogOut, Trash2 } from 'lucide-react'
+import { Plus, LogOut, Trash2, Share2 } from 'lucide-react'
 
 export default function Profile() {
   const navigate = useNavigate()
@@ -35,6 +35,24 @@ export default function Profile() {
       navigate('/login')
     })
   }, [navigate])
+
+  const handleShareProfile = async () => {
+    const url = `${window.location.origin}/profile` // Using general profile URL since public profile routes aren't built yet
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `${profile?.username}'s FilmedIn Profile`,
+          text: `Check out ${profile?.username}'s cinematic journey on FilmedIn!`,
+          url: url
+        })
+      } else {
+        await navigator.clipboard.writeText(url)
+        alert('Profile link copied to clipboard!')
+      }
+    } catch (err) {
+      console.error('Error sharing:', err)
+    }
+  }
 
   const handleSignOut = async () => {
     await signout()
@@ -83,11 +101,16 @@ export default function Profile() {
             <AvatarSelector currentAvatar={profile?.avatarUrl} />
           </div>
         </div>
-        
-        <Button onClick={handleSignOut} variant="outline" className="border-red-900/50 text-red-500 hover:bg-red-950/30 hover:text-red-400">
-          <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button onClick={handleShareProfile} variant="outline" className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white">
+            <Share2 className="w-4 h-4 mr-2" />
+            Share Profile
+          </Button>
+          <Button onClick={handleSignOut} variant="outline" className="border-red-900/50 text-red-500 hover:bg-red-950/30 hover:text-red-400">
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
       </div>
 
       <section>

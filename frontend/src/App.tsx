@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
-import { NavbarProfile } from '@/components/common/NavbarProfile'
-import { Logo } from '@/components/common/Logo'
+import { Navbar } from '@/components/common/Navbar'
 
 // Pages
 import Home from '@/pages/Home'
@@ -13,16 +12,14 @@ import PlaylistDetails from '@/pages/PlaylistDetails'
 import Login from '@/pages/Login'
 import Signup from '@/pages/Signup'
 import ForgotPassword from '@/pages/ForgotPassword'
+import Studio from '@/pages/Studio'
+import StudiosIndex from '@/pages/StudiosIndex'
+import Explore from '@/pages/Explore'
 
 export default function App() {
   return (
     <>
-      <nav className="w-full border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Logo />
-          <NavbarProfile />
-        </div>
-      </nav>
+      <Navbar />
       <div className="flex-1 flex flex-col">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -33,9 +30,13 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/movie/:id" element={<MovieDetails />} />
           <Route path="/tv/:id" element={<TVDetails />} />
+          <Route path="/studios" element={<StudiosIndex />} />
+          <Route path="/studio/:id" element={<Studio />} />
+          <Route path="/explore" element={<Explore />} />
           <Route path="/profile/playlist/:id" element={<PlaylistDetails />} />
         </Routes>
       </div>
     </>
   )
 }
+

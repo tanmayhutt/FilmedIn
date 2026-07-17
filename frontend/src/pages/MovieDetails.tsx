@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { fetchMovieDetails, TMDBMovie } from '@/services/tmdb.service'
 import { AddToListButton } from '@/components/features/AddToListButton'
 import { WallpaperGenerator } from '@/components/features/WallpaperGenerator'
+import { Star } from 'lucide-react'
 
 export default function MovieDetails() {
   const { id } = useParams<{ id: string }>()
@@ -10,6 +11,7 @@ export default function MovieDetails() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     if (id) {
       setLoading(true)
       fetchMovieDetails(id).then(data => {
@@ -80,11 +82,13 @@ export default function MovieDetails() {
                 <span>{Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m</span>
               </>
             )}
-            <span className="w-1 h-1 rounded-full bg-zinc-700" />
-            <div className="flex items-center gap-1 text-yellow-500">
-              <span>★</span>
-              <span>{movie.vote_average.toFixed(1)}</span>
-            </div>
+            {movie.vote_average > 0 && (
+              <span className="flex items-center gap-1.5 bg-yellow-500/15 border border-yellow-500/30 text-yellow-400 font-bold text-sm px-3 py-1 rounded-full">
+                <Star className="w-3.5 h-3.5 fill-yellow-400 stroke-none" />
+                {movie.vote_average.toFixed(1)}
+                <span className="text-yellow-600 font-normal text-xs">/ 10</span>
+              </span>
+            )}
           </div>
 
           <p className="text-lg text-zinc-300 leading-relaxed max-w-3xl mb-12">
