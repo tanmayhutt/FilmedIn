@@ -1,17 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const Playlist = require('../models/Playlist');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -74,21 +68,21 @@ exports.signup = async (req, res) => {
     user.otpExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    if (process.env.RESEND_API_KEY) {
       try {
-        await transporter.sendMail({
-          from: `FilmedIn <${process.env.SMTP_USER}>`,
+        await resend.emails.send({
+          from: 'FilmedIn <onboarding@resend.dev>',
           to: user.email,
           subject: 'Your FilmedIn Verification Code',
           text: `Hello ${user.username},\n\nYour verification code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
         });
-        console.log(`[EMAIL] Sent verification OTP via Nodemailer to ${user.email}`);
+        console.log(`[EMAIL] Sent verification OTP via Resend to ${user.email}`);
       } catch (err) {
         console.error('[EMAIL EXCEPTION]', err);
         console.log(`[DEV FALLBACK] Your verification OTP is: ${otp}`);
       }
     } else {
-      console.log(`[EMAIL MOCK] Missing SMTP config. Mock verification OTP ${otp} to ${user.email}`);
+      console.log(`[EMAIL MOCK] Missing Resend API key. Mock verification OTP ${otp} to ${user.email}`);
     }
 
     res.status(201).json({ requireOtp: true, email: user.email, message: 'OTP sent to your email.' });
@@ -116,21 +110,21 @@ exports.login = async (req, res) => {
     user.otpExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    if (process.env.RESEND_API_KEY) {
       try {
-        await transporter.sendMail({
-          from: `FilmedIn <${process.env.SMTP_USER}>`,
+        await resend.emails.send({
+          from: 'FilmedIn <onboarding@resend.dev>',
           to: user.email,
           subject: 'Your FilmedIn Login Code',
           text: `Hello ${user.username},\n\nYour login code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
         });
-        console.log(`[EMAIL] Sent login OTP via Nodemailer to ${user.email}`);
+        console.log(`[EMAIL] Sent login OTP via Resend to ${user.email}`);
       } catch (err) {
         console.error('[EMAIL EXCEPTION]', err);
         console.log(`[DEV FALLBACK] Your login OTP is: ${otp}`);
       }
     } else {
-      console.log(`[EMAIL MOCK] Missing SMTP config. Mock login OTP ${otp} to ${user.email}`);
+      console.log(`[EMAIL MOCK] Missing Resend API key. Mock login OTP ${otp} to ${user.email}`);
     }
 
     res.json({ requireOtp: true, email: user.email, message: 'OTP sent to your email.' });
@@ -186,21 +180,21 @@ exports.sendOtp = async (req, res) => {
     user.otpExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    if (process.env.RESEND_API_KEY) {
       try {
-        await transporter.sendMail({
-          from: `FilmedIn <${process.env.SMTP_USER}>`,
+        await resend.emails.send({
+          from: 'FilmedIn <onboarding@resend.dev>',
           to: email,
           subject: 'Your FilmedIn Password Reset Code',
           text: `Hello ${user.username},\n\nYour password reset code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
         });
-        console.log(`[EMAIL] Sent real OTP via Nodemailer to ${email}`);
+        console.log(`[EMAIL] Sent real OTP via Resend to ${email}`);
       } catch (err) {
         console.error('[EMAIL ERROR]', err);
         return res.status(500).json({ error: 'Server error while sending email' });
       }
     } else {
-      console.log(`[EMAIL MOCK] Missing SMTP config. Mock OTP ${otp} to ${email}`);
+      console.log(`[EMAIL MOCK] Missing Resend config. Mock OTP ${otp} to ${email}`);
     }
 
     res.json({ success: true, message: 'OTP Sent', username: user.username });
