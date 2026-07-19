@@ -14,6 +14,16 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       TMDB_API_KEY: ${VITE_TMDB_API_KEY}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/api/users/me", "||", "exit", "0"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     ports:
       - "5000:5000"
     restart: unless-stopped
@@ -29,3 +39,13 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

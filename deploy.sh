@@ -103,20 +103,23 @@ else
     echo -e "   Frontend (port 3001): ${RED}❌ HTTP $FRONTEND_RESPONSE${NC}"
 fi
 
-# ---------- Done ----------
+# ---------- Pruning ----------
+
+echo -e "\n${YELLOW}[6/6] Pruning unused Docker images...${NC}"
+docker system prune -f 2>/dev/null || true
+echo -e "${GREEN}✅ Disk space freed${NC}"
 
 echo -e "\n${BLUE}========================================${NC}"
 echo -e "${GREEN}🚀 Deployment complete!${NC}"
 echo -e "${BLUE}========================================${NC}"
-echo ""
-echo "Your services are running at:"
-echo "  Backend:  http://localhost:5000"
-echo "  Frontend: http://localhost:3001"
-echo "  Database: MongoDB Atlas (cloud)"
-echo ""
-echo "Live at: https://filmed-in.vercel.app"
-echo ""
-echo "Useful commands:"
+
+echo -e "\nYour services are running at:"
+echo -e "  Backend:  http://localhost:5000"
+echo -e "  Frontend: http://localhost:3001"
+echo -e "  Database: MongoDB Atlas (cloud)"
+echo -e "\nLive at: https://filmedin.tanmaytiwari.me"
+
+echo -e "\nUseful commands:"
 echo "  docker compose logs -f          # View live logs"
 echo "  docker compose logs backend     # Backend logs only"
 echo "  docker compose restart          # Restart all services"

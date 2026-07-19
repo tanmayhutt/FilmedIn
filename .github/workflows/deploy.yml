@@ -5,6 +5,10 @@ on:
     branches:
       - main # Runs this workflow whenever you push to the 'main' branch
 
+concurrency:
+  group: production-deployment
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
