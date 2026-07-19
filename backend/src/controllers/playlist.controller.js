@@ -45,6 +45,29 @@ exports.getPlaylists = async (req, res) => {
   }
 };
 
+exports.getPublicPlaylists = async (req, res) => {
+  try {
+    const playlists = await Playlist.find({ userId: req.params.userId }).sort({ createdAt: -1 }).lean();
+    for (let pl of playlists) {
+      const items = await PlaylistItem.find({ playlistId: pl._id }).sort({ createdAt: -1 });
+      pl.playlist_items = [{ count: items.length }];
+      pl.id = pl._id.toString();
+      
+      const previewItems = items.slice(0, 3);
+      const posters = [];
+      for (const item of previewItems) {
+         const path = await getPosterPath(item.tmdbId, item.mediaType);
+         if (path) posters.push(`https://image.tmdb.org/t/p/w500${path}`);
+      }
+      pl.preview_posters = posters;
+    }
+    res.json(playlists);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 exports.createPlaylist = async (req, res) => {
   try {
     const { name, description } = req.body;

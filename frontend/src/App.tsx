@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { Navbar } from '@/components/common/Navbar'
+import { Footer } from '@/components/common/Footer'
 import { ScrollToTop } from '@/components/common/ScrollToTop'
 import { Toaster } from 'react-hot-toast'
 
@@ -17,6 +18,7 @@ import ForgotPassword from '@/pages/ForgotPassword'
 import Studio from '@/pages/Studio'
 import StudiosIndex from '@/pages/StudiosIndex'
 import Explore from '@/pages/Explore'
+import About from '@/pages/About'
 
 export default function App() {
   return (
@@ -30,7 +32,7 @@ export default function App() {
       }} />
       <ScrollToTop />
       <Navbar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col w-full pb-12 md:pb-24">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -38,14 +40,18 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/search" element={<Search />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/u/:username" element={<Profile />} />
           <Route path="/movie/:id" element={<MovieDetails />} />
           <Route path="/tv/:id" element={<TVDetails />} />
           <Route path="/studios" element={<StudiosIndex />} />
           <Route path="/studio/:id" element={<Studio />} />
           <Route path="/explore" element={<Explore />} />
+          <Route path="/about" element={<About />} />
           <Route path="/profile/playlist/:id" element={<PlaylistDetails />} />
+          <Route path="/playlist/:id" element={<PlaylistDetails />} />
         </Routes>
       </div>
+      <Footer />
     </>
   )
 }

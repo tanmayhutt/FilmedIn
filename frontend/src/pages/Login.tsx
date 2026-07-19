@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { loginWithPassword, verifyLoginOtpAction } from '@/services/auth.service'
@@ -18,6 +18,16 @@ export default function Login() {
   const [loginEmail, setLoginEmail] = useState('')
   
   const navigate = useNavigate()
+  const location = useLocation()
+  
+  const searchParams = new URLSearchParams(location.search)
+  const redirectUrl = searchParams.get('redirect')
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      navigate('/', { replace: true })
+    }
+  }, [navigate])
 
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +47,11 @@ export default function Login() {
         setStep('otp')
       } else {
         // Fallback if no OTP required
-        navigate('/')
+        if (redirectUrl) {
+          navigate(redirectUrl)
+        } else {
+          navigate('/')
+        }
       }
     } catch (err: any) {
       setError('Something went wrong. Please try again.')
@@ -56,7 +70,11 @@ export default function Login() {
       if (res.error) {
         setError(res.error)
       } else {
-        navigate('/')
+        if (redirectUrl && redirectUrl !== '/login' && redirectUrl !== '/signup') {
+          navigate(redirectUrl)
+        } else {
+          navigate('/')
+        }
       }
     } catch (err: any) {
       setError('Something went wrong verifying your code.')
@@ -127,7 +145,7 @@ export default function Login() {
               </Link>
               <div className="text-zinc-500">
                 Don't have an account?{' '}
-                <Link to="/signup" className="text-white hover:underline transition-colors font-medium">
+                <Link to={`/signup${location.search}`} className="text-white hover:underline transition-colors font-medium">
                   Sign up
                 </Link>
               </div>

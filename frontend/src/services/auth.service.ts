@@ -36,10 +36,13 @@ export async function verifyLoginOtpAction(email: string, otp: string) {
 
 export async function signupClientAction(data: { email: string, password: string, username: string }) {
   try {
-    await fetchApi('/auth/signup', {
+    const res = await fetchApi('/auth/signup', {
       method: 'POST',
       body: JSON.stringify(data)
     })
+    if (res.requireOtp) {
+      return { success: true, requireOtp: true, email: res.email }
+    }
     return { success: true }
   } catch (err: any) {
     return { error: err.message }

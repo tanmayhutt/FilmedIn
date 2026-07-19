@@ -1,9 +1,18 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const Playlist = require('../models/Playlist');
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
+});
+
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -59,7 +68,30 @@ exports.signup = async (req, res) => {
       { userId: user._id, name: 'Watched', type: 'system' }
     ]);
 
-    res.status(201).json({ success: true });
+    // Generate and send OTP for 2FA/Verification
+    const otp = crypto.randomInt(100000, 999999).toString();
+    user.otp = otp;
+    user.otpExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      try {
+        await transporter.sendMail({
+          from: `FilmedIn <${process.env.SMTP_USER}>`,
+          to: user.email,
+          subject: 'Your FilmedIn Verification Code',
+          text: `Hello ${user.username},\n\nYour verification code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
+        });
+        console.log(`[EMAIL] Sent verification OTP via Nodemailer to ${user.email}`);
+      } catch (err) {
+        console.error('[EMAIL EXCEPTION]', err);
+        console.log(`[DEV FALLBACK] Your verification OTP is: ${otp}`);
+      }
+    } else {
+      console.log(`[EMAIL MOCK] Missing SMTP config. Mock verification OTP ${otp} to ${user.email}`);
+    }
+
+    res.status(201).json({ requireOtp: true, email: user.email, message: 'OTP sent to your email.' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -84,23 +116,15 @@ exports.login = async (req, res) => {
     user.otpExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    if (process.env.RESEND_API_KEY) {
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
       try {
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        const { data, error } = await resend.emails.send({
-          from: 'FilmedIn <onboarding@resend.dev>',
+        await transporter.sendMail({
+          from: `FilmedIn <${process.env.SMTP_USER}>`,
           to: user.email,
           subject: 'Your FilmedIn Login Code',
           text: `Hello ${user.username},\n\nYour login code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
         });
-
-        if (error) {
-          console.error('[EMAIL ERROR]', error);
-          console.log(`[DEV FALLBACK] Since email failed (likely due to Resend sandbox limits), your login OTP is: ${otp}`);
-          // Don't return 500, let the user check the console for the OTP
-        } else {
-          console.log(`[EMAIL] Sent login OTP via Resend to ${user.email}`);
-        }
+        console.log(`[EMAIL] Sent login OTP via Nodemailer to ${user.email}`);
       } catch (err) {
         console.error('[EMAIL EXCEPTION]', err);
         console.log(`[DEV FALLBACK] Your login OTP is: ${otp}`);
@@ -162,22 +186,19 @@ exports.sendOtp = async (req, res) => {
     user.otpExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    if (process.env.RESEND_API_KEY) {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-
-      const { data, error } = await resend.emails.send({
-        from: 'FilmedIn <onboarding@resend.dev>',
-        to: email,
-        subject: 'Your FilmedIn Password Reset Code',
-        text: `Hello ${user.username},\n\nYour password reset code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
-      });
-
-      if (error) {
-        console.error('[EMAIL ERROR]', error);
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      try {
+        await transporter.sendMail({
+          from: `FilmedIn <${process.env.SMTP_USER}>`,
+          to: email,
+          subject: 'Your FilmedIn Password Reset Code',
+          text: `Hello ${user.username},\n\nYour password reset code is: ${otp}\n\nThis code will expire in 15 minutes. If you did not request this, please ignore this email.\n\n- The FilmedIn Team`,
+        });
+        console.log(`[EMAIL] Sent real OTP via Nodemailer to ${email}`);
+      } catch (err) {
+        console.error('[EMAIL ERROR]', err);
         return res.status(500).json({ error: 'Server error while sending email' });
       }
-
-      console.log(`[EMAIL] Sent real OTP via Resend to ${email}`);
     } else {
       console.log(`[EMAIL MOCK] Missing SMTP config. Mock OTP ${otp} to ${email}`);
     }

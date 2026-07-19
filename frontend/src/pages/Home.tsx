@@ -3,6 +3,7 @@ import { Search, Film, Tv, ChevronRight } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { TrendingMovies, TrendingTV } from '@/components/features/TrendingMedia'
 import { GenreRow } from '@/components/features/GenreRow'
+import { HeroCarousel } from '@/components/features/HeroCarousel'
 import { useNavigate, Link } from 'react-router-dom'
 import { searchMedia, TMDBMovie, TMDBTVShow } from '@/services/tmdb.service'
 import { STUDIOS } from '@/lib/studios'
@@ -63,24 +64,12 @@ export default function Home() {
   }
 
   return (
-    <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div className="min-h-screen pb-20">
+      <HeroCarousel />
 
-      {/* ── Hero ── */}
-      <div className="flex flex-col items-center gap-6 mb-20 mt-10 sm:mt-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <h1 className="text-5xl sm:text-7xl font-bold tracking-tighter text-center bg-gradient-to-br from-white via-zinc-300 to-zinc-600 text-transparent bg-clip-text leading-tight">
-          Your Cinematic Identity
-        </h1>
-        <div className="flex flex-col items-center gap-2">
-          <p className="text-zinc-400 text-base sm:text-lg text-center max-w-2xl">
-            FilmedIn is the social network for cinephiles. Build your profile based on your watch history and share your movie journey.
-          </p>
-          <span className="text-xs font-semibold uppercase tracking-widest text-zinc-600 bg-zinc-900/50 px-3 py-1 rounded-full border border-zinc-800">
-            Not a streaming service
-          </span>
-        </div>
-
+      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-12">
         {/* Search bar */}
-        <div className="w-full max-w-2xl relative mt-2" ref={dropdownRef}>
+        <div className="w-full max-w-3xl mx-auto relative mb-16" ref={dropdownRef}>
           <form onSubmit={handleSearch} className="relative group">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-300 transition-colors z-10">
               <Search className="h-5 w-5" />
@@ -134,30 +123,35 @@ export default function Home() {
             </div>
           )}
         </div>
-      </div>
+        {/* ── Content ── */}
+        <div className="space-y-16">
 
-      {/* ── Content ── */}
-      <div className="space-y-10">
+          {/* MOVIES */}
+          <section className="space-y-10">
+            <SectionLabel label="Movies" />
+            <div>
+              <div className="flex items-center gap-3 mb-5"><div className="w-[3px] h-5 bg-white rounded-full" /><h2 className="text-xl font-bold text-zinc-100">Trending Movies</h2></div>
+              <TrendingMovies />
+            </div>
+            
+            <GenreRow title="Action & Adventure" genreId={28} type="movie" />
+            <GenreRow title="Comedies" genreId={35} type="movie" />
+          </section>
 
+          {/* TV SHOWS */}
+          <section className="space-y-10">
+            <SectionLabel label="TV Shows" />
+            <div>
+              <div className="flex items-center gap-3 mb-5"><div className="w-[3px] h-5 bg-white rounded-full" /><h2 className="text-xl font-bold text-zinc-100">Trending TV Shows</h2></div>
+              <TrendingTV />
+            </div>
+            
+            <GenreRow title="Sci-Fi & Fantasy" genreId={10765} type="tv" />
+            <GenreRow title="Dramas" genreId={18} type="tv" />
+          </section>
 
-
-        {/* MOVIES */}
-        <SectionLabel label="Movies" />
-        <section>
-          <div className="flex items-center gap-3 mb-5"><div className="w-[3px] h-5 bg-white rounded-full" /><h2 className="text-base font-semibold text-zinc-100">Trending</h2></div>
-          <TrendingMovies />
-        </section>
-
-
-        {/* TV SHOWS */}
-        <SectionLabel label="TV Shows" />
-        <section>
-          <div className="flex items-center gap-3 mb-5"><div className="w-[3px] h-5 bg-white rounded-full" /><h2 className="text-base font-semibold text-zinc-100">Trending</h2></div>
-          <TrendingTV />
-        </section>
-
-
-      </div>
-    </main>
+        </div>
+      </main>
+    </div>
   )
 }
