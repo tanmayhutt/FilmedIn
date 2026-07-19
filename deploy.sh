@@ -54,7 +54,7 @@ echo -e "${GREEN}✅ Docker, Compose, and .env found${NC}"
 # ---------- Pull latest code ----------
 
 echo -e "\n${YELLOW}[2/6] Pulling latest code...${NC}"
-git pull origin main 2>/dev/null || git pull origin master 2>/dev/null || echo "⚠️  Git pull skipped (not a git repo or no remote)"
+git fetch --all 2>/dev/null && git reset --hard origin/main 2>/dev/null || echo "⚠️  Git pull failed or no remote"
 echo -e "${GREEN}✅ Code up to date${NC}"
 
 # ---------- Build containers ----------

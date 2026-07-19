@@ -14,7 +14,6 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       TMDB_API_KEY: ${VITE_TMDB_API_KEY}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
     ports:
       - "5000:5000"
     restart: unless-stopped
