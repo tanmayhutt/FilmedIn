@@ -91,15 +91,9 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               to="/login"
-              className="px-4 py-2 rounded-full bg-zinc-100 text-zinc-900 font-medium text-sm hover:bg-white transition-colors"
+              className="px-6 py-2 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-colors"
             >
-              Sign In
-            </Link>
-            <Link
-              to="/signup"
-              className="px-4 py-2 rounded-full border border-zinc-700 text-zinc-300 font-medium text-sm hover:bg-zinc-800 hover:text-white transition-colors"
-            >
-              Sign Up
+              Sign in with Google
             </Link>
             <button
               onClick={() => setShowLoginPrompt(false)}

@@ -18,18 +18,14 @@ const userSchema = new mongoose.Schema({
   },
   passwordHash: {
     type: String,
-    required: true
+    required: false
+  },
+  googleId: {
+    type: String,
+    default: null
   },
   avatarUrl: {
     type: String,
-    default: null
-  },
-  otp: {
-    type: String,
-    default: null
-  },
-  otpExpires: {
-    type: Date,
     default: null
   }
 }, { timestamps: true });

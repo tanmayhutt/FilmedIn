@@ -45,11 +45,8 @@ export function NavbarProfile() {
   if (!profile) {
     return (
       <div className="flex items-center gap-4">
-        <Link to="/login" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors">
-          Sign In
-        </Link>
-        <Link to="/signup" className="text-sm font-medium bg-zinc-100 text-zinc-900 px-4 py-2 rounded-full hover:bg-zinc-300 transition-colors hidden sm:block">
-          Get Started
+        <Link to="/login" className="text-sm font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors">
+          Sign in with Google
         </Link>
       </div>
     )
