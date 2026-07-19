@@ -4,7 +4,7 @@ import { fetchApi } from '@/services/api.client'
 import { signout } from '@/services/auth.service'
 import { getPlaylists, createPlaylist, deletePlaylist } from '@/services/playlist.service'
 import { getPublicProfile, getPublicPlaylists } from '@/services/public.service'
-import { AvatarSelector } from '@/components/features/AvatarSelector'
+import { EditProfileModal } from '@/components/features/EditProfileModal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, LogOut, Trash2, Share2, Bookmark } from 'lucide-react'
@@ -139,12 +139,7 @@ export default function Profile() {
                                 {profile.username?.[0] || '?'}
                             </div>
                         )}
-                        {/* Overlay for avatar upload if owner */}
-                        {isOwner && (
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                                <AvatarSelector currentAvatar={profile.avatarUrl} />
-                            </div>
-                        )}
+                        {/* No longer use AvatarSelector overlay here, handled by EditProfileModal */}
                     </div>
 
                     <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2 text-center flex items-center gap-2">
@@ -161,11 +156,15 @@ export default function Profile() {
 
                     {isOwner && (
                         <div className="flex items-center gap-3">
-                            <Button onClick={handleShareProfile} variant="outline" className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white">
+                            <EditProfileModal 
+                                currentAvatar={profile.avatarUrl} 
+                                currentUsername={profile.username}
+                            />
+                            <Button onClick={handleShareProfile} variant="outline" className="mt-4 border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white">
                                 <Share2 className="w-4 h-4 mr-2" />
                                 Share Profile
                             </Button>
-                            <Button onClick={handleSignOut} variant="outline" className="border-red-900/50 text-red-500 hover:bg-red-950/30 hover:text-red-400">
+                            <Button onClick={handleSignOut} variant="outline" className="mt-4 border-red-900/50 text-red-500 hover:bg-red-950/30 hover:text-red-400">
                                 <LogOut className="w-4 h-4 mr-2" />
                                 Sign Out
                             </Button>

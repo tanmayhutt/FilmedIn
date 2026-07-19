@@ -23,3 +23,15 @@ export async function uploadCustomAvatar(formData: FormData) {
     return { error: err.message }
   }
 }
+
+export async function updateProfile(data: { username?: string, avatarUrl?: string }) {
+  try {
+    const res = await fetchApi('/users/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+    return { success: true, user: res.user, token: res.token }
+  } catch (err: any) {
+    return { error: err.message || 'Failed to update profile' }
+  }
+}

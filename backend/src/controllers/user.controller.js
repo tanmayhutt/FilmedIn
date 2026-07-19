@@ -1,4 +1,50 @@
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { username, avatarUrl } = req.body;
+    
+    // Find the user
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Validate and check username uniqueness
+    if (username && username !== user.username) {
+      if (username.length < 3) {
+        return res.status(400).json({ error: 'Username must be at least 3 characters long' });
+      }
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        return res.status(400).json({ error: 'Username can only contain letters, numbers, and underscores' });
+      }
+      
+      const existingUser = await User.findOne({ username: username.toLowerCase() });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Username is already taken' });
+      }
+      
+      user.username = username.toLowerCase();
+    }
+
+    if (avatarUrl) {
+      user.avatarUrl = avatarUrl;
+    }
+
+    await user.save();
+
+    // Generate a new token if username was updated
+    const token = jwt.sign(
+      { userId: user._id, username: user.username, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ user, token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
 
 exports.getProfile = async (req, res) => {
   try {
