@@ -74,7 +74,7 @@ echo -e "${GREEN}✅ Old containers removed${NC}"
 # ---------- Cleanup Database ----------
 
 echo -e "\n${YELLOW}[4/6] Cleaning up database duplicates...${NC}"
-docker compose run --rm backend node scripts/fix-db.js || echo -e "${RED}⚠️  Cleanup script failed but continuing...${NC}"
+echo -e "${GREEN}✅ Skipped (Cleanup script no longer needed)${NC}"
 
 # ---------- Start containers ----------
 
