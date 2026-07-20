@@ -52,7 +52,12 @@ exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-passwordHash -otp -otpExpires');
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json(user);
+    
+    const userObj = user.toObject();
+    userObj.followersCount = userObj.followers ? userObj.followers.length : 0;
+    userObj.followingCount = userObj.following ? userObj.following.length : 0;
+    
+    res.json(userObj);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -62,9 +67,81 @@ exports.getProfile = async (req, res) => {
 exports.getPublicProfile = async (req, res) => {
   try {
     const { username } = req.params;
-    const user = await User.findOne({ username }).select('username avatarUrl _id');
+    const user = await User.findOne({ username }).select('username avatarUrl _id followers following');
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json(user);
+
+    let isFollowing = false;
+    const authHeader = req.header('Authorization');
+    if (authHeader) {
+      try {
+        const token = authHeader.replace('Bearer ', '');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        isFollowing = user.followers.includes(decoded.userId);
+      } catch (e) {
+        // Ignore invalid token
+      }
+    }
+
+    res.json({
+      _id: user._id,
+      username: user.username,
+      avatarUrl: user.avatarUrl,
+      followersCount: user.followers.length,
+      followingCount: user.following.length,
+      isFollowing
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.toggleFollow = async (req, res) => {
+  try {
+    const targetUsername = req.params.username;
+    const currentUserId = req.user.id;
+    
+    const targetUser = await User.findOne({ username: targetUsername });
+    if (!targetUser) return res.status(404).json({ error: 'User not found' });
+    if (targetUser._id.toString() === currentUserId) return res.status(400).json({ error: 'Cannot follow yourself' });
+
+    const isFollowing = targetUser.followers.includes(currentUserId);
+
+    if (isFollowing) {
+      // Unfollow
+      await User.findByIdAndUpdate(currentUserId, { $pull: { following: targetUser._id } });
+      await User.findByIdAndUpdate(targetUser._id, { $pull: { followers: currentUserId } });
+    } else {
+      // Follow
+      await User.findByIdAndUpdate(currentUserId, { $addToSet: { following: targetUser._id } });
+      await User.findByIdAndUpdate(targetUser._id, { $addToSet: { followers: currentUserId } });
+    }
+
+    res.json({ success: true, isFollowing: !isFollowing });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.getFollowers = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username }).populate('followers', 'username avatarUrl');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user.followers);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.getFollowing = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username }).populate('following', 'username avatarUrl');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user.following);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -118,5 +195,26 @@ exports.deleteAccount = async (req, res) => {
   } catch (err) {
     console.error('Delete account error:', err);
     res.status(500).json({ error: 'Failed to delete account' });
+  }
+};
+
+exports.searchUsers = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) return res.json([]);
+    
+    // Search by username or email (case-insensitive)
+    const regex = new RegExp(q, 'i');
+    const users = await User.find({
+      $or: [
+        { username: regex },
+        { email: regex }
+      ]
+    }).select('_id username avatarUrl').limit(10);
+    
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
 };

@@ -46,3 +46,14 @@ export async function deleteAccount() {
     return { error: err.message || 'Failed to delete account' }
   }
 }
+
+export async function toggleFollow(username: string) {
+  try {
+    const res = await fetchApi(`/users/${username}/follow`, {
+      method: 'POST'
+    })
+    return { success: true, isFollowing: res.isFollowing }
+  } catch (err: any) {
+    return { error: err.message || 'Failed to toggle follow' }
+  }
+}

@@ -68,7 +68,6 @@ export default function Home() {
       <HeroCarousel />
 
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-12">
-        {/* Search bar */}
         <div className="w-full max-w-3xl mx-auto relative mb-16" ref={dropdownRef}>
           <form onSubmit={handleSearch} className="relative group">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-300 transition-colors z-10">

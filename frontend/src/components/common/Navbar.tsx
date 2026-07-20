@@ -1,14 +1,23 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NavbarProfile } from './NavbarProfile';
 import { Logo } from './Logo';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, User, Search } from 'lucide-react';
+import { searchUsers } from '@/services/public.service';
+import { Input } from '@/components/ui/input';
 
 export function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<'movies' | 'tv' | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
   
+  const [userQuery, setUserQuery] = useState('');
+  const [userResults, setUserResults] = useState<any[]>([]);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [searchingUsers, setSearchingUsers] = useState(false);
+
   const location = useLocation();
+  const navigate = useNavigate();
   const isHome = location.pathname === '/';
 
   const searchParams = new URLSearchParams(location.search);
@@ -24,6 +33,9 @@ export function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setActiveDropdown(null);
       }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
+        setIsUserDropdownOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -32,7 +44,27 @@ export function Navbar() {
   // Close dropdown on navigation
   useEffect(() => {
     setActiveDropdown(null);
+    setIsUserDropdownOpen(false);
   }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!userQuery.trim()) { setUserResults([]); setIsUserDropdownOpen(false); return; }
+    const timer = setTimeout(async () => {
+      setSearchingUsers(true);
+      try {
+        const data = await searchUsers(userQuery);
+        setUserResults(data.slice(0, 5));
+        setIsUserDropdownOpen(true);
+      } catch (e) { console.error(e); }
+      finally { setSearchingUsers(false); }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [userQuery]);
+
+  const handleUserSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (userQuery.trim()) { setIsUserDropdownOpen(false); navigate(`/search?u=${encodeURIComponent(userQuery)}`); }
+  };
 
   return (
     <nav className="w-full border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
@@ -198,6 +230,49 @@ export function Navbar() {
 
         {/* Right: Auth/Profile */}
         <div className="flex items-center gap-4">
+          {/* User Search */}
+          <div className="hidden lg:block relative" ref={userDropdownRef}>
+            <form onSubmit={handleUserSearch} className="relative group w-64">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-zinc-300 transition-colors z-10">
+                <Search className="h-4 w-4" />
+              </div>
+              <Input
+                type="text"
+                placeholder="Search users..."
+                className="w-full h-9 pl-9 pr-3 bg-zinc-900/50 border border-zinc-800 text-sm rounded-full focus-visible:ring-1 focus-visible:ring-zinc-600 focus-visible:border-zinc-700 transition-all placeholder:text-zinc-600 hover:bg-zinc-900/80 hover:border-zinc-700"
+                value={userQuery}
+                onChange={(e) => setUserQuery(e.target.value)}
+                onFocus={() => userQuery.trim() && userResults.length > 0 && setIsUserDropdownOpen(true)}
+              />
+            </form>
+
+            {isUserDropdownOpen && userQuery.trim().length > 0 && (
+              <div className="absolute top-full right-0 mt-2 w-72 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                {searchingUsers ? (
+                  <div className="px-4 py-3 text-zinc-600 text-xs">Searching users...</div>
+                ) : userResults.length > 0 ? (
+                  <>
+                    <div className="px-3 py-2 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider bg-zinc-900/30">Users</div>
+                    {userResults.map(user => (
+                      <button key={user._id} onClick={() => { setIsUserDropdownOpen(false); setUserQuery(''); navigate(`/u/${user.username}`); }}
+                        className="w-full px-3 py-2.5 flex items-center gap-3 hover:bg-zinc-900 transition-colors text-left group/item border-b border-zinc-900 last:border-0">
+                        <div className="w-8 h-8 bg-zinc-800 rounded-full overflow-hidden shrink-0 border border-zinc-700">
+                          {user.avatarUrl ? <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-zinc-500"><User size={12} /></div>}
+                        </div>
+                        <span className="text-zinc-200 text-sm font-medium truncate group-hover/item:text-white transition-colors">{user.username}</span>
+                      </button>
+                    ))}
+                    <button onClick={handleUserSearch} className="w-full px-3 py-2.5 text-left text-[11px] font-medium text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50 transition-colors flex items-center gap-2">
+                      <Search size={10} /> View all user results for <span className="text-zinc-400">"{userQuery}"</span>
+                    </button>
+                  </>
+                ) : (
+                  <div className="px-4 py-3 text-zinc-600 text-xs">No users found.</div>
+                )}
+              </div>
+            )}
+          </div>
+
           <NavbarProfile />
         </div>
       </div>

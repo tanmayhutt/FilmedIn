@@ -17,3 +17,30 @@ export async function getPublicPlaylists(userId: string) {
     return []
   }
 }
+
+export async function searchUsers(query: string) {
+  try {
+    return await fetchApi(`/users/search?q=${encodeURIComponent(query)}`)
+  } catch (err) {
+    console.error(err)
+    return []
+  }
+}
+
+export async function getFollowers(username: string) {
+  try {
+    return await fetchApi(`/users/${username}/followers`)
+  } catch (err) {
+    console.error(err)
+    return []
+  }
+}
+
+export async function getFollowing(username: string) {
+  try {
+    return await fetchApi(`/users/${username}/following`)
+  } catch (err) {
+    console.error(err)
+    return []
+  }
+}
