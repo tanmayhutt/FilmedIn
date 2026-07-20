@@ -2,7 +2,8 @@
 
 import { useState, useRef } from 'react'
 import { PRESET_AVATARS } from '@/utils/avatars'
-import { updateProfile, uploadCustomAvatar } from '@/services/user.service'
+import { updateProfile, uploadCustomAvatar, deleteAccount } from '@/services/user.service'
+import { signout } from '@/services/auth.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
@@ -20,6 +21,10 @@ export function EditProfileModal({ currentAvatar, currentUsername, autoOpen }: P
   const [loading, setLoading] = useState(false)
   const [username, setUsername] = useState(currentUsername)
   const [avatar, setAvatar] = useState(currentAvatar || '')
+  
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteInput, setDeleteInput] = useState('')
+  const [deleting, setDeleting] = useState(false)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   
@@ -60,6 +65,22 @@ export function EditProfileModal({ currentAvatar, currentUsername, autoOpen }: P
       window.location.href = `/u/${username}`
     } else {
       toast.error(res.error || 'Failed to update profile')
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (deleteInput !== 'delete') {
+      return toast.error('Type "delete" to confirm')
+    }
+    setDeleting(true)
+    const res = await deleteAccount()
+    if (res.success) {
+      await signout()
+      toast.success('Account deleted successfully')
+      window.location.href = '/'
+    } else {
+      toast.error(res.error || 'Failed to delete account')
+      setDeleting(false)
     }
   }
 
@@ -153,13 +174,45 @@ export function EditProfileModal({ currentAvatar, currentUsername, autoOpen }: P
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-zinc-800 mt-2">
-              <Button onClick={() => setIsOpen(false)} variant="ghost" className="text-zinc-400 hover:text-white hover:bg-zinc-800">
-                Cancel
-              </Button>
-              <Button onClick={handleSave} disabled={loading} className="bg-blue-600 hover:bg-blue-500 text-white min-w-[100px]">
-                {loading ? <Spinner className="w-4 h-4" /> : 'Save Changes'}
-              </Button>
+            {showDeleteConfirm && (
+              <div className="mt-4 p-4 border border-red-900/50 bg-red-950/20 rounded-xl flex flex-col gap-3 animate-in fade-in slide-in-from-top-2">
+                <p className="text-sm text-red-400 font-medium">
+                  Warning: This action is permanent. All your playlists and items will be deleted.
+                </p>
+                <div className="flex gap-3">
+                  <Input 
+                    value={deleteInput}
+                    onChange={e => setDeleteInput(e.target.value)}
+                    placeholder="Type 'delete' to confirm"
+                    className="bg-zinc-900 border-red-900/50 text-white focus:border-red-500"
+                  />
+                  <Button 
+                    onClick={handleDeleteAccount}
+                    disabled={deleteInput !== 'delete' || deleting}
+                    className="bg-red-600 hover:bg-red-500 text-white disabled:opacity-50"
+                  >
+                    {deleting ? <Spinner className="w-4 h-4" /> : 'Delete Forever'}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center pt-4 border-t border-zinc-800 mt-2">
+              <button 
+                onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
+                className="text-xs text-zinc-600 hover:text-red-500 transition-colors"
+                type="button"
+              >
+                Delete Account
+              </button>
+              <div className="flex gap-3">
+                <Button onClick={() => setIsOpen(false)} variant="ghost" className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+                  Cancel
+                </Button>
+                <Button onClick={handleSave} disabled={loading || deleting} className="bg-blue-600 hover:bg-blue-500 text-white min-w-[100px]">
+                  {loading ? <Spinner className="w-4 h-4" /> : 'Save Changes'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

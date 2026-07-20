@@ -45,7 +45,7 @@ export function NavbarProfile() {
   if (!profile) {
     return (
       <div className="flex items-center gap-4">
-        <Link to="/login" className="text-sm font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors">
+        <Link to={`/login?redirect=${encodeURIComponent(location.pathname)}`} className="text-sm font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors">
           Sign in with Google
         </Link>
       </div>

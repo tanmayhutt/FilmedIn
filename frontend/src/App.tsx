@@ -13,6 +13,7 @@ import TVDetails from '@/pages/TVDetails'
 import Profile from '@/pages/Profile'
 import PlaylistDetails from '@/pages/PlaylistDetails'
 import Login from '@/pages/Login'
+import Onboarding from '@/pages/Onboarding'
 import Studio from '@/pages/Studio'
 import StudiosIndex from '@/pages/StudiosIndex'
 import Explore from '@/pages/Explore'
@@ -34,6 +35,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/search" element={<Search />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/u/:username" element={<Profile />} />

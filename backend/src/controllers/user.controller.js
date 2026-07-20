@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const Playlist = require('../models/Playlist');
+const PlaylistItem = require('../models/PlaylistItem');
 const jwt = require('jsonwebtoken');
 
 exports.updateProfile = async (req, res) => {
@@ -90,5 +92,31 @@ exports.uploadAvatar = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Find all playlists owned by the user
+    const playlists = await Playlist.find({ userId });
+    const playlistIds = playlists.map(p => p._id);
+
+    // Delete all playlist items
+    await PlaylistItem.deleteMany({ playlistId: { $in: playlistIds } });
+    
+    // Delete all playlists
+    await Playlist.deleteMany({ userId });
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    res.json({ success: true, message: 'Account and all related data deleted successfully' });
+  } catch (err) {
+    console.error('Delete account error:', err);
+    res.status(500).json({ error: 'Failed to delete account' });
   }
 };

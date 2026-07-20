@@ -16,20 +16,7 @@ export async function googleLoginAction(credential: string) {
   }
 }
 
-export async function devLoginAction() {
-  try {
-    const res = await fetchApi('/auth/dev-login', {
-      method: 'POST'
-    })
-    
-    if (res.token) {
-      localStorage.setItem('token', res.token)
-    }
-    return { success: true, user: res.user, isNewUser: res.isNewUser }
-  } catch (err: any) {
-    return { error: err.message }
-  }
-}
+
 
 export async function signout() {
   localStorage.removeItem('token')

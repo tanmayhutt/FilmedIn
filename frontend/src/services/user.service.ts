@@ -35,3 +35,14 @@ export async function updateProfile(data: { username?: string, avatarUrl?: strin
     return { error: err.message || 'Failed to update profile' }
   }
 }
+
+export async function deleteAccount() {
+  try {
+    const res = await fetchApi('/users/me', {
+      method: 'DELETE'
+    })
+    return { success: true }
+  } catch (err: any) {
+    return { error: err.message || 'Failed to delete account' }
+  }
+}

@@ -62,10 +62,13 @@ exports.googleLogin = async (req, res) => {
         { userId: user._id, name: 'Currently Watching', type: 'system' },
         { userId: user._id, name: 'Watched', type: 'system' }
       ]);
-    } else if (!user.googleId) {
+    } else if (user) {
       // If user exists but hasn't linked Google, update them
-      user.googleId = googleId;
-      if (!user.avatarUrl) user.avatarUrl = picture;
+      if (!user.googleId) user.googleId = googleId;
+      // Upgrade placeholder avatar to Google PFP
+      if (!user.avatarUrl || user.avatarUrl.includes('dicebear.com')) {
+        user.avatarUrl = picture;
+      }
       await user.save();
     }
 
@@ -92,50 +95,7 @@ exports.googleLogin = async (req, res) => {
   }
 };
 
-exports.devLogin = async (req, res) => {
-  try {
-    const email = 'dev@local.host';
-    let user = await User.findOne({ email });
-    let isNewUser = false;
 
-    if (!user) {
-      isNewUser = true;
-      user = new User({
-        email,
-        username: 'devuser' + Math.floor(Math.random() * 1000),
-        googleId: 'dev-google-id',
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=dev',
-      });
-      await user.save();
-
-      await Playlist.insertMany([
-        { userId: user._id, name: 'Watchlist', type: 'system' },
-        { userId: user._id, name: 'Currently Watching', type: 'system' },
-        { userId: user._id, name: 'Watched', type: 'system' }
-      ]);
-    }
-
-    const token = jwt.sign(
-      { userId: user._id, username: user.username, email: user.email },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.json({
-      token,
-      isNewUser,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        avatarUrl: user.avatarUrl
-      }
-    });
-  } catch (err) {
-    console.error('Dev Auth Error:', err);
-    res.status(500).json({ error: 'Dev Auth failed' });
-  }
-};
 
 exports.getMe = async (req, res) => {
   try {

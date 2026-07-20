@@ -54,7 +54,10 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
 app.use(cors({
   origin: (origin, callback) => {
     // Allow server-to-server (no origin) and explicitly allowed origins
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+      return callback(null, true);
+    }
+    console.error(`[CORS REJECTED] Origin: '${origin}' not in allowed list:`, allowedOrigins);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
