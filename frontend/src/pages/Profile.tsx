@@ -125,6 +125,10 @@ export default function Profile() {
         return <div className="p-12 text-center text-zinc-500">Loading profile...</div>
     }
 
+    if (!profile) {
+        return null // Avoid crashing if we are navigating away or profile is missing
+    }
+
     return (
         <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in relative">
             {/* Profile Header Redesign */}
@@ -159,6 +163,7 @@ export default function Profile() {
                             <EditProfileModal 
                                 currentAvatar={profile.avatarUrl} 
                                 currentUsername={profile.username}
+                                autoOpen={new URLSearchParams(location.search).get('edit') === 'true'}
                             />
                             <Button onClick={handleShareProfile} variant="outline" className="mt-4 border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white">
                                 <Share2 className="w-4 h-4 mr-2" />

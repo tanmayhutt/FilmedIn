@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://api.filmedin.tanmaytiwari.me';
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.filmedin.tanmaytiwari.me/api';
 
 export async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');

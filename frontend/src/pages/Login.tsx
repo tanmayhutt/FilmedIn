@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { toast } from 'react-hot-toast'
-import { googleLoginAction } from '@/services/auth.service'
+import { googleLoginAction, devLoginAction } from '@/services/auth.service'
 import { Film } from 'lucide-react'
 
 export default function Login() {
@@ -10,15 +10,22 @@ export default function Login() {
   const navigate = useNavigate()
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
+    console.log('Google credential received', credentialResponse)
     setLoading(true)
     const res = await googleLoginAction(credentialResponse.credential)
+    console.log('Auth response:', res)
     setLoading(false)
     if (res.error) {
+      console.error('Login error:', res.error)
       toast.error(res.error)
     } else {
+      console.log('Login success!', res)
       toast.success('Successfully logged in!')
-      navigate('/')
-      window.location.reload()
+      if (res.isNewUser && res.user?.username) {
+        window.location.href = `/u/${res.user.username}?edit=true`
+      } else {
+        window.location.href = '/'
+      }
     }
   }
 
@@ -42,13 +49,37 @@ export default function Login() {
             {loading ? (
               <div className="text-zinc-400 animate-pulse">Signing you in...</div>
             ) : (
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                theme="filled_black"
-                size="large"
-                shape="pill"
-              />
+              <div className="flex flex-col gap-4 w-full items-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  theme="filled_black"
+                  size="large"
+                  shape="pill"
+                />
+                
+                {import.meta.env.DEV && (
+                  <button
+                    onClick={async () => {
+                      setLoading(true);
+                      const res = await devLoginAction();
+                      setLoading(false);
+                      if (res.error) toast.error(res.error);
+                      else {
+                        toast.success('Dev Login Success');
+                        if (res.isNewUser && res.user?.username) {
+                          window.location.href = `/u/${res.user.username}?edit=true`;
+                        } else {
+                          window.location.href = '/';
+                        }
+                      }
+                    }}
+                    className="mt-4 px-6 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-full text-zinc-300 text-sm font-medium transition-colors"
+                  >
+                    Bypass Login (Dev Only)
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>

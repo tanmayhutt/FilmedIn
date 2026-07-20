@@ -12,10 +12,11 @@ import toast from 'react-hot-toast'
 interface Props {
   currentAvatar?: string
   currentUsername: string
+  autoOpen?: boolean
 }
 
-export function EditProfileModal({ currentAvatar, currentUsername }: Props) {
-  const [isOpen, setIsOpen] = useState(false)
+export function EditProfileModal({ currentAvatar, currentUsername, autoOpen }: Props) {
+  const [isOpen, setIsOpen] = useState(autoOpen || false)
   const [loading, setLoading] = useState(false)
   const [username, setUsername] = useState(currentUsername)
   const [avatar, setAvatar] = useState(currentAvatar || '')

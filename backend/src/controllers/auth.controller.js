@@ -32,8 +32,10 @@ exports.googleLogin = async (req, res) => {
 
     // Check if user already exists
     let user = await User.findOne({ email: email.toLowerCase() });
+    let isNewUser = false;
 
     if (!user) {
+      isNewUser = true;
       // Create new user if they don't exist
       // Generate a valid username from their name or email
       let baseUsername = name ? name.toLowerCase().replace(/[^a-z0-9_]/g, '') : email.split('@')[0].replace(/[^a-z0-9_]/g, '');
@@ -76,6 +78,7 @@ exports.googleLogin = async (req, res) => {
 
     res.json({
       token,
+      isNewUser,
       user: {
         id: user._id,
         username: user.username,
@@ -86,6 +89,51 @@ exports.googleLogin = async (req, res) => {
   } catch (err) {
     console.error('Google Auth Error:', err);
     res.status(500).json({ error: 'Authentication failed' });
+  }
+};
+
+exports.devLogin = async (req, res) => {
+  try {
+    const email = 'dev@local.host';
+    let user = await User.findOne({ email });
+    let isNewUser = false;
+
+    if (!user) {
+      isNewUser = true;
+      user = new User({
+        email,
+        username: 'devuser' + Math.floor(Math.random() * 1000),
+        googleId: 'dev-google-id',
+        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=dev',
+      });
+      await user.save();
+
+      await Playlist.insertMany([
+        { userId: user._id, name: 'Watchlist', type: 'system' },
+        { userId: user._id, name: 'Currently Watching', type: 'system' },
+        { userId: user._id, name: 'Watched', type: 'system' }
+      ]);
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, username: user.username, email: user.email },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      token,
+      isNewUser,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        avatarUrl: user.avatarUrl
+      }
+    });
+  } catch (err) {
+    console.error('Dev Auth Error:', err);
+    res.status(500).json({ error: 'Dev Auth failed' });
   }
 };
 
