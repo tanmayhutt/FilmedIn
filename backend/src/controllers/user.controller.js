@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { username, avatarUrl } = req.body;
+    const { username, avatarUrl, bannerUrl, bio } = req.body;
     
     // Find the user
     const user = await User.findById(req.user.id);
@@ -28,8 +28,14 @@ exports.updateProfile = async (req, res) => {
       user.username = username.toLowerCase();
     }
 
-    if (avatarUrl) {
+    if (avatarUrl !== undefined) {
       user.avatarUrl = avatarUrl;
+    }
+    if (bannerUrl !== undefined) {
+      user.bannerUrl = bannerUrl;
+    }
+    if (bio !== undefined) {
+      user.bio = bio;
     }
 
     await user.save();
@@ -165,6 +171,18 @@ exports.uploadAvatar = async (req, res) => {
     // Cloudinary returns the secure URL directly on req.file.path
     const avatarUrl = req.file.path;
     const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl }, { new: true }).select('-passwordHash');
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.uploadBanner = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const bannerUrl = req.file.path;
+    const user = await User.findByIdAndUpdate(req.user.id, { bannerUrl }, { new: true }).select('-passwordHash');
     res.json(user);
   } catch (err) {
     console.error(err);

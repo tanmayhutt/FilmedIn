@@ -28,6 +28,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  bannerUrl: {
+    type: String,
+    default: null
+  },
+  bio: {
+    type: String,
+    default: ''
+  },
   followers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

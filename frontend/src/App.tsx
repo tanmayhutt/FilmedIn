@@ -24,11 +24,14 @@ export default function App() {
   return (
     <>
       <Toaster position="bottom-right" toastOptions={{
+        icon: null,
         style: {
           background: '#18181b',
           color: '#fff',
           border: '1px solid #27272a'
-        }
+        },
+        success: { icon: null },
+        error: { icon: null }
       }} />
       <ScrollToTop />
       <Navbar />

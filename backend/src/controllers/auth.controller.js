@@ -60,7 +60,8 @@ exports.googleLogin = async (req, res) => {
       await Playlist.insertMany([
         { userId: user._id, name: 'Watchlist', type: 'system' },
         { userId: user._id, name: 'Currently Watching', type: 'system' },
-        { userId: user._id, name: 'Watched', type: 'system' }
+        { userId: user._id, name: 'Watched', type: 'system' },
+        { userId: user._id, name: 'Liked', type: 'system' }
       ]);
     } else if (user) {
       // If user exists but hasn't linked Google, update them

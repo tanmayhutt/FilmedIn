@@ -4,13 +4,16 @@ import { fetchApi } from '@/services/api.client'
 import { signout } from '@/services/auth.service'
 import { toggleFollow } from '@/services/user.service'
 import { getPlaylists, createPlaylist, deletePlaylist } from '@/services/playlist.service'
-import { getPublicProfile, getPublicPlaylists, getFollowers, getFollowing } from '@/services/public.service'
+import { getPublicProfile, getPublicPlaylists, getFollowers, getFollowing, searchUsers } from '@/services/public.service'
 import { EditProfileModal } from '@/components/features/EditProfileModal'
 import { useSavedMedia } from '@/context/SavedMediaContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, LogOut, Trash2, Share2, Bookmark, UserPlus, UserMinus, User, X, Sparkles } from 'lucide-react'
+import { Plus, LogOut, Trash2, Share2, Bookmark, UserPlus, UserMinus, User, X, Sparkles, Search } from 'lucide-react'
+import { PRESET_AVATARS } from '@/utils/avatars'
 import toast from 'react-hot-toast'
+
+import { UserAvatar } from '@/components/common/UserAvatar'
 
 export default function Profile() {
     const navigate = useNavigate()
@@ -27,9 +30,105 @@ export default function Profile() {
     const [followLoading, setFollowLoading] = useState(false)
     const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false)
     const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false)
+
+    // Dedicated User Search state on Profile
+    const [userQuery, setUserQuery] = useState('')
+    const [userResults, setUserResults] = useState<any[]>([])
+    const [searchingUsers, setSearchingUsers] = useState(false)
+    const [isUserSearchOpen, setIsUserSearchOpen] = useState(false)
+
+    useEffect(() => {
+        if (!userQuery.trim()) { setUserResults([]); setIsUserSearchOpen(false); return }
+        const timer = setTimeout(async () => {
+            setSearchingUsers(true)
+            try {
+                const data = await searchUsers(userQuery)
+                setUserResults(data.slice(0, 5))
+                setIsUserSearchOpen(true)
+            } catch (e) { console.error(e) }
+            finally { setSearchingUsers(false) }
+        }, 300)
+        return () => clearTimeout(timer)
+    }, [userQuery])
     const [followersList, setFollowersList] = useState<any[]>([])
     const [followingList, setFollowingList] = useState<any[]>([])
     const [modalLoading, setModalLoading] = useState(false)
+    const [pfpTheme, setPfpTheme] = useState<{ r: number; g: number; b: number } | null>(null)
+
+    useEffect(() => {
+        if (!profile) return
+
+        const url = profile.avatarUrl || ''
+        const isPreset = !url || url.includes('api.dicebear.com') || PRESET_AVATARS.some(p => url.includes(p))
+
+        if (isPreset) {
+            setPfpTheme(null)
+            return
+        }
+
+        // Helper to generate a unique vivid RGB color from string seed
+        const getUniqueColor = (seed: string) => {
+            let hash = 0
+            for (let i = 0; i < seed.length; i++) hash = seed.charCodeAt(i) + ((hash << 5) - hash)
+            const h = Math.abs(hash) % 360
+            const s = 0.65
+            const l = 0.5
+            const c = (1 - Math.abs(2 * l - 1)) * s
+            const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
+            const m = l - c / 2
+            let rP = 0, gP = 0, bP = 0
+            if (h < 60) { rP = c; gP = x; bP = 0 }
+            else if (h < 120) { rP = x; gP = c; bP = 0 }
+            else if (h < 180) { rP = 0; gP = c; bP = x }
+            else if (h < 240) { rP = 0; gP = x; bP = c }
+            else if (h < 300) { rP = x; gP = 0; bP = c }
+            else { rP = c; gP = 0; bP = x }
+            return {
+                r: Math.round((rP + m) * 255),
+                g: Math.round((gP + m) * 255),
+                b: Math.round((bP + m) * 255)
+            }
+        }
+
+        const img = new Image()
+        img.crossOrigin = 'Anonymous'
+        img.src = url
+        img.onload = () => {
+            try {
+                const canvas = document.createElement('canvas')
+                canvas.width = 16
+                canvas.height = 16
+                const ctx = canvas.getContext('2d')
+                if (!ctx) return setPfpTheme(getUniqueColor(url + (profile.username || '')))
+                ctx.drawImage(img, 0, 0, 16, 16)
+                const data = ctx.getImageData(0, 0, 16, 16).data
+                let r = 0, g = 0, b = 0, count = 0
+                for (let i = 0; i < data.length; i += 4) {
+                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3
+                    if (avg > 25 && avg < 235) {
+                        r += data[i]
+                        g += data[i + 1]
+                        b += data[i + 2]
+                        count++
+                    }
+                }
+                if (count > 0) {
+                    setPfpTheme({
+                        r: Math.round(r / count),
+                        g: Math.round(g / count),
+                        b: Math.round(b / count)
+                    })
+                } else {
+                    setPfpTheme(getUniqueColor(url + (profile.username || '')))
+                }
+            } catch {
+                setPfpTheme(getUniqueColor(url + (profile.username || '')))
+            }
+        }
+        img.onerror = () => {
+            setPfpTheme(getUniqueColor(url + (profile.username || '')))
+        }
+    }, [profile?.avatarUrl, profile?.username])
 
     useEffect(() => {
         const initializeProfile = async () => {
@@ -154,6 +253,19 @@ export default function Profile() {
         setModalLoading(false)
     }
 
+    const handleCreatePlaylist = async () => {
+        const name = window.prompt('Enter playlist title:')
+        if (!name || !name.trim()) return
+        try {
+            await createPlaylist(name.trim())
+            toast.success('Playlist created!')
+            const ownerPlaylists = await getPlaylists()
+            setPlaylists(ownerPlaylists)
+        } catch (err) {
+            toast.error('Failed to create playlist')
+        }
+    }
+
     const handleDeletePlaylist = async (id: string) => {
         const res = await deletePlaylist(id)
         if (res.success) {
@@ -169,115 +281,180 @@ export default function Profile() {
         return null // Avoid crashing if we are navigating away or profile is missing
     }
 
+    const themeR = pfpTheme?.r ?? 99
+    const themeG = pfpTheme?.g ?? 102
+    const themeB = pfpTheme?.b ?? 241
+
     return (
-        <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in relative">
-            {/* Profile Header Redesign */}
-            <div className="relative mb-16 rounded-3xl overflow-hidden bg-zinc-900 border border-zinc-800">
-                <div className="h-48 sm:h-64 bg-gradient-to-tr from-blue-600 via-purple-600 to-pink-600 w-full opacity-80"></div>
-                <div className="px-6 sm:px-12 pb-8 flex flex-col items-center -mt-16 sm:-mt-20 relative z-10">
-                    <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-zinc-900 bg-zinc-800 shadow-2xl mb-4 relative group">
-                        {profile.avatarUrl ? (
-                            <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-zinc-500 uppercase">
-                                {profile.username?.[0] || '?'}
+        <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-10 animate-in fade-in relative space-y-10">
+            {/* ✦ Premium Social Media Profile Header ✦ */}
+            <div className="clay-card p-0 overflow-visible relative border border-white/10">
+                {/* Cinematic Header Cover Backdrop */}
+                <div 
+                    className="h-44 sm:h-60 w-full relative overflow-hidden rounded-t-[16px] transition-all duration-700 bg-zinc-900"
+                    style={{
+                        background: profile.bannerUrl ? undefined : `linear-gradient(135deg, rgba(${themeR}, ${themeG}, ${themeB}, 0.85), rgba(${Math.max(15, themeR - 60)}, ${Math.max(15, themeG - 60)}, ${Math.max(15, themeB - 60)}, 0.98))`
+                    }}
+                >
+                    {profile.bannerUrl && (
+                        <img 
+                            src={profile.bannerUrl} 
+                            alt="Cover Banner" 
+                            className="w-full h-full object-cover" 
+                        />
+                    )}
+                    <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#121215] via-transparent to-transparent opacity-90" />
+                </div>
+
+                {/* Main Profile Info Row */}
+                <div className="px-6 sm:px-10 pb-8 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-6 -mt-16 sm:-mt-20 relative z-10">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 text-center sm:text-left">
+                        {/* Avatar */}
+                        <UserAvatar
+                            avatarUrl={profile.avatarUrl}
+                            username={profile.username}
+                            className="w-28 h-28 sm:w-36 sm:h-36 border-4 border-[#121215] shadow-2xl shrink-0 text-4xl"
+                        />
+
+                        {/* User Details */}
+                        <div className="space-y-1 mb-1">
+                            <div className="flex items-center justify-center sm:justify-start gap-2.5">
+                                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                                    {profile.username}
+                                </h1>
+                                {!isOwner && (
+                                    <span 
+                                        className="text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider clay-badge"
+                                        style={{ background: `rgba(${themeR}, ${themeG}, ${themeB}, 0.3)` }}
+                                    >
+                                        Cinephile
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-xs text-zinc-400 font-medium">
+                                @{profile.username} {profile.bio ? `• ${profile.bio}` : ''}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Social Stats Row */}
+                    <div className="flex items-center gap-6 bg-black/40 border border-white/5 px-6 py-3 rounded-2xl backdrop-blur-md">
+                        <div className="flex flex-col items-center">
+                            <span className="text-white font-bold text-base">{playlists.length}</span>
+                            <span className="text-zinc-400 uppercase tracking-wider text-[10px]">Playlists</span>
+                        </div>
+                        <div className="w-px h-6 bg-white/10" />
+                        <button onClick={openFollowersModal} className="flex flex-col items-center hover:text-white transition-colors group">
+                            <span className="text-white font-bold text-base">{followersCount}</span>
+                            <span className="text-zinc-400 uppercase tracking-wider text-[10px] group-hover:text-zinc-200">Followers</span>
+                        </button>
+                        <div className="w-px h-6 bg-white/10" />
+                        <button onClick={openFollowingModal} className="flex flex-col items-center hover:text-white transition-colors group">
+                            <span className="text-white font-bold text-base">{followingCount}</span>
+                            <span className="text-zinc-400 uppercase tracking-wider text-[10px] group-hover:text-zinc-200">Following</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Profile Action Toolbar & User Search */}
+                <div className="px-6 sm:px-10 pb-6 pt-2 border-t border-white/5 flex flex-wrap items-center justify-between gap-4">
+                    {/* User Search Socket */}
+                    <div className="relative z-50">
+                        <div className="relative group w-64">
+                            <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-zinc-400 group-focus-within:text-white transition-colors pointer-events-none" />
+                            <Input
+                                type="text"
+                                placeholder="Search cinephiles..."
+                                className="w-full h-9 pl-9 pr-3 text-xs bg-black/50 border border-white/10 rounded-xl placeholder:text-zinc-500 focus:border-white/30 transition-all"
+                                value={userQuery}
+                                onChange={(e) => setUserQuery(e.target.value)}
+                                onFocus={() => userQuery.trim() && userResults.length > 0 && setIsUserSearchOpen(true)}
+                            />
+                        </div>
+
+                        {isUserSearchOpen && userQuery.trim().length > 0 && (
+                            <div className="absolute top-full left-0 mt-2 w-72 bg-[#121215] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 animate-in fade-in slide-in-from-top-2">
+                                {searchingUsers ? (
+                                    <div className="px-3 py-2 text-zinc-500 text-xs">Searching users...</div>
+                                ) : userResults.length > 0 ? (
+                                    userResults.map(u => (
+                                        <button
+                                            key={u._id}
+                                            onClick={() => {
+                                                setIsUserSearchOpen(false)
+                                                setUserQuery('')
+                                                navigate(`/u/${u.username}`)
+                                            }}
+                                            className="w-full px-3 py-2 flex items-center gap-2.5 hover:bg-white/5 transition-colors text-left rounded-xl"
+                                        >
+                                            <UserAvatar avatarUrl={u.avatarUrl} username={u.username} className="w-6 h-6 border border-zinc-700" />
+                                            <span className="text-xs font-medium text-zinc-200 truncate">{u.username}</span>
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="px-3 py-2 text-zinc-500 text-xs">No users found.</div>
+                                )}
                             </div>
                         )}
-                        {/* No longer use AvatarSelector overlay here, handled by EditProfileModal */}
                     </div>
 
-                    <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2 text-center flex items-center gap-2">
-                        {profile.username}
-                        {!isOwner && (
-                            <span className="bg-white/10 text-white text-xs px-2 py-0.5 rounded-full font-medium tracking-wide uppercase border border-white/10">
-                                Public
-                            </span>
-                        )}
-                    </h1>
-                    
-                    <div className="flex items-center gap-6 text-sm text-zinc-300 mb-6 font-medium">
-                        <div className="flex flex-col items-center">
-                            <span className="text-white font-bold text-lg">{playlists.length}</span>
-                            <span className="text-zinc-500 uppercase tracking-wider text-[10px]">Playlists</span>
-                        </div>
-                        <div className="w-px h-8 bg-zinc-800"></div>
-                        <button onClick={openFollowersModal} className="flex flex-col items-center hover:text-white transition-colors group">
-                            <span className="text-white font-bold text-lg group-hover:text-blue-400 transition-colors">{followersCount}</span>
-                            <span className="text-zinc-500 uppercase tracking-wider text-[10px] group-hover:text-zinc-400">Followers</span>
-                        </button>
-                        <div className="w-px h-8 bg-zinc-800"></div>
-                        <button onClick={openFollowingModal} className="flex flex-col items-center hover:text-white transition-colors group">
-                            <span className="text-white font-bold text-lg group-hover:text-blue-400 transition-colors">{followingCount}</span>
-                            <span className="text-zinc-500 uppercase tracking-wider text-[10px] group-hover:text-zinc-400">Following</span>
-                        </button>
-                    </div>
-
+                    {/* Action Buttons */}
                     <div className="flex items-center gap-3">
                         {isOwner ? (
                             <>
                                 <EditProfileModal 
-                                    currentAvatar={profile.avatarUrl} 
+                                    currentAvatar={profile.avatarUrl}
+                                    currentBanner={profile.bannerUrl}
+                                    currentBio={profile.bio}
                                     currentUsername={profile.username}
                                     autoOpen={new URLSearchParams(location.search).get('edit') === 'true'}
                                 />
-                                <Button onClick={handleShareProfile} variant="outline" className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white">
-                                    <Share2 className="w-4 h-4 mr-2" />
-                                    Share Profile
-                                </Button>
-                                <Button onClick={handleSignOut} variant="outline" className="border-red-900/50 text-red-500 hover:bg-red-950/30 hover:text-red-400">
-                                    <LogOut className="w-4 h-4 mr-2" />
+                                <button onClick={handleShareProfile} className="px-4 py-2 bg-white/5 hover:bg-white/10 text-xs font-semibold text-zinc-200 border border-white/10 rounded-xl flex items-center gap-2 transition-all">
+                                    <Share2 className="w-3.5 h-3.5" />
+                                    Share
+                                </button>
+                                <button onClick={handleSignOut} className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-xs font-semibold text-rose-400 border border-rose-500/20 rounded-xl flex items-center gap-2 transition-all">
+                                    <LogOut className="w-3.5 h-3.5" />
                                     Sign Out
-                                </Button>
+                                </button>
                             </>
                         ) : (
                             <>
-                                <Button 
+                                <button 
                                     onClick={handleToggleFollow} 
                                     disabled={followLoading}
-                                    variant={isFollowing ? "outline" : "default"}
-                                    className={isFollowing 
-                                        ? "border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white min-w-[120px]" 
-                                        : "bg-blue-600 hover:bg-blue-500 text-white min-w-[120px]"
-                                    }
+                                    className="px-5 py-2 text-xs font-bold transition-all min-w-[100px] rounded-xl flex items-center justify-center gap-2"
+                                    style={{
+                                        background: isFollowing 
+                                            ? 'rgba(255, 255, 255, 0.1)'
+                                            : `linear-gradient(145deg, rgb(${themeR}, ${themeG}, ${themeB}), rgba(${themeR}, ${themeG}, ${themeB}, 0.8))`,
+                                        color: '#ffffff'
+                                    }}
                                 >
-                                    {isFollowing ? <><UserMinus className="w-4 h-4 mr-2" /> Unfollow</> : <><UserPlus className="w-4 h-4 mr-2" /> Follow</>}
-                                </Button>
-                                <a 
-                                    href={`/blend/${profile.username}`} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                >
-                                    <button 
-                                        className="px-5 py-2.5 clay-button-secondary text-xs flex items-center"
-                                    >
-                                        <Sparkles className="w-4 h-4 mr-2 text-zinc-400" />
-                                        Compare Taste
+                                    {isFollowing ? <><UserMinus className="w-3.5 h-3.5" /> Unfollow</> : <><UserPlus className="w-3.5 h-3.5" /> Follow</>}
+                                </button>
+                                <a href={`/blend/${profile.username}`} target="_blank" rel="noopener noreferrer">
+                                    <button className="px-4 py-2 bg-white/5 hover:bg-white/10 text-xs font-semibold text-zinc-200 border border-white/10 rounded-xl flex items-center gap-2 transition-all">
+                                        <Sparkles className="w-3.5 h-3.5" /> Taste Blend
                                     </button>
                                 </a>
-                                <button onClick={handleShareProfile} className="px-5 py-2.5 clay-button-secondary text-xs flex items-center">
-                                    <Share2 className="w-4 h-4 mr-2" />
-                                    Share
-                                </button>
                             </>
                         )}
                     </div>
                 </div>
             </div>
 
-            <section>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <h2 className="text-2xl font-bold">{isOwner ? 'Your Playlists' : 'Playlists'}</h2>
+            {/* ── Playlists Section ── */}
+            <section className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h2 className="text-xl font-bold text-white">{isOwner ? 'Your Playlists & Watchlists' : `${profile.username}'s Playlists`}</h2>
                     {isOwner && (
                         <button 
-                            onClick={() => openCreateModal({
-                                onCreated: async () => {
-                                    const ownerPlaylists = await getPlaylists();
-                                    setPlaylists(ownerPlaylists);
-                                }
-                            })} 
-                            className="px-6 py-2.5 clay-button-primary text-xs flex items-center"
+                            onClick={handleCreatePlaylist} 
+                            className="px-5 py-2 text-xs font-bold transition-all rounded-full flex items-center justify-center gap-2 bg-white text-black hover:bg-zinc-200"
                         >
-                            <Plus className="w-4 h-4 mr-2" />
+                            <Plus className="w-4 h-4" />
                             Create Playlist
                         </button>
                     )}
@@ -376,15 +553,7 @@ export default function Profile() {
                                                 }}
                                                 className="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800 transition-colors group"
                                             >
-                                                <div className="w-10 h-10 rounded-full overflow-hidden border border-zinc-700 bg-zinc-800 shrink-0">
-                                                    {user.avatarUrl ? (
-                                                        <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center">
-                                                            <User className="w-4 h-4 text-zinc-500" />
-                                                        </div>
-                                                    )}
-                                                </div>
+                                                <UserAvatar avatarUrl={user.avatarUrl} username={user.username} className="w-10 h-10 border border-zinc-700" />
                                                 <span className="font-medium text-zinc-200 group-hover:text-white truncate">
                                                     {user.username}
                                                 </span>

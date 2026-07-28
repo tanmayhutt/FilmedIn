@@ -43,6 +43,14 @@ async function getPosterPath(tmdbId, mediaType) {
 
 exports.getPlaylists = async (req, res) => {
   try {
+    const requiredPresets = ['Watchlist', 'Currently Watching', 'Watched', 'Liked'];
+    for (const preset of requiredPresets) {
+      const exists = await Playlist.findOne({ userId: req.user.id, name: preset });
+      if (!exists) {
+        await Playlist.create({ userId: req.user.id, name: preset, type: 'system' });
+      }
+    }
+
     const playlists = await Playlist.find({ userId: req.user.id }).sort({ createdAt: -1 }).lean();
     for (let pl of playlists) {
       const items = await PlaylistItem.find({ playlistId: pl._id }).sort({ createdAt: -1 });

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { TMDBMovie, TMDBTVShow } from '@/services/tmdb.service'
-import { Star, Bookmark, Check, Plus, Lock } from 'lucide-react'
+import { Star, Bookmark, Check, Plus, Lock, Heart } from 'lucide-react'
 import { useMediaCard } from '@/hooks/useMediaCard'
 import {
   DropdownMenu,
@@ -19,10 +19,10 @@ function RatingBadge({ rating, isUnreleased }: { rating: number, isUnreleased: b
     )
   }
   if (!rating || rating === 0) return null
-  const color = rating >= 7.5 ? 'bg-yellow-500/90' : rating >= 6 ? 'bg-zinc-700/90' : 'bg-red-900/80'
+  const color = rating >= 7.5 ? 'bg-amber-500/90' : rating >= 6 ? 'bg-zinc-700/90' : 'bg-rose-900/80'
   return (
-    <div className={`absolute top-2 left-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-xs font-bold text-white ${color} backdrop-blur-sm z-10`}>
-      <Star className="w-2.5 h-2.5 fill-white stroke-none" />
+    <div className={`absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold text-white ${color} backdrop-blur-md z-10 border border-white/10 shadow-md`}>
+      <Star className="w-3 h-3 fill-white stroke-none" />
       {rating.toFixed(1)}
     </div>
   )
@@ -32,8 +32,8 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
   const navigate = useNavigate()
   const {
     isMovie, title, year, isUnreleased, rating, href,
-    saved, hasToken, savedPlaylistNames, userPlaylists,
-    isItemInPlaylist, handleToggle, handleOpenCreateModal
+    saved, isLiked, hasToken, savedPlaylistNames, userPlaylists,
+    isItemInPlaylist, handleToggle, handleToggleLike, handleOpenCreateModal
   } = useMediaCard(media)
 
   return (
@@ -68,93 +68,102 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
       )}
 
       {/* Info Section under Card */}
-      <div className="flex items-start justify-between gap-1 pt-1">
+      <div className="flex items-start justify-between gap-2 pt-1">
         <div className="flex flex-col min-w-0 flex-1">
           {disableLink ? (
-            <h3 className="font-semibold text-sm text-zinc-100 line-clamp-1">{title}</h3>
+            <h3 className="font-bold text-xs sm:text-sm text-zinc-100 line-clamp-1">{title}</h3>
           ) : (
-            <Link to={href} className="font-semibold text-sm text-zinc-100 line-clamp-1 group-hover:text-white transition-colors hover:underline">
+            <Link to={href} className="font-bold text-xs sm:text-sm text-zinc-100 line-clamp-1 group-hover:text-rose-400 transition-colors hover:underline">
               {title}
             </Link>
           )}
-          <p className="text-xs text-zinc-500">{year} · {isMovie ? 'Movie' : 'TV'}</p>
+          <p className="text-[11px] text-zinc-400 font-medium mt-0.5">{year} · {isMovie ? 'Movie' : 'TV'}</p>
         </div>
 
-        {/* Action Button or Bookmark Save Badge Dropdown */}
-        <div className="shrink-0 pt-0.5">
+        {/* Actions Row: Like Heart + Save Dropdown */}
+        <div className="flex items-center gap-1.5 shrink-0">
           {actionButton ? (
             actionButton
           ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  className={`p-1.5 rounded-full transition-all border-none outline-none focus:outline-none ${
-                    saved
-                      ? 'clay-badge-blue'
-                      : 'clay-badge text-zinc-400 hover:text-white'
-                  }`}
-                  title={saved ? `Saved in: ${savedPlaylistNames.join(', ')}` : 'Save to list'}
-                >
-                  <Bookmark className={`w-4 h-4 transition-transform active:scale-125 ${saved ? 'fill-white stroke-white' : ''}`} />
-                </button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent 
-                className="clay-modal text-zinc-100 min-w-[210px] z-50 p-3"
-                onClick={(e) => e.stopPropagation()}
+            <>
+              {/* Plain Like Heart Icon */}
+              <button
+                type="button"
+                onClick={handleToggleLike}
+                className="p-1 text-zinc-400 hover:text-rose-400 transition-all hover:scale-110 active:scale-125 focus:outline-none"
+                title={isLiked ? 'Liked' : 'Like'}
               >
-                <div className="px-2 py-1.5">
-                  <div className="text-xs font-bold text-white truncate max-w-[180px]">{title}</div>
-                  {saved ? (
-                    <div className="text-[11px] font-medium text-blue-400 mt-0.5">
-                      Saved in: {savedPlaylistNames.join(', ')}
-                    </div>
-                  ) : (
-                    <div className="text-[11px] text-zinc-500 mt-0.5">Add to your watchlists</div>
+                <Heart className={`w-4 h-4 transition-all ${isLiked ? 'fill-rose-500 text-rose-500' : ''}`} />
+              </button>
+
+              {/* Plain Bookmark Save Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    className="p-1 text-zinc-400 hover:text-blue-400 transition-all hover:scale-110 active:scale-125 focus:outline-none"
+                    title={saved ? `Saved in: ${savedPlaylistNames.join(', ')}` : 'Save to list'}
+                  >
+                    <Bookmark className={`w-4 h-4 transition-all ${saved ? 'fill-blue-400 text-blue-400' : ''}`} />
+                  </button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent 
+                  className="bg-[#121215] border border-white/10 rounded-2xl shadow-2xl text-zinc-100 min-w-[210px] z-50 p-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="px-2.5 py-1.5">
+                    <div className="text-xs font-bold text-white truncate max-w-[180px]">{title}</div>
+                    {saved ? (
+                      <div className="text-[11px] font-medium text-blue-400 mt-0.5">
+                        Saved in: {savedPlaylistNames.join(', ')}
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-zinc-500 mt-0.5">Add to your watchlists</div>
+                    )}
+                  </div>
+
+                  <DropdownMenuSeparator className="bg-white/10 my-1" />
+                  
+                  {userPlaylists.length > 0 && (
+                    userPlaylists.map((pl) => {
+                      const inPl = isItemInPlaylist(pl.id)
+                      return (
+                        <DropdownMenuItem
+                          key={pl.id}
+                          onClick={(e) => handleToggle(e, pl.id, pl.name)}
+                          className="flex items-center justify-between cursor-pointer hover:bg-white/5 py-2 px-2.5 rounded-xl text-zinc-200 hover:text-white transition-colors"
+                        >
+                          <span className="truncate max-w-[140px] text-xs font-medium">{pl.name}</span>
+                          {inPl ? (
+                            <Check className="w-4 h-4 text-blue-400 shrink-0" />
+                          ) : (
+                            <Plus className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                          )}
+                        </DropdownMenuItem>
+                      )
+                    })
                   )}
-                </div>
 
-                <DropdownMenuSeparator className="bg-zinc-800 my-1" />
-                
-                {userPlaylists.length > 0 && (
-                  userPlaylists.map((pl) => {
-                    const inPl = isItemInPlaylist(pl.id)
-                    return (
-                      <DropdownMenuItem
-                        key={pl.id}
-                        onClick={(e) => handleToggle(e, pl.id, pl.name)}
-                        className="flex items-center justify-between cursor-pointer focus:bg-zinc-900 focus:text-zinc-50 py-2 px-2.5 rounded-md"
-                      >
-                        <span className="truncate max-w-[140px] text-xs font-medium">{pl.name}</span>
-                        {inPl ? (
-                          <Check className="w-4 h-4 text-blue-400 shrink-0" />
-                        ) : (
-                          <Plus className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                        )}
-                      </DropdownMenuItem>
-                    )
-                  })
-                )}
-
-                {hasToken ? (
-                  <DropdownMenuItem 
-                    onClick={handleOpenCreateModal}
-                    className="text-xs text-blue-400 font-semibold cursor-pointer focus:bg-zinc-900 p-2 flex items-center gap-1.5 mt-1 border-t border-zinc-800/80"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Create New List
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem 
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate('/login'); }}
-                    className="text-xs text-zinc-400 cursor-pointer focus:bg-zinc-900 flex items-center gap-1.5 p-2"
-                  >
-                    <Lock className="w-3.5 h-3.5" /> Sign in to save
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {hasToken ? (
+                    <DropdownMenuItem 
+                      onClick={handleOpenCreateModal}
+                      className="text-xs text-blue-400 font-bold cursor-pointer hover:bg-white/5 p-2 flex items-center gap-1.5 mt-1 border-t border-white/5 rounded-xl"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Create New List
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem 
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate('/login'); }}
+                      className="text-xs text-zinc-400 cursor-pointer hover:bg-white/5 flex items-center gap-1.5 p-2 rounded-xl"
+                    >
+                      <Lock className="w-3.5 h-3.5" /> Sign in to save
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           )}
         </div>
       </div>

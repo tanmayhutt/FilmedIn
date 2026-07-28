@@ -6,14 +6,12 @@ import { WallpaperGenerator } from '@/components/features/WallpaperGenerator'
 import { EpisodeHeatmap } from '@/components/features/EpisodeHeatmap'
 import { Star, ChevronDown, ChevronRight, Tv } from 'lucide-react'
 
-function RatingPill({ rating, count }: { rating: number; count?: number }) {
-  if (!rating) return <span className="text-zinc-600 text-xs">No rating</span>
-  const color = rating >= 7.5 ? 'text-yellow-400' : rating >= 6 ? 'text-zinc-300' : 'text-red-400'
+function RatingPill({ rating }: { rating: number }) {
+  const color = rating >= 8.5 ? 'clay-badge-emerald' : rating >= 7.5 ? 'clay-badge-blue' : 'clay-badge-amber'
   return (
-    <span className={`inline-flex items-center gap-1 font-bold ${color}`}>
-      <Star className="w-3.5 h-3.5 fill-current" />
+    <span className={`px-2.5 py-0.5 ${color} text-xs font-bold font-mono inline-flex items-center gap-1`}>
+      <Star className="w-3 h-3 fill-white stroke-none" />
       {rating.toFixed(1)}
-      {count ? <span className="text-zinc-600 font-normal text-xs">({count.toLocaleString()})</span> : null}
     </span>
   )
 }
@@ -21,46 +19,39 @@ function RatingPill({ rating, count }: { rating: number; count?: number }) {
 function EpisodeCard({ ep }: { ep: TMDBEpisode }) {
   const [expanded, setExpanded] = useState(false)
   return (
-    <div className="border border-zinc-800 rounded-xl overflow-hidden bg-zinc-900/40 hover:border-zinc-700 transition-colors">
+    <div className="clay-card p-2 overflow-hidden transition-all">
       <button
         onClick={() => setExpanded(p => !p)}
-        className="w-full flex items-start gap-4 p-4 text-left"
+        className="w-full flex items-start gap-4 p-3 text-left hover:bg-white/5 transition-colors rounded-xl"
       >
-        {/* Still image */}
-        <div className="w-32 sm:w-40 aspect-video rounded-lg bg-zinc-800 overflow-hidden shrink-0 relative">
+        <div className="w-24 aspect-video clay-poster overflow-hidden shrink-0 relative bg-[#161722]">
           {ep.still_path ? (
             <img src={`https://image.tmdb.org/t/p/w300${ep.still_path}`} alt={ep.name} className="w-full h-full object-cover" />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-zinc-600">
-              <Tv className="w-6 h-6" />
-            </div>
+            <div className="w-full h-full flex items-center justify-center text-zinc-500 text-[10px]">No Image</div>
           )}
         </div>
-
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <div>
-              <span className="text-xs text-zinc-500 font-medium">E{ep.episode_number}</span>
-              <h4 className="font-semibold text-zinc-100 text-sm sm:text-base leading-snug line-clamp-1">{ep.name}</h4>
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <RatingPill rating={ep.vote_average} count={ep.vote_count} />
-              {ep.runtime && <span className="text-xs text-zinc-500">{ep.runtime}m</span>}
-              <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <span className="font-bold text-white text-sm truncate">
+              E{ep.episode_number}. {ep.name}
+            </span>
+            <div className="flex items-center gap-2 shrink-0">
+              {ep.vote_average > 0 && <RatingPill rating={ep.vote_average} />}
             </div>
           </div>
           {ep.air_date && (
-            <p className="text-xs text-zinc-600">{new Date(ep.air_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p className="text-xs text-zinc-400 font-mono">{new Date(ep.air_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
           )}
           {!expanded && ep.overview && (
-            <p className="text-xs text-zinc-500 mt-2 line-clamp-2">{ep.overview}</p>
+            <p className="text-xs text-zinc-300 mt-2 line-clamp-2">{ep.overview}</p>
           )}
         </div>
       </button>
 
       {expanded && ep.overview && (
-        <div className="px-4 pb-4 pt-0 border-t border-zinc-800/60 mt-0">
-          <p className="text-sm text-zinc-400 leading-relaxed pt-3">{ep.overview}</p>
+        <div className="px-4 pb-4 pt-0 border-t border-white/10 mt-2">
+          <p className="text-sm text-zinc-200 leading-relaxed pt-3">{ep.overview}</p>
         </div>
       )}
     </div>
@@ -89,40 +80,40 @@ function SeasonSection({ tvId, seasonNumber, seasonName, posterPath, seasonRatin
   }
 
   return (
-    <div className="border border-zinc-800 rounded-2xl overflow-hidden">
+    <div className="clay-card overflow-hidden">
       <button
         onClick={toggle}
-        className="w-full flex items-center gap-4 p-5 text-left hover:bg-zinc-800/30 transition-colors"
+        className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/5 transition-colors"
       >
         {posterPath ? (
-          <img src={`https://image.tmdb.org/t/p/w200${posterPath}`} alt={seasonName} className="w-12 h-16 object-cover rounded-lg shrink-0" />
+          <img src={`https://image.tmdb.org/t/p/w200${posterPath}`} alt={seasonName} className="w-12 h-16 object-cover clay-poster shrink-0" />
         ) : (
-          <div className="w-12 h-16 bg-zinc-800 rounded-lg flex items-center justify-center shrink-0">
-            <Tv className="w-5 h-5 text-zinc-600" />
+          <div className="w-12 h-16 clay-poster bg-[#161722] flex items-center justify-center shrink-0">
+            <Tv className="w-5 h-5 text-zinc-400" />
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-zinc-100 text-base">{seasonName}</h3>
-          {season && <p className="text-xs text-zinc-500">{season.episodes?.length} episodes</p>}
+          <h3 className="font-bold text-white text-base">{seasonName}</h3>
+          {season && <p className="text-xs text-zinc-400 font-mono mt-0.5">{season.episodes?.length} episodes</p>}
         </div>
         <div className="flex items-center gap-4 shrink-0">
           {seasonRating > 0 && <RatingPill rating={seasonRating} />}
-          {open ? <ChevronDown className="w-5 h-5 text-zinc-400" /> : <ChevronRight className="w-5 h-5 text-zinc-400" />}
+          {open ? <ChevronDown className="w-5 h-5 text-zinc-300" /> : <ChevronRight className="w-5 h-5 text-zinc-300" />}
         </div>
       </button>
 
       {open && (
-        <div className="border-t border-zinc-800 p-4 space-y-3">
+        <div className="border-t border-white/10 p-4 space-y-3">
           {loading ? (
             <div className="space-y-3">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-24 bg-zinc-800/50 rounded-xl animate-pulse" />
+                <div key={i} className="h-24 clay-card animate-pulse" />
               ))}
             </div>
           ) : season?.episodes?.length ? (
             season.episodes.map(ep => <EpisodeCard key={ep.id} ep={ep} />)
           ) : (
-            <p className="text-zinc-500 text-sm text-center py-4">No episodes found.</p>
+            <p className="text-zinc-400 text-sm text-center py-4">No episodes found.</p>
           )}
         </div>
       )}
@@ -174,16 +165,16 @@ export default function TVDetails() {
 
   return (
     <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in">
-      <Link to="/" className="text-zinc-500 hover:text-white mb-8 inline-block transition-colors">← Back</Link>
+      <Link to="/" className="px-4 py-2 clay-button-secondary text-xs inline-flex items-center mb-8">← Back to Home</Link>
 
       <div className="flex flex-col md:flex-row gap-8 sm:gap-12">
         {/* Poster */}
         <div className="w-full md:w-1/3 lg:w-1/4 shrink-0">
-          <div className="aspect-[2/3] w-full rounded-xl bg-zinc-900 overflow-hidden shadow-2xl relative mb-6">
+          <div className="aspect-[2/3] w-full clay-poster overflow-hidden relative mb-6">
             {show.poster_path ? (
               <img src={`https://image.tmdb.org/t/p/w500${show.poster_path}`} alt={show.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-zinc-600">No Image</div>
+              <div className="absolute inset-0 flex items-center justify-center text-zinc-500 bg-[#161722]">No Image</div>
             )}
           </div>
           <div className="flex flex-col gap-2">
@@ -193,40 +184,44 @@ export default function TVDetails() {
 
         {/* Info */}
         <div className="flex-1 flex flex-col pt-2">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-zinc-100 mb-4">{show.name}</h1>
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-4">{show.name}</h1>
 
           {/* Meta row */}
           <div className="flex flex-wrap items-center gap-3 mb-6">
             {show.first_air_date && (
-              <span className="text-sm text-zinc-400 bg-zinc-800/60 px-3 py-1 rounded-full">
+              <span className="px-3 py-1 clay-badge text-xs font-mono font-bold">
                 {new Date(show.first_air_date).getFullYear()}
               </span>
             )}
-            <span className="text-sm text-zinc-400 bg-zinc-800/60 px-3 py-1 rounded-full">
+            <span className="px-3 py-1 clay-badge text-xs font-mono font-bold">
               {show.number_of_seasons} Season{show.number_of_seasons !== 1 ? 's' : ''}
             </span>
             {show.genres?.map((g: any) => (
-              <span key={g.id} className="text-sm text-zinc-400 bg-zinc-800/60 px-3 py-1 rounded-full">
+              <span key={g.id} className="px-3.5 py-1 clay-badge-blue text-xs font-semibold">
                 {g.name}
               </span>
             ))}
             
             {isUnreleased ? (
-              <span className="flex items-center gap-1.5 bg-blue-500/15 border border-blue-500/30 text-blue-400 font-bold text-sm px-3 py-1 rounded-full">
+              <span className="px-3.5 py-1 clay-badge-blue text-xs font-bold">
                 Unreleased: {new Date(show.first_air_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </span>
             ) : (
-              show.vote_average > 0 && show.vote_count > 5 && (
-                <span className="flex items-center gap-1.5 bg-yellow-500/15 border border-yellow-500/30 text-yellow-400 font-bold text-sm px-3 py-1 rounded-full">
-                  <Star className="w-3.5 h-3.5 fill-yellow-400 stroke-none" />
-                  {show.vote_average.toFixed(1)}
-                  <span className="text-yellow-600 font-normal text-xs">/ 10</span>
+              show.vote_average > 0 && (
+                <span className="px-3.5 py-1 clay-badge-amber text-xs font-bold flex items-center gap-1.5">
+                  <Star className="w-3.5 h-3.5 fill-white stroke-none" />
+                  {show.vote_average.toFixed(1)} / 10
                 </span>
               )
             )}
           </div>
 
-          <p className="text-base text-zinc-300 leading-relaxed max-w-3xl mb-10">{show.overview}</p>
+          <div className="clay-card p-6 sm:p-8 mb-10">
+            <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Overview</h3>
+            <p className="text-base sm:text-lg text-zinc-200 leading-relaxed font-medium">
+              {show.overview}
+            </p>
+          </div>
 
           {/* Cast */}
           <h2 className="text-xl font-semibold mb-5">Cast</h2>

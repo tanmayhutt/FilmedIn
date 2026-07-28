@@ -31,7 +31,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
   const renderMediaGrid = (items: any[], title: string, emptyMessage: string) => {
     if (!items || items.length === 0) {
       return (
-        <div className="py-6 px-4 text-center text-xs text-zinc-500 bg-zinc-900/30 rounded-xl border border-zinc-800/50 italic">
+        <div className="py-6 px-4 text-center text-xs text-zinc-400 clay-card italic">
           {emptyMessage}
         </div>
       )
@@ -43,12 +43,12 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
             key={item.tmdbId}
             to={`/${item.mediaType}/${item.tmdbId}`}
             onClick={onClose}
-            className="group relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-blue-500/50 transition-all hover:scale-105 shadow-md"
+            className="group relative aspect-[2/3] clay-poster overflow-hidden bg-[#161722]"
           >
             {item.posterPath ? (
               <img src={item.posterPath} alt="Poster" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-zinc-600 text-[10px] p-2 text-center">No Poster</div>
+              <div className="w-full h-full flex items-center justify-center text-zinc-500 text-[10px] p-2 text-center">No Poster</div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
               <span className="text-[10px] font-bold text-white capitalize">{item.mediaType}</span>
@@ -61,18 +61,18 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 flex flex-col max-h-[90vh]">
+      <div className="clay-modal w-full max-w-2xl overflow-hidden animate-in zoom-in-95 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-zinc-800/80 bg-zinc-900/40">
+        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-transparent">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-blue-400 animate-pulse" />
             <h2 className="text-xl font-bold text-white tracking-tight">Taste Blend</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            className="w-8 h-8 rounded-full clay-badge text-zinc-400 hover:text-white flex items-center justify-center text-xs"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -84,27 +84,25 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
                 <div className="absolute inset-0 rounded-full border-2 border-blue-500/30 border-t-blue-500 animate-spin" />
                 <Sparkles className="w-6 h-6 text-blue-400" />
               </div>
-              <p className="text-zinc-400 text-sm font-medium animate-pulse">Blending Watchlists & Playlists...</p>
+              <p className="text-zinc-300 text-sm font-medium animate-pulse">Blending Watchlists & Playlists...</p>
             </div>
           ) : blendData ? (
             <>
               {/* Blend Match Hero Card */}
-              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-950/80 via-zinc-900 to-indigo-950/80 p-8 border border-zinc-800/80 flex flex-col items-center text-center shadow-xl">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/10 blur-3xl rounded-full pointer-events-none" />
-
+              <div className="relative overflow-hidden clay-card p-8 flex flex-col items-center text-center">
                 {/* Avatars */}
                 <div className="flex items-center justify-center -space-x-4 mb-5 relative">
-                  <div className="w-16 h-16 rounded-full border-2 border-blue-500 overflow-hidden bg-zinc-900 shadow-2xl shrink-0 z-10">
+                  <div className="w-16 h-16 rounded-full clay-badge overflow-hidden bg-zinc-950 shadow-2xl shrink-0 z-10">
                     {blendData.currentUser?.avatarUrl ? (
                       <img src={blendData.currentUser.avatarUrl} alt={blendData.currentUser.username} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-zinc-400"><User size={24} /></div>
                     )}
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-blue-600 border-2 border-zinc-950 flex items-center justify-center text-white font-black z-20 shadow-lg text-xs">
+                  <div className="w-10 h-10 rounded-full clay-badge-blue flex items-center justify-center text-white font-black z-20 text-xs">
                     <Heart className="w-4 h-4 fill-white" />
                   </div>
-                  <div className="w-16 h-16 rounded-full border-2 border-indigo-500 overflow-hidden bg-zinc-900 shadow-2xl shrink-0 z-10">
+                  <div className="w-16 h-16 rounded-full clay-badge overflow-hidden bg-zinc-950 shadow-2xl shrink-0 z-10">
                     {blendData.targetUser?.avatarUrl ? (
                       <img src={blendData.targetUser.avatarUrl} alt={blendData.targetUser.username} className="w-full h-full object-cover" />
                     ) : (
@@ -114,13 +112,13 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
                 </div>
 
                 {/* Synergy Tier & Score */}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs font-bold mb-2">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 clay-badge-blue text-xs font-bold mb-2">
                   <Sparkles className="w-3.5 h-3.5" /> {blendData.matchPercentage}% Taste Match — {blendData.synergyTier}
                 </div>
                 <h3 className="text-2xl font-black text-white tracking-tight mb-2">
                   {blendData.currentUser.username} & {blendData.targetUser.username}
                 </h3>
-                <p className="text-zinc-400 text-xs max-w-md">
+                <p className="text-zinc-300 text-xs max-w-md">
                   {blendData.totalSharedCount > 0
                     ? `You both share ${blendData.totalSharedCount} titles across your preset watchlists and custom playlists!`
                     : `You have distinct movie & TV show preferences — explore each other's lists to discover new titles!`}
@@ -130,12 +128,12 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
               {/* Preset & Custom Category Stats Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {/* Watchlist */}
-                <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3.5 flex flex-col gap-1">
+                <div className="clay-card p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between text-zinc-400 text-xs">
                     <span className="font-semibold flex items-center gap-1.5"><Bookmark className="w-3.5 h-3.5 text-blue-400" /> Watchlist</span>
                   </div>
                   <div className="text-lg font-bold text-white mt-1">
-                    {blendData.presetBreakdown?.watchlist?.mutualCount || 0} <span className="text-xs font-normal text-zinc-500">Shared</span>
+                    {blendData.presetBreakdown?.watchlist?.mutualCount || 0} <span className="text-xs font-normal text-zinc-400">Shared</span>
                   </div>
                   <div className="text-[10px] text-zinc-500">
                     You: {blendData.presetBreakdown?.watchlist?.u1Count} · Them: {blendData.presetBreakdown?.watchlist?.u2Count}

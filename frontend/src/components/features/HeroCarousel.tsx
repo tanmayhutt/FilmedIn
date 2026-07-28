@@ -77,30 +77,30 @@ export function HeroCarousel() {
       <div className="absolute inset-0 flex flex-col justify-end pb-24 sm:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-2xl">
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white bg-white/20 backdrop-blur-md px-3 py-1 rounded-sm border border-white/10">
+            <span className="px-3.5 py-1 clay-badge-blue text-xs font-mono font-bold uppercase tracking-wider">
               {currentItem.media_type === 'movie' ? 'Featured Movie' : 'Featured TV Show'}
             </span>
-            <span className="text-sm font-medium text-zinc-300 shadow-sm">
+            <span className="text-sm font-semibold text-zinc-200">
               {date?.substring(0, 4)}
             </span>
           </div>
           
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-tight mb-4 drop-shadow-2xl">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight mb-4 drop-shadow-2xl">
             {title}
           </h1>
           
-          <p className="text-sm sm:text-lg text-zinc-300 line-clamp-3 mb-8 drop-shadow-md max-w-xl">
+          <p className="text-sm sm:text-lg text-zinc-200 line-clamp-3 mb-8 drop-shadow-md max-w-xl font-medium">
             {currentItem.overview}
           </p>
           
           <div className="flex items-center gap-4">
-            <Button 
+            <button 
               onClick={() => navigate(`/${currentItem.media_type}/${currentItem.id}`)}
-              className="bg-white text-zinc-950 hover:bg-zinc-200 h-12 px-8 text-base font-semibold rounded-lg shadow-xl transition-transform hover:scale-105"
+              className="px-8 py-3.5 clay-button-primary text-base font-bold flex items-center gap-2"
             >
-              <Info className="w-5 h-5 mr-2" />
+              <Info className="w-5 h-5" />
               More Info
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -108,15 +108,15 @@ export function HeroCarousel() {
       {/* Navigation Arrows */}
       <button 
         onClick={handlePrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:text-black focus:outline-none"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full clay-badge text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 focus:outline-none"
       >
-        <ChevronLeft className="w-6 h-6 -ml-1" />
+        <ChevronLeft className="w-6 h-6 -ml-0.5" />
       </button>
       <button 
         onClick={handleNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:text-black focus:outline-none"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full clay-badge text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 focus:outline-none"
       >
-        <ChevronRight className="w-6 h-6 ml-1" />
+        <ChevronRight className="w-6 h-6 ml-0.5" />
       </button>
 
       {/* Pagination Dots */}
@@ -127,8 +127,8 @@ export function HeroCarousel() {
             onClick={() => setCurrentIndex(idx)}
             className={`transition-all duration-300 rounded-full focus:outline-none ${
               idx === currentIndex 
-                ? 'w-6 h-1.5 bg-white' 
-                : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/70'
+                ? 'w-8 h-2.5 clay-badge-blue' 
+                : 'w-2.5 h-2.5 clay-badge opacity-60 hover:opacity-100'
             }`}
           />
         ))}

@@ -5,162 +5,187 @@
 }
 
 body {
-  background-color: #0c0d12;
+  background-color: #09090b;
   color: #f4f4f5;
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Claymorphism Global Design System Classes */
+/* ✦ Pure Minimalist Design System ✦ */
 .clay-bg {
-  background-color: #0c0d12;
+  background-color: #09090b;
 }
 
+/* Minimalist Cards */
 .clay-card {
-  background: linear-gradient(145deg, #1c1d26, #12131a);
-  border-radius: 24px;
-  box-shadow: 
-    10px 14px 28px rgba(0, 0, 0, 0.65), 
-    -6px -6px 18px rgba(255, 255, 255, 0.04), 
-    inset 3px 3px 6px rgba(255, 255, 255, 0.08), 
-    inset -6px -6px 12px rgba(0, 0, 0, 0.7);
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  background-color: rgba(18, 18, 20, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
 .clay-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 
-    14px 20px 36px rgba(0, 0, 0, 0.75), 
-    -8px -8px 22px rgba(255, 255, 255, 0.06), 
-    inset 4px 4px 8px rgba(255, 255, 255, 0.12), 
-    inset -6px -6px 12px rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
 }
 
+.clay-card-blue {
+  background-color: rgba(24, 24, 28, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  color: #ffffff;
+}
+
+.clay-card-purple {
+  background-color: rgba(24, 24, 28, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  color: #ffffff;
+}
+
+/* Minimalist Film Poster */
 .clay-poster {
-  border-radius: 20px;
-  box-shadow: 
-    8px 12px 24px rgba(0, 0, 0, 0.7), 
-    -4px -4px 14px rgba(255, 255, 255, 0.03), 
-    inset 3px 3px 6px rgba(255, 255, 255, 0.12), 
-    inset -4px -4px 8px rgba(0, 0, 0, 0.6);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease;
 }
 
 .clay-poster:hover {
-  transform: scale(1.04) translateY(-3px);
+  transform: scale(1.03);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
+/* Minimalist Buttons */
 .clay-button-primary {
-  background: linear-gradient(145deg, #3b82f6, #1d4ed8);
-  border-radius: 16px;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #09090b;
   font-weight: 600;
-  box-shadow: 
-    6px 8px 18px rgba(0, 0, 0, 0.5), 
-    inset 3px 3px 6px rgba(255, 255, 255, 0.35), 
-    inset -4px -4px 8px rgba(0, 0, 0, 0.4);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .clay-button-primary:hover {
-  background: linear-gradient(145deg, #60a5fa, #2563eb);
-  transform: translateY(-2px);
+  background-color: #e4e4e7;
+  transform: translateY(-1px);
 }
 
 .clay-button-primary:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 
-    inset 4px 4px 8px rgba(0, 0, 0, 0.6), 
-    inset -2px -2px 4px rgba(255, 255, 255, 0.2);
+  transform: translateY(0);
 }
 
 .clay-button-secondary {
-  background: linear-gradient(145deg, #272732, #181820);
-  border-radius: 16px;
-  color: #e4e4e7;
-  font-weight: 500;
-  box-shadow: 
-    6px 8px 16px rgba(0, 0, 0, 0.5), 
-    inset 3px 3px 6px rgba(255, 255, 255, 0.1), 
-    inset -4px -4px 8px rgba(0, 0, 0, 0.5);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #f4f4f5;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .clay-button-secondary:hover {
-  background: linear-gradient(145deg, #3f3f4e, #20202a);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.clay-button-purple {
+  background-color: #ffffff;
+  color: #09090b;
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: background-color 0.15s ease;
+}
+
+.clay-button-purple:hover {
+  background-color: #e4e4e7;
+}
+
+.clay-button-emerald {
+  background-color: #10b981;
   color: #ffffff;
-  transform: translateY(-2px);
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: background-color 0.15s ease;
 }
 
-.clay-button-secondary:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 
-    inset 4px 4px 8px rgba(0, 0, 0, 0.7), 
-    inset -2px -2px 4px rgba(255, 255, 255, 0.08);
+.clay-button-emerald:hover {
+  background-color: #059669;
 }
 
+/* Minimalist Input Socket */
 .clay-input {
-  background: #090a0f;
-  border-radius: 16px;
+  background-color: #121215;
   color: #f4f4f5;
-  box-shadow: 
-    inset 4px 4px 10px rgba(0, 0, 0, 0.85), 
-    inset -3px -3px 6px rgba(255, 255, 255, 0.05);
-  transition: box-shadow 0.2s ease, background 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .clay-input:focus {
   outline: none;
-  box-shadow: 
-    inset 5px 5px 12px rgba(0, 0, 0, 0.9), 
-    inset -3px -3px 6px rgba(255, 255, 255, 0.08),
-    0 0 0 2px rgba(59, 130, 246, 0.5);
+  border-color: rgba(255, 255, 255, 0.3);
+  background-color: #18181b;
 }
 
+/* Minimalist Badges & Pills */
 .clay-badge {
-  background: linear-gradient(145deg, #232430, #161720);
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #d4d4d8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 9999px;
-  box-shadow: 
-    4px 6px 14px rgba(0, 0, 0, 0.45), 
-    inset 2px 2px 4px rgba(255, 255, 255, 0.18), 
-    inset -3px -3px 6px rgba(0, 0, 0, 0.5);
 }
 
 .clay-badge-blue {
-  background: linear-gradient(145deg, #2563eb, #1d4ed8);
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #09090b;
   border-radius: 9999px;
-  box-shadow: 
-    4px 6px 14px rgba(0, 0, 0, 0.4), 
-    inset 2px 2px 4px rgba(255, 255, 255, 0.3), 
-    inset -3px -3px 6px rgba(0, 0, 0, 0.4);
+  font-weight: 600;
 }
 
+.clay-badge-purple {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 9999px;
+}
+
+.clay-badge-emerald {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 9999px;
+}
+
+.clay-badge-amber {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 9999px;
+}
+
+/* Minimalist Dialog Modal */
 .clay-modal {
-  background: linear-gradient(145deg, #1a1b24, #101117);
-  border-radius: 32px;
-  box-shadow: 
-    20px 30px 60px rgba(0, 0, 0, 0.85), 
-    -10px -10px 30px rgba(255, 255, 255, 0.03), 
-    inset 4px 4px 10px rgba(255, 255, 255, 0.09), 
-    inset -8px -8px 16px rgba(0, 0, 0, 0.8);
+  background-color: #121215;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
 }
 
+/* Minimalist Navbar */
 .clay-navbar {
-  background: linear-gradient(145deg, rgba(28, 29, 38, 0.95), rgba(16, 17, 24, 0.95));
+  background-color: rgba(18, 18, 20, 0.8);
   backdrop-filter: blur(16px);
-  border-radius: 24px;
-  box-shadow: 
-    10px 14px 28px rgba(0, 0, 0, 0.6), 
-    inset 3px 3px 6px rgba(255, 255, 255, 0.08), 
-    inset -4px -4px 8px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
+/* Hide scrollbar */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
+/* Hide scrollbar */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

@@ -33,16 +33,15 @@ export default function Login() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      
-      <div className="max-w-md w-full space-y-8 bg-zinc-900/40 p-10 rounded-3xl border border-zinc-800/60 relative z-10 shadow-2xl">
+      <div className="max-w-md w-full space-y-8 clay-modal p-10 sm:p-12 relative z-10 text-center animate-in zoom-in-95">
         <div className="flex flex-col items-center justify-center text-center">
           
           <div className="mb-8 transform hover:scale-105 transition-transform duration-300">
             <Logo className="scale-150" />
           </div>
           
-          <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome Back</h2>
-          <p className="text-zinc-300 mb-8 text-sm px-4">
+          <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Welcome Back</h2>
+          <p className="text-zinc-300 mb-8 text-sm px-2 leading-relaxed">
             Your personal movie database. Sign in to track, save, and share what you're watching.
           </p>
 

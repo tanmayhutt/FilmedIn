@@ -10,6 +10,7 @@ router.get('/public/:username', userController.getPublicProfile);
 router.put('/profile', auth, userController.updateProfile);
 router.put('/avatar', auth, userController.updateAvatar);
 router.post('/avatar/upload', [auth, upload.single('file')], userController.uploadAvatar);
+router.post('/banner/upload', [auth, upload.single('file')], userController.uploadBanner);
 router.delete('/me', auth, userController.deleteAccount);
 
 router.post('/:username/follow', auth, userController.toggleFollow);

@@ -24,7 +24,19 @@ export async function uploadCustomAvatar(formData: FormData) {
   }
 }
 
-export async function updateProfile(data: { username?: string, avatarUrl?: string }) {
+export async function uploadCustomBanner(formData: FormData) {
+  try {
+    const data = await fetchApi('/users/banner/upload', {
+      method: 'POST',
+      body: formData
+    })
+    return { success: true, url: data.bannerUrl }
+  } catch (err: any) {
+    return { error: err.message }
+  }
+}
+
+export async function updateProfile(data: { username?: string, avatarUrl?: string, bannerUrl?: string, bio?: string }) {
   try {
     const res = await fetchApi('/users/profile', {
       method: 'PUT',

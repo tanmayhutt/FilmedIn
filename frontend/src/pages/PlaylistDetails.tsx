@@ -92,19 +92,22 @@ export default function PlaylistDetails() {
                         window.location.href = '/'
                     }
                 }}
-                className="text-zinc-500 hover:text-white mb-8 inline-block transition-colors"
+                className="px-4 py-2 clay-button-secondary text-xs inline-flex items-center mb-8"
             >
                 ← Back
             </button>
 
-            <div className="mb-12">
-                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-2">
+            <div className="clay-card p-8 sm:p-10 mb-12">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 clay-badge-blue text-xs font-mono font-bold uppercase tracking-wider mb-3">
+                    Curated Playlist
+                </div>
+                <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-2">
                     {playlist.name}
                 </h1>
                 {playlist.description && (
-                    <p className="text-lg text-zinc-300 mb-4 max-w-2xl">{playlist.description}</p>
+                    <p className="text-base sm:text-lg text-zinc-200 mb-4 max-w-2xl font-medium">{playlist.description}</p>
                 )}
-                <p className="text-zinc-500">
+                <p className="text-sm font-semibold text-zinc-400">
                     {items.length} {items.length === 1 ? 'item' : 'items'}
                 </p>
             </div>

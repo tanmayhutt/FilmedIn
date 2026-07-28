@@ -54,32 +54,35 @@ export default function Explore() {
   return (
     <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
-      <div className="mb-10">
+      <div className="clay-card p-8 sm:p-10 mb-10">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 clay-badge-blue text-xs font-mono font-bold uppercase tracking-wider mb-3">
+          Explore Curation
+        </div>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white capitalize">
           {title}
         </h1>
-        <p className="text-zinc-400 mt-2">
+        <p className="text-zinc-300 mt-2 text-sm sm:text-base">
           Discover hand-picked content from across the FilmedIn network.
         </p>
       </div>
 
       {loading ? (
         <div className="flex justify-center items-center py-20">
-          <Loader2 className="w-10 h-10 text-zinc-500 animate-spin" />
+          <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
         </div>
       ) : media.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-8">
           {media.map(item => (
             <MediaCard key={`${item.media_type}-${item.id}`} media={item} />
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-6 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-12 backdrop-blur-sm">
-          <div className="w-20 h-20 bg-zinc-800 rounded-full flex items-center justify-center mb-4">
-            <Construction className="w-10 h-10 text-zinc-400" />
+        <div className="flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-6 clay-card p-12">
+          <div className="w-20 h-20 clay-badge flex items-center justify-center mb-2">
+            <Construction className="w-10 h-10 text-zinc-300" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-white">No Results Found</h1>
-          <p className="text-lg text-zinc-400">
+          <h1 className="text-3xl font-bold tracking-tight text-white">No Results Found</h1>
+          <p className="text-base text-zinc-300">
             We couldn't find any media matching these criteria.
           </p>
         </div>
