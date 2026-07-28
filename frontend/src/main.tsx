@@ -6,13 +6,17 @@ import './assets/index.css'
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+import { SavedMediaProvider } from './context/SavedMediaContext'
+
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '741007561589-smjao34064v663da3h7nsak6vnh0g11g.apps.googleusercontent.com';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <BrowserRouter>
-        <App />
+        <SavedMediaProvider>
+          <App />
+        </SavedMediaProvider>
       </BrowserRouter>
     </GoogleOAuthProvider>
   </React.StrictMode>,

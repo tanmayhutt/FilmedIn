@@ -18,6 +18,7 @@ import Studio from '@/pages/Studio'
 import StudiosIndex from '@/pages/StudiosIndex'
 import Explore from '@/pages/Explore'
 import About from '@/pages/About'
+import TasteBlend from '@/pages/TasteBlend'
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/studio/:id" element={<Studio />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/about" element={<About />} />
+          <Route path="/blend/:username" element={<TasteBlend />} />
           <Route path="/profile/playlist/:id" element={<PlaylistDetails />} />
           <Route path="/playlist/:id" element={<PlaylistDetails />} />
         </Routes>

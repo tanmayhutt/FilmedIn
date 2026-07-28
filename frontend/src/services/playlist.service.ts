@@ -53,3 +53,22 @@ export async function removeFromList(playlistId: string, tmdbId: number) {
     return { error: err.message || 'Error removing from playlist' }
   }
 }
+
+export async function getSavedMediaData() {
+  try {
+    const data = await fetchApi('/playlists/saved-ids')
+    return data || { savedIds: [], itemMap: {}, playlists: [] }
+  } catch (err) {
+    console.error(err)
+    return { savedIds: [], itemMap: {}, playlists: [] }
+  }
+}
+
+export async function getTasteBlend(targetUsername: string) {
+  try {
+    return await fetchApi(`/playlists/blend/${encodeURIComponent(targetUsername)}`)
+  } catch (err) {
+    console.error(err)
+    return null
+  }
+}

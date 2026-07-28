@@ -6,9 +6,10 @@ import { toggleFollow } from '@/services/user.service'
 import { getPlaylists, createPlaylist, deletePlaylist } from '@/services/playlist.service'
 import { getPublicProfile, getPublicPlaylists, getFollowers, getFollowing } from '@/services/public.service'
 import { EditProfileModal } from '@/components/features/EditProfileModal'
+import { useSavedMedia } from '@/context/SavedMediaContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, LogOut, Trash2, Share2, Bookmark, UserPlus, UserMinus, User, X } from 'lucide-react'
+import { Plus, LogOut, Trash2, Share2, Bookmark, UserPlus, UserMinus, User, X, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function Profile() {
@@ -19,9 +20,6 @@ export default function Profile() {
     const [profile, setProfile] = useState<any>(null)
     const [playlists, setPlaylists] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const [newPlaylistName, setNewPlaylistName] = useState('')
-    const [newPlaylistDesc, setNewPlaylistDesc] = useState('')
-    const [isModalOpen, setIsModalOpen] = useState(false)
     const [isOwner, setIsOwner] = useState(false)
     const [isFollowing, setIsFollowing] = useState(false)
     const [followersCount, setFollowersCount] = useState(0)
@@ -156,21 +154,6 @@ export default function Profile() {
         setModalLoading(false)
     }
 
-    const handleCreatePlaylist = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!newPlaylistName.trim()) return
-        const res = await createPlaylist(newPlaylistName, newPlaylistDesc)
-        if (res.success) {
-            setPlaylists([res.playlist, ...playlists])
-            setNewPlaylistName('')
-            setNewPlaylistDesc('')
-            setIsModalOpen(false)
-            toast.success('Playlist created!')
-        } else {
-            toast.error('Failed to create playlist')
-        }
-    }
-
     const handleDeletePlaylist = async (id: string) => {
         const res = await deletePlaylist(id)
         if (res.success) {
@@ -259,6 +242,19 @@ export default function Profile() {
                                 >
                                     {isFollowing ? <><UserMinus className="w-4 h-4 mr-2" /> Unfollow</> : <><UserPlus className="w-4 h-4 mr-2" /> Follow</>}
                                 </Button>
+                                <a 
+                                    href={`/blend/${profile.username}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                >
+                                    <Button 
+                                        variant="outline" 
+                                        className="border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 hover:text-white font-medium"
+                                    >
+                                        <Sparkles className="w-4 h-4 mr-2 text-zinc-400" />
+                                        Compare Taste
+                                    </Button>
+                                </a>
                                 <Button onClick={handleShareProfile} variant="outline" className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white">
                                     <Share2 className="w-4 h-4 mr-2" />
                                     Share
@@ -273,7 +269,15 @@ export default function Profile() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <h2 className="text-2xl font-semibold">{isOwner ? 'Your Playlists' : 'Playlists'}</h2>
                     {isOwner && (
-                        <Button onClick={() => setIsModalOpen(true)} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300">
+                        <Button 
+                            onClick={() => openCreateModal({
+                                onCreated: async () => {
+                                    const ownerPlaylists = await getPlaylists();
+                                    setPlaylists(ownerPlaylists);
+                                }
+                            })} 
+                            className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300"
+                        >
                             <Plus className="w-4 h-4 mr-2" />
                             Create
                         </Button>
@@ -331,47 +335,6 @@ export default function Profile() {
                     )}
                 </div>
             </section>
-
-            {/* Create Playlist Modal */}
-            {isOwner && isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95">
-                        <h3 className="text-xl font-semibold mb-4 text-white">Create New Playlist</h3>
-                        <form onSubmit={handleCreatePlaylist}>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-zinc-400 mb-1">Playlist Title *</label>
-                                    <Input
-                                        value={newPlaylistName}
-                                        onChange={(e) => setNewPlaylistName(e.target.value)}
-                                        placeholder="e.g. Favorite Sci-Fi Movies"
-                                        className="w-full bg-zinc-950 border-zinc-800"
-                                        autoFocus
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-zinc-400 mb-1">Description</label>
-                                    <textarea
-                                        value={newPlaylistDesc}
-                                        onChange={(e) => setNewPlaylistDesc(e.target.value)}
-                                        placeholder="What is this playlist about?"
-                                        className="w-full h-24 min-h-[5rem] rounded-lg border border-input border-zinc-800 bg-zinc-950 px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none text-white"
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex justify-end gap-3 mt-6">
-                                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} className="border-zinc-800 text-zinc-300 hover:bg-zinc-800">
-                                    Cancel
-                                </Button>
-                                <Button type="submit" disabled={!newPlaylistName.trim()} className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300 disabled:opacity-50">
-                                    Create Playlist
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
 
             {/* Followers / Following Modals */}
             {(isFollowersModalOpen || isFollowingModalOpen) && (
