@@ -67,8 +67,8 @@ export function Navbar() {
   };
 
   return (
-    <nav className="w-full border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <nav className="w-full bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50 p-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between clay-navbar">
         {/* Left: Logo + Nav */}
         <div className="flex items-center gap-8">
           <Logo />
@@ -77,8 +77,8 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-2" ref={dropdownRef}>
             <Link
               to="/"
-              className={`text-sm font-medium transition-colors px-3 py-1.5 rounded-md ${
-                isHome ? 'text-white bg-zinc-800/60' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50'
+              className={`text-sm font-medium transition-all px-3.5 py-1.5 rounded-full ${
+                isHome ? 'clay-badge-blue' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
               }`}
             >
               Home
@@ -87,8 +87,8 @@ export function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setActiveDropdown(activeDropdown === 'movies' ? null : 'movies')}
-                className={`text-sm font-medium transition-colors px-3 py-1.5 rounded-md flex items-center gap-1.5 focus:outline-none ${
-                  isActiveMovie ? 'text-white bg-zinc-800/60' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50'
+                className={`text-sm font-medium transition-all px-3.5 py-1.5 rounded-full flex items-center gap-1.5 focus:outline-none ${
+                  isActiveMovie ? 'clay-badge-blue' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
                 }`}
               >
                 Movies
@@ -96,7 +96,7 @@ export function Navbar() {
               </button>
               {activeDropdown === 'movies' && (
                 <div className="absolute top-full -left-12 pt-4 w-[500px] z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="bg-zinc-950/95 backdrop-blur-xl border border-zinc-800/80 rounded-xl shadow-2xl p-6">
+                  <div className="clay-modal p-6">
                     
                     <div className="flex items-center justify-between mb-4 pb-4 border-b border-zinc-800/50">
                       <div>
@@ -105,7 +105,7 @@ export function Navbar() {
                       </div>
                       <Link
                         to="/explore?type=movie&sort=popular"
-                        className="px-4 py-2 text-xs font-medium text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-lg transition-colors"
+                        className="px-4 py-2 text-xs font-medium clay-button-secondary transition-colors"
                       >
                         All Movies &rarr;
                       </Link>
@@ -150,8 +150,8 @@ export function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setActiveDropdown(activeDropdown === 'tv' ? null : 'tv')}
-                className={`text-sm font-medium transition-colors px-3 py-1.5 rounded-md flex items-center gap-1.5 focus:outline-none ${
-                  isActiveTV ? 'text-white bg-zinc-800/60' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50'
+                className={`text-sm font-medium transition-all px-3.5 py-1.5 rounded-full flex items-center gap-1.5 focus:outline-none ${
+                  isActiveTV ? 'clay-badge-blue' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
                 }`}
               >
                 TV Shows
@@ -159,7 +159,7 @@ export function Navbar() {
               </button>
               {activeDropdown === 'tv' && (
                 <div className="absolute top-full -left-12 pt-4 w-[500px] z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="bg-zinc-950/95 backdrop-blur-xl border border-zinc-800/80 rounded-xl shadow-2xl p-6">
+                  <div className="clay-modal p-6">
                     
                     <div className="flex items-center justify-between mb-4 pb-4 border-b border-zinc-800/50">
                       <div>
@@ -168,7 +168,7 @@ export function Navbar() {
                       </div>
                       <Link
                         to="/explore?type=tv&sort=popular"
-                        className="px-4 py-2 text-xs font-medium text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-lg transition-colors"
+                        className="px-4 py-2 text-xs font-medium clay-button-secondary transition-colors"
                       >
                         All TV Shows &rarr;
                       </Link>
@@ -210,8 +210,8 @@ export function Navbar() {
 
             <Link
               to="/studios"
-              className={`text-sm font-medium transition-colors px-3 py-1.5 rounded-md ${
-                isActiveStudio ? 'text-white bg-zinc-800/60' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50'
+              className={`text-sm font-medium transition-all px-3.5 py-1.5 rounded-full ${
+                isActiveStudio ? 'clay-badge-blue' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
               }`}
             >
               Studios & Networks
@@ -219,8 +219,8 @@ export function Navbar() {
 
             <Link
               to="/about"
-              className={`text-sm font-medium transition-colors px-3 py-1.5 rounded-md ${
-                isActiveAbout ? 'text-white bg-zinc-800/60' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50'
+              className={`text-sm font-medium transition-all px-3.5 py-1.5 rounded-full ${
+                isActiveAbout ? 'clay-badge-blue' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
               }`}
             >
               About
@@ -239,7 +239,7 @@ export function Navbar() {
               <Input
                 type="text"
                 placeholder="Search users..."
-                className="w-full h-9 pl-9 pr-3 bg-zinc-900/50 border border-zinc-800 text-sm rounded-full focus-visible:ring-1 focus-visible:ring-zinc-600 focus-visible:border-zinc-700 transition-all placeholder:text-zinc-600 hover:bg-zinc-900/80 hover:border-zinc-700"
+                className="w-full h-9 pl-9 pr-3 clay-input text-sm rounded-full placeholder:text-zinc-600 border-none"
                 value={userQuery}
                 onChange={(e) => setUserQuery(e.target.value)}
                 onFocus={() => userQuery.trim() && userResults.length > 0 && setIsUserDropdownOpen(true)}
@@ -247,7 +247,7 @@ export function Navbar() {
             </form>
 
             {isUserDropdownOpen && userQuery.trim().length > 0 && (
-              <div className="absolute top-full right-0 mt-2 w-72 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute top-full right-0 mt-2 w-72 clay-modal overflow-hidden z-50 p-2 animate-in fade-in slide-in-from-top-2">
                 {searchingUsers ? (
                   <div className="px-4 py-3 text-zinc-600 text-xs">Searching users...</div>
                 ) : userResults.length > 0 ? (

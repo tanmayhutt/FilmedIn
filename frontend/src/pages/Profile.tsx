@@ -247,18 +247,17 @@ export default function Profile() {
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                 >
-                                    <Button 
-                                        variant="outline" 
-                                        className="border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 hover:text-white font-medium"
+                                    <button 
+                                        className="px-5 py-2.5 clay-button-secondary text-xs flex items-center"
                                     >
                                         <Sparkles className="w-4 h-4 mr-2 text-zinc-400" />
                                         Compare Taste
-                                    </Button>
+                                    </button>
                                 </a>
-                                <Button onClick={handleShareProfile} variant="outline" className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white">
+                                <button onClick={handleShareProfile} className="px-5 py-2.5 clay-button-secondary text-xs flex items-center">
                                     <Share2 className="w-4 h-4 mr-2" />
                                     Share
-                                </Button>
+                                </button>
                             </>
                         )}
                     </div>
@@ -267,26 +266,26 @@ export default function Profile() {
 
             <section>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <h2 className="text-2xl font-semibold">{isOwner ? 'Your Playlists' : 'Playlists'}</h2>
+                    <h2 className="text-2xl font-bold">{isOwner ? 'Your Playlists' : 'Playlists'}</h2>
                     {isOwner && (
-                        <Button 
+                        <button 
                             onClick={() => openCreateModal({
                                 onCreated: async () => {
                                     const ownerPlaylists = await getPlaylists();
                                     setPlaylists(ownerPlaylists);
                                 }
                             })} 
-                            className="bg-zinc-100 text-zinc-950 hover:bg-zinc-300"
+                            className="px-6 py-2.5 clay-button-primary text-xs flex items-center"
                         >
                             <Plus className="w-4 h-4 mr-2" />
-                            Create
-                        </Button>
+                            Create Playlist
+                        </button>
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {playlists.map((playlist) => (
-                        <div key={playlist.id} className="group relative bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition-colors h-48">
+                        <div key={playlist.id} className="group relative clay-card overflow-hidden h-48">
                             {/* Collage Background */}
                             {playlist.preview_posters && playlist.preview_posters.length > 0 ? (
                                 <div className="absolute inset-0 flex">

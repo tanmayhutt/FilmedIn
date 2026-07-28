@@ -5,8 +5,154 @@
 }
 
 body {
-  background-color: #09090b;
-  color: #fafafa;
+  background-color: #0c0d12;
+  color: #f4f4f5;
+  font-family: var(--font-sans);
+}
+
+/* Claymorphism Global Design System Classes */
+.clay-bg {
+  background-color: #0c0d12;
+}
+
+.clay-card {
+  background: linear-gradient(145deg, #1c1d26, #12131a);
+  border-radius: 24px;
+  box-shadow: 
+    10px 14px 28px rgba(0, 0, 0, 0.65), 
+    -6px -6px 18px rgba(255, 255, 255, 0.04), 
+    inset 3px 3px 6px rgba(255, 255, 255, 0.08), 
+    inset -6px -6px 12px rgba(0, 0, 0, 0.7);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+
+.clay-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    14px 20px 36px rgba(0, 0, 0, 0.75), 
+    -8px -8px 22px rgba(255, 255, 255, 0.06), 
+    inset 4px 4px 8px rgba(255, 255, 255, 0.12), 
+    inset -6px -6px 12px rgba(0, 0, 0, 0.7);
+}
+
+.clay-poster {
+  border-radius: 20px;
+  box-shadow: 
+    8px 12px 24px rgba(0, 0, 0, 0.7), 
+    -4px -4px 14px rgba(255, 255, 255, 0.03), 
+    inset 3px 3px 6px rgba(255, 255, 255, 0.12), 
+    inset -4px -4px 8px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.clay-poster:hover {
+  transform: scale(1.04) translateY(-3px);
+}
+
+.clay-button-primary {
+  background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+  border-radius: 16px;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 
+    6px 8px 18px rgba(0, 0, 0, 0.5), 
+    inset 3px 3px 6px rgba(255, 255, 255, 0.35), 
+    inset -4px -4px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.clay-button-primary:hover {
+  background: linear-gradient(145deg, #60a5fa, #2563eb);
+  transform: translateY(-2px);
+}
+
+.clay-button-primary:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 
+    inset 4px 4px 8px rgba(0, 0, 0, 0.6), 
+    inset -2px -2px 4px rgba(255, 255, 255, 0.2);
+}
+
+.clay-button-secondary {
+  background: linear-gradient(145deg, #272732, #181820);
+  border-radius: 16px;
+  color: #e4e4e7;
+  font-weight: 500;
+  box-shadow: 
+    6px 8px 16px rgba(0, 0, 0, 0.5), 
+    inset 3px 3px 6px rgba(255, 255, 255, 0.1), 
+    inset -4px -4px 8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.clay-button-secondary:hover {
+  background: linear-gradient(145deg, #3f3f4e, #20202a);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.clay-button-secondary:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 
+    inset 4px 4px 8px rgba(0, 0, 0, 0.7), 
+    inset -2px -2px 4px rgba(255, 255, 255, 0.08);
+}
+
+.clay-input {
+  background: #090a0f;
+  border-radius: 16px;
+  color: #f4f4f5;
+  box-shadow: 
+    inset 4px 4px 10px rgba(0, 0, 0, 0.85), 
+    inset -3px -3px 6px rgba(255, 255, 255, 0.05);
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.clay-input:focus {
+  outline: none;
+  box-shadow: 
+    inset 5px 5px 12px rgba(0, 0, 0, 0.9), 
+    inset -3px -3px 6px rgba(255, 255, 255, 0.08),
+    0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.clay-badge {
+  background: linear-gradient(145deg, #232430, #161720);
+  border-radius: 9999px;
+  box-shadow: 
+    4px 6px 14px rgba(0, 0, 0, 0.45), 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.18), 
+    inset -3px -3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.clay-badge-blue {
+  background: linear-gradient(145deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  border-radius: 9999px;
+  box-shadow: 
+    4px 6px 14px rgba(0, 0, 0, 0.4), 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3), 
+    inset -3px -3px 6px rgba(0, 0, 0, 0.4);
+}
+
+.clay-modal {
+  background: linear-gradient(145deg, #1a1b24, #101117);
+  border-radius: 32px;
+  box-shadow: 
+    20px 30px 60px rgba(0, 0, 0, 0.85), 
+    -10px -10px 30px rgba(255, 255, 255, 0.03), 
+    inset 4px 4px 10px rgba(255, 255, 255, 0.09), 
+    inset -8px -8px 16px rgba(0, 0, 0, 0.8);
+}
+
+.clay-navbar {
+  background: linear-gradient(145deg, rgba(28, 29, 38, 0.95), rgba(16, 17, 24, 0.95));
+  backdrop-filter: blur(16px);
+  border-radius: 24px;
+  box-shadow: 
+    10px 14px 28px rgba(0, 0, 0, 0.6), 
+    inset 3px 3px 6px rgba(255, 255, 255, 0.08), 
+    inset -4px -4px 8px rgba(0, 0, 0, 0.6);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -14,7 +160,6 @@ body {
   display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-hide {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */

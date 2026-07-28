@@ -40,7 +40,7 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
     <div className="w-[160px] sm:w-[200px] group relative flex flex-col gap-2 shrink-0">
       {/* Poster Image Container */}
       {disableLink ? (
-        <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800/50">
+        <div className="relative aspect-[2/3] w-full overflow-hidden clay-poster">
           <RatingBadge rating={rating} isUnreleased={isUnreleased} />
           {media.poster_path ? (
             <img src={`https://image.tmdb.org/t/p/w500${media.poster_path}`} alt={title} loading="lazy" className="object-cover w-full h-full" />
@@ -49,7 +49,7 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
           )}
         </div>
       ) : (
-        <Link to={href} className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800/50 transition-colors group-hover:border-zinc-700 outline-none focus-visible:ring-2 focus-visible:ring-zinc-600">
+        <Link to={href} className="relative aspect-[2/3] w-full overflow-hidden clay-poster outline-none">
           <RatingBadge rating={rating} isUnreleased={isUnreleased} />
           {media.poster_path ? (
             <img
@@ -90,19 +90,19 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  className={`p-1.5 rounded-full transition-all border outline-none focus:outline-none ${
+                  className={`p-1.5 rounded-full transition-all border-none outline-none focus:outline-none ${
                     saved
-                      ? 'bg-blue-600/20 text-blue-400 border-blue-500/50 hover:bg-blue-600/40 shadow-[0_0_12px_rgba(59,130,246,0.3)]'
-                      : 'bg-zinc-900/80 text-zinc-400 border-zinc-800 hover:text-white hover:bg-zinc-800'
+                      ? 'clay-badge-blue'
+                      : 'clay-badge text-zinc-400 hover:text-white'
                   }`}
                   title={saved ? `Saved in: ${savedPlaylistNames.join(', ')}` : 'Save to list'}
                 >
-                  <Bookmark className={`w-4 h-4 transition-transform active:scale-125 ${saved ? 'fill-blue-400 stroke-blue-400' : ''}`} />
+                  <Bookmark className={`w-4 h-4 transition-transform active:scale-125 ${saved ? 'fill-white stroke-white' : ''}`} />
                 </button>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent 
-                className="bg-zinc-950 border-zinc-800 text-zinc-100 min-w-[210px] shadow-2xl z-50 p-2"
+                className="clay-modal text-zinc-100 min-w-[210px] z-50 p-3"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="px-2 py-1.5">

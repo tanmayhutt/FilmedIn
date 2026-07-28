@@ -101,22 +101,20 @@ export default function TasteBlend() {
       </div>
 
       {/* Editorial Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-zinc-900/60 border border-zinc-800/80 p-8 sm:p-12 flex flex-col items-center text-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/20 to-zinc-950/60 pointer-events-none" />
-
+      <div className="relative overflow-hidden clay-card p-8 sm:p-12 flex flex-col items-center text-center">
         {/* User Badges */}
         <div className="flex items-center justify-center -space-x-3 mb-6 relative">
-          <div className="w-16 h-16 rounded-full border-2 border-zinc-700 overflow-hidden bg-zinc-950 shadow-xl shrink-0 z-10">
+          <div className="w-16 h-16 rounded-full clay-badge overflow-hidden bg-zinc-950 shadow-xl shrink-0 z-10">
             {blendData.currentUser?.avatarUrl ? (
               <img src={blendData.currentUser.avatarUrl} alt={blendData.currentUser.username} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-zinc-500 bg-zinc-900"><User size={28} /></div>
             )}
           </div>
-          <div className="w-9 h-9 rounded-full bg-zinc-800 border-2 border-zinc-950 flex items-center justify-center text-zinc-300 z-20 text-xs font-mono">
+          <div className="w-9 h-9 rounded-full clay-badge flex items-center justify-center text-white z-20 text-xs font-mono font-bold">
             ×
           </div>
-          <div className="w-16 h-16 rounded-full border-2 border-zinc-700 overflow-hidden bg-zinc-950 shadow-xl shrink-0 z-10">
+          <div className="w-16 h-16 rounded-full clay-badge overflow-hidden bg-zinc-950 shadow-xl shrink-0 z-10">
             {blendData.targetUser?.avatarUrl ? (
               <img src={blendData.targetUser.avatarUrl} alt={blendData.targetUser.username} className="w-full h-full object-cover" />
             ) : (
@@ -126,11 +124,11 @@ export default function TasteBlend() {
         </div>
 
         {/* Compatibility Tag & Header */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-zinc-800/80 border border-zinc-700/60 text-zinc-300 text-xs font-mono uppercase tracking-wider mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-zinc-400" /> {matchPercent}% Compatibility · {blendData.synergyTier}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 clay-badge-blue text-xs font-mono uppercase tracking-wider mb-3">
+          <Sparkles className="w-3.5 h-3.5" /> {matchPercent}% Compatibility · {blendData.synergyTier}
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-2">
           {blendData.currentUser.username} & {blendData.targetUser.username}
         </h1>
 
@@ -141,9 +139,9 @@ export default function TasteBlend() {
         </p>
 
         {/* Minimal Progress Bar */}
-        <div className="w-full max-w-sm mt-6 bg-zinc-950 border border-zinc-800 rounded-full h-2 p-0.5 overflow-hidden">
+        <div className="w-full max-w-sm mt-6 clay-input p-0.5 overflow-hidden h-3">
           <div
-            className="h-full rounded-full bg-zinc-300 transition-all duration-1000 opacity-90"
+            className="h-full rounded-full bg-blue-500 transition-all duration-1000 shadow-sm"
             style={{ width: `${matchPercent}%` }}
           />
         </div>
@@ -154,68 +152,68 @@ export default function TasteBlend() {
         <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
           <Layers className="w-4 h-4 text-zinc-400" /> Library Breakdown
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Watchlist */}
-          <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 flex flex-col justify-between space-y-2">
+          <div className="clay-card p-5 flex flex-col justify-between space-y-2">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium flex items-center gap-1.5 text-zinc-300">
-                <Bookmark className="w-3.5 h-3.5 text-zinc-400" /> Watchlist
+                <Bookmark className="w-3.5 h-3.5 text-blue-400" /> Watchlist
               </span>
-              <span className="text-[11px] font-mono text-zinc-400">
+              <span className="text-[11px] font-mono clay-badge px-2 py-0.5 text-zinc-300">
                 {blendData.presetBreakdown?.watchlist?.mutualCount || 0} Mutual
               </span>
             </div>
-            <div className="flex items-baseline justify-between text-xs text-zinc-500 pt-2 border-t border-zinc-800/50">
-              <span>You: <strong className="text-zinc-300">{blendData.presetBreakdown?.watchlist?.u1Count}</strong></span>
-              <span>@{username}: <strong className="text-zinc-300">{blendData.presetBreakdown?.watchlist?.u2Count}</strong></span>
+            <div className="flex items-baseline justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-800/40">
+              <span>You: <strong className="text-white">{blendData.presetBreakdown?.watchlist?.u1Count}</strong></span>
+              <span>@{username}: <strong className="text-white">{blendData.presetBreakdown?.watchlist?.u2Count}</strong></span>
             </div>
           </div>
 
           {/* Currently Watching */}
-          <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 flex flex-col justify-between space-y-2">
+          <div className="clay-card p-5 flex flex-col justify-between space-y-2">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium flex items-center gap-1.5 text-zinc-300">
-                <Tv className="w-3.5 h-3.5 text-zinc-400" /> Watching
+                <Tv className="w-3.5 h-3.5 text-emerald-400" /> Watching
               </span>
-              <span className="text-[11px] font-mono text-zinc-400">
+              <span className="text-[11px] font-mono clay-badge px-2 py-0.5 text-zinc-300">
                 {blendData.presetBreakdown?.currentlyWatching?.mutualCount || 0} Mutual
               </span>
             </div>
-            <div className="flex items-baseline justify-between text-xs text-zinc-500 pt-2 border-t border-zinc-800/50">
-              <span>You: <strong className="text-zinc-300">{blendData.presetBreakdown?.currentlyWatching?.u1Count}</strong></span>
-              <span>@{username}: <strong className="text-zinc-300">{blendData.presetBreakdown?.currentlyWatching?.u2Count}</strong></span>
+            <div className="flex items-baseline justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-800/40">
+              <span>You: <strong className="text-white">{blendData.presetBreakdown?.currentlyWatching?.u1Count}</strong></span>
+              <span>@{username}: <strong className="text-white">{blendData.presetBreakdown?.currentlyWatching?.u2Count}</strong></span>
             </div>
           </div>
 
           {/* Watched History */}
-          <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 flex flex-col justify-between space-y-2">
+          <div className="clay-card p-5 flex flex-col justify-between space-y-2">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium flex items-center gap-1.5 text-zinc-300">
-                <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" /> Watched
+                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" /> Watched
               </span>
-              <span className="text-[11px] font-mono text-zinc-400">
+              <span className="text-[11px] font-mono clay-badge px-2 py-0.5 text-zinc-300">
                 {blendData.presetBreakdown?.watched?.mutualCount || 0} Mutual
               </span>
             </div>
-            <div className="flex items-baseline justify-between text-xs text-zinc-500 pt-2 border-t border-zinc-800/50">
-              <span>You: <strong className="text-zinc-300">{blendData.presetBreakdown?.watched?.u1Count}</strong></span>
-              <span>@{username}: <strong className="text-zinc-300">{blendData.presetBreakdown?.watched?.u2Count}</strong></span>
+            <div className="flex items-baseline justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-800/40">
+              <span>You: <strong className="text-white">{blendData.presetBreakdown?.watched?.u1Count}</strong></span>
+              <span>@{username}: <strong className="text-white">{blendData.presetBreakdown?.watched?.u2Count}</strong></span>
             </div>
           </div>
 
           {/* Custom Playlists */}
-          <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 flex flex-col justify-between space-y-2">
+          <div className="clay-card p-5 flex flex-col justify-between space-y-2">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium flex items-center gap-1.5 text-zinc-300">
-                <FolderHeart className="w-3.5 h-3.5 text-zinc-400" /> Custom Lists
+                <FolderHeart className="w-3.5 h-3.5 text-pink-400" /> Custom Lists
               </span>
-              <span className="text-[11px] font-mono text-zinc-400">
+              <span className="text-[11px] font-mono clay-badge px-2 py-0.5 text-zinc-300">
                 {blendData.customBreakdown?.mutualCount || 0} Mutual
               </span>
             </div>
-            <div className="flex items-baseline justify-between text-xs text-zinc-500 pt-2 border-t border-zinc-800/50">
-              <span>You: <strong className="text-zinc-300">{blendData.customBreakdown?.u1CustomCount} lists</strong></span>
-              <span>@{username}: <strong className="text-zinc-300">{blendData.customBreakdown?.u2CustomCount} lists</strong></span>
+            <div className="flex items-baseline justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-800/40">
+              <span>You: <strong className="text-white">{blendData.customBreakdown?.u1CustomCount} lists</strong></span>
+              <span>@{username}: <strong className="text-white">{blendData.customBreakdown?.u2CustomCount} lists</strong></span>
             </div>
           </div>
         </div>
