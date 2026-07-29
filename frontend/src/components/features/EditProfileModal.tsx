@@ -123,10 +123,10 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
 
       {isOpen && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 sm:p-6 overflow-y-auto">
-          <div className="clay-modal p-0 max-w-3xl w-full max-h-[85vh] flex flex-col relative animate-in zoom-in-95 overflow-hidden rounded-3xl border border-white/15 shadow-2xl bg-[#121215]">
+          <div className="clay-modal p-0 max-w-3xl w-full max-h-[85vh] flex flex-col relative animate-in zoom-in-95 overflow-hidden rounded-3xl border border-white/15 shadow-2xl bg-[#1b1b22]">
             
             {/* Modal Header */}
-            <div className="flex justify-between items-center px-6 py-5 border-b border-white/10 shrink-0 bg-[#121215]">
+            <div className="flex justify-between items-center px-6 py-5 border-b border-white/10 shrink-0 bg-[#1b1b22]">
               <h2 className="text-xl font-bold text-white tracking-tight">Edit Profile</h2>
               <button 
                 onClick={() => setIsOpen(false)}
@@ -142,7 +142,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
                 {/* Left Side: Avatar */}
                 <div className="flex flex-col items-center gap-3 shrink-0">
                   <div className="relative group cursor-pointer w-28 h-28 rounded-full overflow-hidden border border-white/10 shadow-xl">
-                    <img src={avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=fallback'} alt="Avatar" className="w-full h-full object-cover bg-zinc-900" />
+                    <img src={avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=fallback'} alt="Avatar" className="w-full h-full object-cover bg-[var(--theme-dark)]" />
                     <div 
                       className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                       onClick={() => fileInputRef.current?.click()}
@@ -215,7 +215,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
                       type="button"
                       onClick={() => setAvatar(url)}
                       className={`relative aspect-square rounded-full overflow-hidden border-2 transition-all hover:scale-105 ${
-                        avatar === url ? 'border-blue-500 scale-105 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-zinc-800 hover:border-zinc-600'
+                        avatar === url ? 'border-blue-500 scale-105 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-white/10 hover:border-zinc-600'
                       }`}
                     >
                       <img src={url} alt="Preset avatar" className="w-full h-full object-cover bg-zinc-100" />
@@ -236,7 +236,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
                       type="button"
                       onClick={() => setBanner(preset.url)}
                       className={`relative h-14 rounded-xl overflow-hidden border-2 transition-all group ${
-                        banner === preset.url ? 'border-blue-500 scale-105 shadow-lg' : 'border-zinc-800 hover:border-zinc-600'
+                        banner === preset.url ? 'border-blue-500 scale-105 shadow-lg' : 'border-white/10 hover:border-zinc-600'
                       }`}
                     >
                       <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
@@ -276,7 +276,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
                       value={deleteInput}
                       onChange={e => setDeleteInput(e.target.value)}
                       placeholder="Type 'delete' to confirm"
-                      className="bg-zinc-900 border-red-900/50 text-white text-xs focus:border-red-500"
+                      className="bg-[var(--theme-dark)] border-red-900/50 text-white text-xs focus:border-red-500"
                     />
                     <Button 
                       onClick={handleDeleteAccount}
@@ -291,7 +291,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
             </div>
 
             {/* Modal Footer (Fixed at bottom) */}
-            <div className="px-6 py-4 border-t border-white/10 flex justify-between items-center bg-[#121215] shrink-0 z-10">
+            <div className="px-6 py-4 border-t border-white/10 flex justify-between items-center bg-[#1b1b22] shrink-0 z-10">
               <button 
                 onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
                 className="text-xs text-zinc-500 hover:text-red-400 transition-colors font-medium"

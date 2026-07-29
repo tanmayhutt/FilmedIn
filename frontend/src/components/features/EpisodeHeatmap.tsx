@@ -7,9 +7,10 @@ interface HeatmapProps {
 }
 
 export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
-  const [data, setData] = useState<Record<number, Record<number, number | null>>>({});
+  const [data, setData] = useState<Record<number, Record<number, { rating: number | null, name: string }>>>({});
   const [loading, setLoading] = useState(true);
   const [maxEpisodes, setMaxEpisodes] = useState(0);
+  const [hasRatings, setHasRatings] = useState(false);
 
   const validSeasons = seasons.filter(s => s.season_number > 0).sort((a, b) => a.season_number - b.season_number);
 
@@ -21,7 +22,8 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
         const results = await Promise.all(promises);
         
         let highestEpCount = 0;
-        const newMatrix: Record<number, Record<number, number | null>> = {};
+        let foundAnyRating = false;
+        const newMatrix: Record<number, Record<number, { rating: number | null, name: string }>> = {};
 
         results.forEach((seasonData, index) => {
           if (!seasonData) return;
@@ -29,7 +31,13 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
           newMatrix[sNum] = {};
           
           seasonData.episodes.forEach(ep => {
-            newMatrix[sNum][ep.episode_number] = ep.vote_average || null;
+            newMatrix[sNum][ep.episode_number] = {
+              rating: ep.vote_average || null,
+              name: ep.name || `Episode ${ep.episode_number}`
+            };
+            if (ep.vote_average && ep.vote_average > 0) {
+              foundAnyRating = true;
+            }
             if (ep.episode_number > highestEpCount) {
               highestEpCount = ep.episode_number;
             }
@@ -38,6 +46,7 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
 
         setData(newMatrix);
         setMaxEpisodes(highestEpCount);
+        setHasRatings(foundAnyRating);
       } catch (err) {
         console.error("Failed to load heatmap data", err);
       }
@@ -51,18 +60,18 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
     }
   }, [tvId]);
 
-  if (validSeasons.length === 0) return null;
+  if (validSeasons.length === 0 || (!loading && !hasRatings)) return null;
 
   if (loading) {
     return (
-      <div className="w-full h-48 flex items-center justify-center bg-zinc-900/30 rounded-xl border border-zinc-800">
+      <div className="w-full h-48 flex items-center justify-center bg-[var(--theme-dark)]/30 rounded-xl border border-white/10">
         <span className="text-zinc-500 animate-pulse font-medium">Building rating heatmap...</span>
       </div>
     );
   }
 
   const getRatingColor = (rating: number | null) => {
-    if (!rating) return 'bg-zinc-800 text-zinc-600'; // No rating or aired yet
+    if (!rating) return 'bg-[var(--theme-dark-hover)] text-zinc-600'; // No rating or aired yet
     if (rating >= 9.0) return 'bg-[#186a3b] text-white'; // Awesome (Dark Green)
     if (rating >= 8.0) return 'bg-[#2ecc71] text-zinc-900'; // Great (Bright Green)
     if (rating >= 7.0) return 'bg-[#f1c40f] text-zinc-900'; // Good (Yellow)
@@ -73,7 +82,7 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
   const episodes = Array.from({ length: maxEpisodes }, (_, i) => i + 1);
 
   return (
-    <div className="bg-zinc-950 border border-zinc-800/80 rounded-2xl p-4 sm:p-6 overflow-hidden">
+    <div className="bg-[var(--theme-bg)] border border-white/10/80 rounded-2xl p-4 sm:p-6 overflow-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
           <h3 className="text-lg font-bold text-white mb-1 tracking-wide font-mono">SERIES GRAPH</h3>
@@ -112,15 +121,21 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
               
               {/* Grid cells */}
               {validSeasons.map(s => {
-                const rating = data[s.season_number]?.[ep];
+                const epData = data[s.season_number]?.[ep];
+                const rating = epData?.rating ?? null;
+                const epName = epData?.name ?? '';
+                
                 return (
                   <div key={`${s.season_number}-${ep}`} className="w-14 shrink-0 px-[2px]">
-                    <div 
-                      className={`h-9 w-full flex items-center justify-center rounded-[4px] text-xs font-bold transition-all hover:opacity-80 hover:scale-105 cursor-default ${getRatingColor(rating)}`}
-                      title={rating ? `S${s.season_number} E${ep} - Rating: ${rating.toFixed(1)}` : 'No rating / Unreleased'}
+                    <a 
+                      href={`https://www.themoviedb.org/tv/${tvId}/season/${s.season_number}/episode/${ep}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`h-9 w-full flex items-center justify-center rounded-[4px] text-xs font-bold transition-all hover:opacity-80 hover:scale-105 cursor-pointer ${getRatingColor(rating)}`}
+                      title={rating ? `S${s.season_number} E${ep}: ${epName} - Rating: ${rating.toFixed(1)}` : `S${s.season_number} E${ep}: ${epName} (No rating)`}
                     >
                       {rating ? rating.toFixed(1) : '-'}
-                    </div>
+                    </a>
                   </div>
                 );
               })}

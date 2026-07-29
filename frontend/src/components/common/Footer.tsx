@@ -9,7 +9,10 @@ export function Footer() {
 
   return (
     <footer className="mt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 w-full">
-      <div className="clay-card p-10 sm:p-14 border border-white/10">
+      <div className="clay-card p-10 sm:p-14 border border-white/10 rounded-[2.5rem] relative overflow-hidden">
+        {/* Organic Wave Top Accent */}
+        <div className="absolute top-0 inset-x-0 h-1.5 bg-[#9062aa]" />
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
 
           {/* Brand & Description */}
@@ -79,7 +82,7 @@ export function Footer() {
       {/* Privacy Policy Modal */}
       {showPrivacy && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-          <div className="bg-[#121215] border border-white/10 rounded-2xl max-w-lg w-full p-6 text-zinc-300 space-y-4 shadow-2xl relative">
+          <div className="bg-[#1b1b22] border border-white/10 rounded-2xl max-w-lg w-full p-6 text-zinc-300 space-y-4 shadow-2xl relative">
             <button onClick={() => setShowPrivacy(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-white">
               <X size={18} />
             </button>
@@ -99,7 +102,7 @@ export function Footer() {
       {/* Terms of Service Modal */}
       {showTerms && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-          <div className="bg-[#121215] border border-white/10 rounded-2xl max-w-lg w-full p-6 text-zinc-300 space-y-4 shadow-2xl relative">
+          <div className="bg-[#1b1b22] border border-white/10 rounded-2xl max-w-lg w-full p-6 text-zinc-300 space-y-4 shadow-2xl relative">
             <button onClick={() => setShowTerms(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-white">
               <X size={18} />
             </button>

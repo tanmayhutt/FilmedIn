@@ -24,7 +24,7 @@ function EpisodeCard({ ep }: { ep: TMDBEpisode }) {
         onClick={() => setExpanded(p => !p)}
         className="w-full flex items-start gap-4 p-3 text-left hover:bg-white/5 transition-colors rounded-xl"
       >
-        <div className="w-24 aspect-video clay-poster overflow-hidden shrink-0 relative bg-[#161722]">
+        <div className="w-24 aspect-video clay-poster overflow-hidden shrink-0 relative bg-[#1b1b22]">
           {ep.still_path ? (
             <img src={`https://image.tmdb.org/t/p/w300${ep.still_path}`} alt={ep.name} className="w-full h-full object-cover" />
           ) : (
@@ -88,7 +88,7 @@ function SeasonSection({ tvId, seasonNumber, seasonName, posterPath, seasonRatin
         {posterPath ? (
           <img src={`https://image.tmdb.org/t/p/w200${posterPath}`} alt={seasonName} className="w-12 h-16 object-cover clay-poster shrink-0" />
         ) : (
-          <div className="w-12 h-16 clay-poster bg-[#161722] flex items-center justify-center shrink-0">
+          <div className="w-12 h-16 clay-poster bg-[#1b1b22] flex items-center justify-center shrink-0">
             <Tv className="w-5 h-5 text-zinc-400" />
           </div>
         )}
@@ -143,14 +143,14 @@ export default function TVDetails() {
   if (loading) {
     return (
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-pulse">
-        <div className="h-8 bg-zinc-900 w-1/3 mb-4 rounded" />
-        <div className="h-4 bg-zinc-900 w-1/4 mb-12 rounded" />
+        <div className="h-8 bg-[var(--theme-dark)] w-1/3 mb-4 rounded" />
+        <div className="h-4 bg-[var(--theme-dark)] w-1/4 mb-12 rounded" />
         <div className="flex flex-col md:flex-row gap-12">
-          <div className="w-full md:w-1/3 aspect-[2/3] bg-zinc-900 rounded-lg" />
+          <div className="w-full md:w-1/3 aspect-[2/3] bg-[var(--theme-dark)] rounded-lg" />
           <div className="flex-1 space-y-4">
-            <div className="h-4 bg-zinc-900 w-full rounded" />
-            <div className="h-4 bg-zinc-900 w-full rounded" />
-            <div className="h-4 bg-zinc-900 w-3/4 rounded" />
+            <div className="h-4 bg-[var(--theme-dark)] w-full rounded" />
+            <div className="h-4 bg-[var(--theme-dark)] w-full rounded" />
+            <div className="h-4 bg-[var(--theme-dark)] w-3/4 rounded" />
           </div>
         </div>
       </main>
@@ -174,7 +174,7 @@ export default function TVDetails() {
             {show.poster_path ? (
               <img src={`https://image.tmdb.org/t/p/w500${show.poster_path}`} alt={show.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-zinc-500 bg-[#161722]">No Image</div>
+              <div className="absolute inset-0 flex items-center justify-center text-zinc-500 bg-[#1b1b22]">No Image</div>
             )}
           </div>
           <div className="flex flex-col gap-2">
@@ -228,7 +228,7 @@ export default function TVDetails() {
           <div className="flex overflow-x-auto gap-4 pb-4" style={{ scrollbarWidth: 'none' }}>
             {show.credits?.cast?.slice(0, 12).map((actor: any) => (
               <div key={actor.id} className="w-[100px] shrink-0 flex flex-col gap-2 group">
-                <div className="aspect-[2/3] w-full rounded-lg bg-zinc-900 overflow-hidden relative border border-zinc-800/50 group-hover:border-zinc-700 transition-colors">
+                <div className="aspect-[2/3] w-full rounded-lg bg-[var(--theme-dark)] overflow-hidden relative border border-white/10/50 group-hover:border-white/20 transition-colors">
                   {actor.profile_path ? (
                     <img src={`https://image.tmdb.org/t/p/w200${actor.profile_path}`} alt={actor.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
@@ -247,14 +247,14 @@ export default function TVDetails() {
 
       {/* ── Series Graph Heatmap ── */}
       {seasons.length > 0 && (
-        <section className="mt-16 border-t border-zinc-800/50 pt-12">
+        <section className="mt-16 border-t border-white/10/50 pt-12">
           <EpisodeHeatmap tvId={show.id} seasons={seasons} />
         </section>
       )}
 
       {/* ── Seasons & Episodes ── */}
       {seasons.length > 0 && (
-        <section className="mt-16 border-t border-zinc-800/50 pt-12">
+        <section className="mt-16 border-t border-white/10/50 pt-12">
           <h2 className="text-2xl font-bold text-zinc-100 mb-6">Seasons & Episodes</h2>
           <div className="space-y-4">
             {seasons.map((s: any) => (
@@ -272,7 +272,7 @@ export default function TVDetails() {
       )}
 
       {/* ── Wallpapers ── */}
-      <div className="mt-16 w-full border-t border-zinc-800/50 pt-16">
+      <div className="mt-16 w-full border-t border-white/10/50 pt-16">
         <h2 className="text-3xl font-bold text-zinc-100 mb-8">Generate Wallpapers</h2>
         <WallpaperGenerator tmdbId={show.id} mediaType="tv" title={show.name} />
       </div>

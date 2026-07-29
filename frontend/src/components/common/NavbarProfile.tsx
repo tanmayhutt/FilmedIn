@@ -64,7 +64,7 @@ export function NavbarProfile() {
       <UserAvatar 
         avatarUrl={profile?.avatarUrl} 
         username={profile?.username} 
-        className="w-9 h-9 border border-zinc-700/80 group-hover:border-white transition-colors"
+        className="w-9 h-9 border border-white/20/80 group-hover:border-white transition-colors"
       />
     </Link>
   )

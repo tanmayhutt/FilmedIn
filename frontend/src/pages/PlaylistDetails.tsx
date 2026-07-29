@@ -138,7 +138,7 @@ export default function PlaylistDetails() {
                     )
                 })}
                 {items.length === 0 && (
-                    <div className="col-span-full py-12 text-center text-zinc-500 italic border border-dashed border-zinc-800 rounded-xl">
+                    <div className="col-span-full py-12 text-center text-zinc-500 italic border border-dashed border-white/10 rounded-xl">
                         This playlist is empty. Go find some good stuff!
                     </div>
                 )}

@@ -26,7 +26,7 @@ export default function StudiosIndex() {
           >
             {/* High Contrast Studio Card */}
             <div 
-              className="relative w-full aspect-video bg-[#121215] hover:bg-[#1a1a20] border border-white/10 hover:border-white/30 rounded-2xl overflow-hidden flex items-center justify-center group-hover:-translate-y-1 mb-3.5 p-6 transition-all duration-300 shadow-xl"
+              className="relative w-full aspect-video bg-[#1b1b22] hover:bg-[#23232c] border border-white/10 hover:border-white/30 rounded-2xl overflow-hidden flex items-center justify-center group-hover:-translate-y-1 mb-3.5 p-6 transition-all duration-300 shadow-xl"
             >
               <div className="w-[80%] h-[75%] flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                 <img 

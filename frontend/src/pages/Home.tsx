@@ -27,26 +27,33 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3.5">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
             {STUDIOS.slice(0, 6).map(studio => (
               <Link
                 key={studio.id}
                 to={`/studio/${studio.id}`}
-                className="bg-[#121215] hover:bg-[#1a1a20] p-3 h-16 sm:h-20 rounded-2xl flex items-center justify-center group hover:scale-[1.03] transition-all border border-white/10 hover:border-white/30 shadow-lg"
+                className="bg-[#1b1b22] hover:bg-[#23232c] p-4 h-20 rounded-[1.75rem] flex items-center justify-center group hover:scale-[1.04] transition-all border border-white/10 hover:border-[#9062aa]/40 shadow-xl"
               >
                 <img 
                   src={studio.logoUrl} 
                   alt={studio.name} 
-                  className="max-h-7 sm:max-h-9 max-w-[80%] object-contain filter brightness-0 invert opacity-90 group-hover:opacity-100 transition-all" 
+                  className="max-h-8 sm:max-h-10 max-w-[80%] object-contain filter brightness-0 invert opacity-90 group-hover:opacity-100 transition-all" 
                 />
               </Link>
             ))}
           </div>
         </div>
 
+        {/* ── Organic Wavy Accent ── */}
+        <div className="relative h-12 w-full overflow-hidden flex items-center justify-center my-6 opacity-70">
+          <svg className="w-full max-w-2xl h-full text-[#9062aa]" viewBox="0 0 1000 100" preserveAspectRatio="none" fill="none" stroke="currentColor" strokeWidth="4" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,50 C250,100 250,0 500,50 C750,100 750,0 1000,50" />
+          </svg>
+        </div>
+
         {/* ── Category Filter Bar ── */}
         <div className="space-y-8">
-          <div className="flex items-center gap-2 p-1.5 clay-card rounded-2xl w-fit overflow-x-auto scrollbar-hide border border-white/5">
+          <div className="flex items-center gap-2 p-2 bg-[#1b1b22] rounded-full w-fit overflow-x-auto scrollbar-hide border border-white/10 shadow-lg">
             {[
               { id: 'all', label: 'All Trending' },
               { id: 'movies', label: 'Movies' },
@@ -59,10 +66,10 @@ export default function Home() {
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id as any)}
-                  className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                  className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                     isActive 
-                      ? 'clay-button-primary text-white shadow-lg' 
-                      : 'text-zinc-400 hover:text-white'
+                      ? 'bg-[#9062aa] text-white shadow-lg scale-105' 
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
                   {cat.label}

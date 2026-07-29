@@ -94,13 +94,13 @@ export default function Studio() {
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
         
         {/* Tabs */}
-        <div className="flex items-center justify-center gap-4 border-b border-zinc-800/50 pb-4">
+        <div className="flex items-center justify-center gap-4 border-b border-white/10/50 pb-4">
           <button 
             onClick={() => setActiveTab('movie')}
             className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
               activeTab === 'movie' 
                 ? 'bg-zinc-100 text-zinc-900 shadow-lg' 
-                : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800'
+                : 'text-zinc-400 hover:text-zinc-100 hover:bg-[var(--theme-dark-hover)]'
             }`}
           >
             Movies
@@ -110,7 +110,7 @@ export default function Studio() {
             className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
               activeTab === 'tv' 
                 ? 'bg-zinc-100 text-zinc-900 shadow-lg' 
-                : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800'
+                : 'text-zinc-400 hover:text-zinc-100 hover:bg-[var(--theme-dark-hover)]'
             }`}
           >
             TV Shows

@@ -27,14 +27,14 @@ export default function MovieDetails() {
   if (loading) {
     return (
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-pulse">
-        <div className="h-8 bg-zinc-900 w-1/3 mb-4 rounded"></div>
-        <div className="h-4 bg-zinc-900 w-1/4 mb-12 rounded"></div>
+        <div className="h-8 bg-[var(--theme-dark)] w-1/3 mb-4 rounded"></div>
+        <div className="h-4 bg-[var(--theme-dark)] w-1/4 mb-12 rounded"></div>
         <div className="flex flex-col md:flex-row gap-12">
-          <div className="w-full md:w-1/3 aspect-[2/3] bg-zinc-900 rounded-lg"></div>
+          <div className="w-full md:w-1/3 aspect-[2/3] bg-[var(--theme-dark)] rounded-lg"></div>
           <div className="flex-1 space-y-4">
-            <div className="h-4 bg-zinc-900 w-full rounded"></div>
-            <div className="h-4 bg-zinc-900 w-full rounded"></div>
-            <div className="h-4 bg-zinc-900 w-3/4 rounded"></div>
+            <div className="h-4 bg-[var(--theme-dark)] w-full rounded"></div>
+            <div className="h-4 bg-[var(--theme-dark)] w-full rounded"></div>
+            <div className="h-4 bg-[var(--theme-dark)] w-3/4 rounded"></div>
           </div>
         </div>
       </main>
@@ -63,7 +63,7 @@ export default function MovieDetails() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-zinc-500 bg-[#161722]">No Image</div>
+              <div className="absolute inset-0 flex items-center justify-center text-zinc-500 bg-[#1b1b22]">No Image</div>
             )}
           </div>
           <div className="flex flex-col gap-2">
@@ -122,7 +122,7 @@ export default function MovieDetails() {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-xs text-zinc-500 p-2 text-center bg-[#161722]">
+                    <div className="absolute inset-0 flex items-center justify-center text-xs text-zinc-500 p-2 text-center bg-[#1b1b22]">
                       No Photo
                     </div>
                   )}

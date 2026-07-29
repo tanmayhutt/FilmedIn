@@ -287,11 +287,11 @@ export default function Profile() {
 
     return (
         <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-10 animate-in fade-in relative space-y-10">
-            {/* ✦ Premium Social Media Profile Header ✦ */}
-            <div className="clay-card p-0 overflow-visible relative border border-white/10">
+            {/* ✦ Premium Organic Profile Header ✦ */}
+            <div className="clay-card p-0 overflow-visible relative border border-white/10 rounded-[2.5rem]">
                 {/* Cinematic Header Cover Backdrop */}
                 <div 
-                    className="h-44 sm:h-60 w-full relative overflow-hidden rounded-t-[16px] transition-all duration-700 bg-zinc-900"
+                    className="h-48 sm:h-64 w-full relative overflow-hidden rounded-t-[2.5rem] transition-all duration-700 bg-[var(--theme-dark)]"
                     style={{
                         background: profile.bannerUrl ? undefined : `linear-gradient(135deg, rgba(${themeR}, ${themeG}, ${themeB}, 0.85), rgba(${Math.max(15, themeR - 60)}, ${Math.max(15, themeG - 60)}, ${Math.max(15, themeB - 60)}, 0.98))`
                     }}
@@ -304,7 +304,14 @@ export default function Profile() {
                         />
                     )}
                     <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#121215] via-transparent to-transparent opacity-90" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1b1b22] via-transparent to-transparent opacity-95" />
+                    
+                    {/* Organic Wavy Contour SVG Layer */}
+                    <div className="absolute bottom-0 inset-x-0 pointer-events-none opacity-40">
+                        <svg className="w-full h-12 text-[#1b1b22]" viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 60C240 100 480 20 720 60C960 100 1200 30 1440 60V120H0V60Z" fill="currentColor"/>
+                        </svg>
+                    </div>
                 </div>
 
                 {/* Main Profile Info Row */}
@@ -314,7 +321,7 @@ export default function Profile() {
                         <UserAvatar
                             avatarUrl={profile.avatarUrl}
                             username={profile.username}
-                            className="w-28 h-28 sm:w-36 sm:h-36 border-4 border-[#121215] shadow-2xl shrink-0 text-4xl"
+                            className="w-28 h-28 sm:w-36 sm:h-36 border-4 border-[#1b1b22] shadow-2xl shrink-0 text-4xl"
                         />
 
                         {/* User Details */}
@@ -374,7 +381,7 @@ export default function Profile() {
                         </div>
 
                         {isUserSearchOpen && userQuery.trim().length > 0 && (
-                            <div className="absolute top-full left-0 mt-2 w-72 bg-[#121215] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 animate-in fade-in slide-in-from-top-2">
+                            <div className="absolute top-full left-0 mt-2 w-72 bg-[#1b1b22] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 animate-in fade-in slide-in-from-top-2">
                                 {searchingUsers ? (
                                     <div className="px-3 py-2 text-zinc-500 text-xs">Searching users...</div>
                                 ) : userResults.length > 0 ? (
@@ -388,7 +395,7 @@ export default function Profile() {
                                             }}
                                             className="w-full px-3 py-2 flex items-center gap-2.5 hover:bg-white/5 transition-colors text-left rounded-xl"
                                         >
-                                            <UserAvatar avatarUrl={u.avatarUrl} username={u.username} className="w-6 h-6 border border-zinc-700" />
+                                            <UserAvatar avatarUrl={u.avatarUrl} username={u.username} className="w-6 h-6 border border-white/20" />
                                             <span className="text-xs font-medium text-zinc-200 truncate">{u.username}</span>
                                         </button>
                                     ))
@@ -478,7 +485,7 @@ export default function Profile() {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="absolute inset-0 bg-zinc-900" />
+                                <div className="absolute inset-0 bg-[var(--theme-dark)]" />
                             )}
 
                             {/* Gradient overlay for readability */}
@@ -505,7 +512,7 @@ export default function Profile() {
                         </div>
                     ))}
                     {playlists.length === 0 && (
-                        <div className="col-span-full py-12 text-center text-zinc-500 italic border border-dashed border-zinc-800 rounded-xl">
+                        <div className="col-span-full py-12 text-center text-zinc-500 italic border border-dashed border-white/10 rounded-xl">
                             {isOwner ? 'No playlists yet. Create one above!' : 'No playlists yet.'}
                         </div>
                     )}
@@ -515,8 +522,8 @@ export default function Profile() {
             {/* Followers / Following Modals */}
             {(isFollowersModalOpen || isFollowingModalOpen) && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 flex flex-col max-h-[80vh]">
-                        <div className="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-950/50">
+                    <div className="bg-[var(--theme-dark)] border border-white/10 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 flex flex-col max-h-[80vh]">
+                        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[var(--theme-bg)]/50">
                             <h3 className="text-lg font-semibold text-white">
                                 {isFollowersModalOpen ? 'Followers' : 'Following'}
                             </h3>
@@ -525,7 +532,7 @@ export default function Profile() {
                                     setIsFollowersModalOpen(false)
                                     setIsFollowingModalOpen(false)
                                 }}
-                                className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                                className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-[var(--theme-dark-hover)] transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -551,9 +558,9 @@ export default function Profile() {
                                                     setIsFollowersModalOpen(false)
                                                     setIsFollowingModalOpen(false)
                                                 }}
-                                                className="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800 transition-colors group"
+                                                className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--theme-dark-hover)] transition-colors group"
                                             >
-                                                <UserAvatar avatarUrl={user.avatarUrl} username={user.username} className="w-10 h-10 border border-zinc-700" />
+                                                <UserAvatar avatarUrl={user.avatarUrl} username={user.username} className="w-10 h-10 border border-white/20" />
                                                 <span className="font-medium text-zinc-200 group-hover:text-white truncate">
                                                     {user.username}
                                                 </span>

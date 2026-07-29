@@ -64,7 +64,7 @@ export function TrendingSkeleton() {
   return (
     <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide px-2">
       {[...Array(5)].map((_, i) => (
-        <div key={i} className="w-[160px] sm:w-[200px] h-[240px] sm:h-[300px] bg-zinc-900 rounded-lg animate-pulse shrink-0 border border-zinc-800" />
+        <div key={i} className="w-[160px] sm:w-[200px] h-[240px] sm:h-[300px] bg-[var(--theme-dark)] rounded-lg animate-pulse shrink-0 border border-white/10" />
       ))}
     </div>
   )

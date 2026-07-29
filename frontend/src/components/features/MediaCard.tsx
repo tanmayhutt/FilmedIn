@@ -13,16 +13,15 @@ import {
 function RatingBadge({ rating, isUnreleased }: { rating: number, isUnreleased: boolean }) {
   if (isUnreleased) {
     return (
-      <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md text-[10px] font-bold text-white bg-blue-600/90 backdrop-blur-sm z-10 uppercase tracking-wider">
+      <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-[#c69b61] z-10 uppercase tracking-wider shadow-md">
         Unreleased
       </div>
     )
   }
   if (!rating || rating === 0) return null
-  const color = rating >= 7.5 ? 'bg-amber-500/90' : rating >= 6 ? 'bg-zinc-700/90' : 'bg-rose-900/80'
   return (
-    <div className={`absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold text-white ${color} backdrop-blur-md z-10 border border-white/10 shadow-md`}>
-      <Star className="w-3 h-3 fill-white stroke-none" />
+    <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold text-[#1b1b22] bg-[#82ac62] z-10 shadow-md">
+      <Star className="w-3 h-3 fill-[#1b1b22] text-[#1b1b22]" />
       {rating.toFixed(1)}
     </div>
   )
@@ -45,7 +44,7 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
           {media.poster_path ? (
             <img src={`https://image.tmdb.org/t/p/w500${media.poster_path}`} alt={title} loading="lazy" className="object-cover w-full h-full" />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-zinc-900 text-zinc-600 text-xs text-center p-4">No Image</div>
+            <div className="absolute inset-0 flex items-center justify-center bg-[var(--theme-dark)] text-zinc-600 text-xs text-center p-4">No Image</div>
           )}
         </div>
       ) : (
@@ -59,7 +58,7 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
               className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-zinc-900 text-zinc-600 text-xs text-center p-4">
+            <div className="absolute inset-0 flex items-center justify-center bg-[var(--theme-dark)] text-zinc-600 text-xs text-center p-4">
               No Image Available
             </div>
           )}
@@ -90,10 +89,10 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
               <button
                 type="button"
                 onClick={handleToggleLike}
-                className="p-1 text-zinc-400 hover:text-rose-400 transition-all hover:scale-110 active:scale-125 focus:outline-none"
+                className={`p-1 transition-all hover:scale-110 active:scale-125 focus:outline-none ${isLiked ? 'text-[#9062aa]' : 'text-zinc-400 hover:text-[#9062aa]'}`}
                 title={isLiked ? 'Liked' : 'Like'}
               >
-                <Heart className={`w-4 h-4 transition-all ${isLiked ? 'fill-rose-500 text-rose-500' : ''}`} />
+                <Heart className={`w-4 h-4 transition-all ${isLiked ? 'fill-[#9062aa]' : ''}`} />
               </button>
 
               {/* Plain Bookmark Save Dropdown */}
@@ -102,15 +101,15 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
                   <button
                     type="button"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    className="p-1 text-zinc-400 hover:text-blue-400 transition-all hover:scale-110 active:scale-125 focus:outline-none"
+                    className={`p-1 transition-all hover:scale-110 active:scale-125 focus:outline-none ${saved ? 'text-[#9062aa]' : 'text-zinc-400 hover:text-[#9062aa]'}`}
                     title={saved ? `Saved in: ${savedPlaylistNames.join(', ')}` : 'Save to list'}
                   >
-                    <Bookmark className={`w-4 h-4 transition-all ${saved ? 'fill-blue-400 text-blue-400' : ''}`} />
+                    <Bookmark className={`w-4 h-4 transition-all ${saved ? 'fill-[#9062aa]' : ''}`} />
                   </button>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent 
-                  className="bg-[#121215] border border-white/10 rounded-2xl shadow-2xl text-zinc-100 min-w-[210px] z-50 p-2"
+                  className="bg-[#1b1b22] border border-white/10 rounded-2xl shadow-2xl text-zinc-100 min-w-[210px] z-50 p-2"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="px-2.5 py-1.5">

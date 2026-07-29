@@ -70,14 +70,14 @@ export function GenreRow({ title, genreId, type, companyId, networkId }: GenreRo
         <div className="flex items-center gap-1">
           <button
             onClick={() => scroll('left')}
-            className="p-1.5 rounded-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-600 text-zinc-500 hover:text-white transition-all duration-200"
+            className="p-1.5 rounded-full bg-[var(--theme-dark)] border border-white/10 hover:bg-[var(--theme-dark-hover)] hover:border-zinc-600 text-zinc-500 hover:text-white transition-all duration-200"
             aria-label="Scroll left"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => scroll('right')}
-            className="p-1.5 rounded-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-zinc-600 text-zinc-500 hover:text-white transition-all duration-200"
+            className="p-1.5 rounded-full bg-[var(--theme-dark)] border border-white/10 hover:bg-[var(--theme-dark-hover)] hover:border-zinc-600 text-zinc-500 hover:text-white transition-all duration-200"
             aria-label="Scroll right"
           >
             <ChevronRight className="w-4 h-4" />
@@ -95,7 +95,7 @@ export function GenreRow({ title, genreId, type, companyId, networkId }: GenreRo
           ? Array.from({ length: 12 }).map((_, i) => (
               <div
                 key={i}
-                className="shrink-0 w-[180px] sm:w-[200px] rounded-2xl bg-zinc-900 animate-pulse aspect-[2/3]"
+                className="shrink-0 w-[180px] sm:w-[200px] rounded-2xl bg-[var(--theme-dark)] animate-pulse aspect-[2/3]"
               />
             ))
           : items.map((item) => (

@@ -43,7 +43,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
             key={item.tmdbId}
             to={`/${item.mediaType}/${item.tmdbId}`}
             onClick={onClose}
-            className="group relative aspect-[2/3] clay-poster overflow-hidden bg-[#161722]"
+            className="group relative aspect-[2/3] clay-poster overflow-hidden bg-[#1b1b22]"
           >
             {item.posterPath ? (
               <img src={item.posterPath} alt="Poster" className="w-full h-full object-cover" />
@@ -92,7 +92,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
               <div className="relative overflow-hidden clay-card p-8 flex flex-col items-center text-center">
                 {/* Avatars */}
                 <div className="flex items-center justify-center -space-x-4 mb-5 relative">
-                  <div className="w-16 h-16 rounded-full clay-badge overflow-hidden bg-zinc-950 shadow-2xl shrink-0 z-10">
+                  <div className="w-16 h-16 rounded-full clay-badge overflow-hidden bg-[var(--theme-bg)] shadow-2xl shrink-0 z-10">
                     {blendData.currentUser?.avatarUrl ? (
                       <img src={blendData.currentUser.avatarUrl} alt={blendData.currentUser.username} className="w-full h-full object-cover" />
                     ) : (
@@ -102,7 +102,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
                   <div className="w-10 h-10 rounded-full clay-badge-blue flex items-center justify-center text-white font-black z-20 text-xs">
                     <Heart className="w-4 h-4 fill-white" />
                   </div>
-                  <div className="w-16 h-16 rounded-full clay-badge overflow-hidden bg-zinc-950 shadow-2xl shrink-0 z-10">
+                  <div className="w-16 h-16 rounded-full clay-badge overflow-hidden bg-[var(--theme-bg)] shadow-2xl shrink-0 z-10">
                     {blendData.targetUser?.avatarUrl ? (
                       <img src={blendData.targetUser.avatarUrl} alt={blendData.targetUser.username} className="w-full h-full object-cover" />
                     ) : (
@@ -141,7 +141,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
                 </div>
 
                 {/* Currently Watching */}
-                <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3.5 flex flex-col gap-1">
+                <div className="bg-[var(--theme-dark)]/60 border border-white/10 rounded-xl p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between text-zinc-400 text-xs">
                     <span className="font-semibold flex items-center gap-1.5"><Tv className="w-3.5 h-3.5 text-emerald-400" /> Watching</span>
                   </div>
@@ -154,7 +154,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
                 </div>
 
                 {/* Watched History */}
-                <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3.5 flex flex-col gap-1">
+                <div className="bg-[var(--theme-dark)]/60 border border-white/10 rounded-xl p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between text-zinc-400 text-xs">
                     <span className="font-semibold flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" /> Watched</span>
                   </div>
@@ -167,7 +167,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
                 </div>
 
                 {/* Custom Playlists */}
-                <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3.5 flex flex-col gap-1">
+                <div className="bg-[var(--theme-dark)]/60 border border-white/10 rounded-xl p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between text-zinc-400 text-xs">
                     <span className="font-semibold flex items-center gap-1.5"><FolderHeart className="w-3.5 h-3.5 text-pink-400" /> Custom Lists</span>
                   </div>

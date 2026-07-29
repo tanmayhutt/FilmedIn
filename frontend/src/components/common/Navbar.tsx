@@ -77,8 +77,8 @@ export function Navbar() {
   };
 
   return (
-    <nav className="w-full bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50 p-2">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between clay-navbar">
+    <nav className="w-full bg-[#444b58]/90 backdrop-blur-xl sticky top-0 z-50 p-2 sm:p-3">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between clay-navbar rounded-full border border-white/10 bg-[#1b1b22]/90 shadow-2xl">
         {/* Left: Logo + Nav */}
         <div className="flex items-center gap-8">
           <Logo />
@@ -87,8 +87,8 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-2" ref={dropdownRef}>
             <Link
               to="/"
-              className={`text-sm font-medium transition-all px-3.5 py-1.5 rounded-full ${
-                isHome ? 'clay-badge-blue' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+              className={`text-xs font-bold transition-all px-4 py-2 rounded-full ${
+                isHome ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}
             >
               Home
@@ -97,18 +97,18 @@ export function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setActiveDropdown(activeDropdown === 'movies' ? null : 'movies')}
-                className={`text-sm font-medium transition-all px-3.5 py-1.5 rounded-full flex items-center gap-1.5 focus:outline-none ${
-                  isActiveMovie ? 'clay-badge-blue' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                className={`text-xs font-bold transition-all px-4 py-2 rounded-full flex items-center gap-1.5 focus:outline-none ${
+                  isActiveMovie ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
                 }`}
               >
                 Movies
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'movies' ? 'rotate-180 text-white' : 'text-zinc-500'}`} />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'movies' ? 'rotate-180 text-white' : 'text-zinc-500'}`} />
               </button>
               {activeDropdown === 'movies' && (
                 <div className="absolute top-full -left-12 pt-4 w-[500px] z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="clay-modal p-6">
                     
-                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-zinc-800/50">
+                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/10/50">
                       <div>
                         <h3 className="text-base font-semibold text-white">Movies</h3>
                         <p className="text-xs text-zinc-500 mt-1">Discover blockbusters, indies, and classics.</p>
@@ -146,7 +146,7 @@ export function Navbar() {
                         <Link
                           key={genre.id}
                           to={`/explore?type=movie&genre=${genre.id}`}
-                          className="text-sm text-zinc-400 hover:text-white hover:bg-zinc-900/50 px-2 py-1.5 rounded-md transition-colors -ml-2"
+                          className="text-sm text-zinc-400 hover:text-white hover:bg-[var(--theme-dark)]/50 px-2 py-1.5 rounded-md transition-colors -ml-2"
                         >
                           {genre.name}
                         </Link>
@@ -160,18 +160,18 @@ export function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setActiveDropdown(activeDropdown === 'tv' ? null : 'tv')}
-                className={`text-sm font-medium transition-all px-3.5 py-1.5 rounded-full flex items-center gap-1.5 focus:outline-none ${
-                  isActiveTV ? 'clay-badge-blue' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                className={`text-xs font-bold transition-all px-4 py-2 rounded-full flex items-center gap-1.5 focus:outline-none ${
+                  isActiveTV ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
                 }`}
               >
                 TV Shows
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'tv' ? 'rotate-180 text-white' : 'text-zinc-500'}`} />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'tv' ? 'rotate-180 text-white' : 'text-zinc-500'}`} />
               </button>
               {activeDropdown === 'tv' && (
                 <div className="absolute top-full -left-12 pt-4 w-[500px] z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="clay-modal p-6">
                     
-                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-zinc-800/50">
+                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/10/50">
                       <div>
                         <h3 className="text-base font-semibold text-white">TV Shows</h3>
                         <p className="text-xs text-zinc-500 mt-1">Binge-worthy dramas, comedies, and more.</p>
@@ -207,7 +207,7 @@ export function Navbar() {
                         <Link
                           key={genre.id}
                           to={`/explore?type=tv&genre=${genre.id}`}
-                          className="text-sm text-zinc-400 hover:text-white hover:bg-zinc-900/50 px-2 py-1.5 rounded-md transition-colors -ml-2"
+                          className="text-sm text-zinc-400 hover:text-white hover:bg-[var(--theme-dark)]/50 px-2 py-1.5 rounded-md transition-colors -ml-2"
                         >
                           {genre.name}
                         </Link>
@@ -220,17 +220,17 @@ export function Navbar() {
 
             <Link
               to="/studios"
-              className={`text-sm font-medium transition-all px-3.5 py-1.5 rounded-full ${
-                isActiveStudio ? 'clay-badge-blue' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+              className={`text-xs font-bold transition-all px-4 py-2 rounded-full ${
+                isActiveStudio ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              Studios & Networks
+              Studios
             </Link>
 
             <Link
               to="/about"
-              className={`text-sm font-medium transition-all px-3.5 py-1.5 rounded-full ${
-                isActiveAbout ? 'clay-badge-blue' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+              className={`text-xs font-bold transition-all px-4 py-2 rounded-full ${
+                isActiveAbout ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}
             >
               About
@@ -249,7 +249,7 @@ export function Navbar() {
               <Input
                 type="text"
                 placeholder="Search movies & shows..."
-                className="w-full h-9 pl-9 pr-3 bg-zinc-900/80 hover:bg-zinc-900 focus:bg-zinc-900 text-xs text-zinc-200 placeholder:text-zinc-500 rounded-full border border-white/10 focus:border-white/20 transition-all outline-none"
+                className="w-full h-9 pl-9 pr-3 bg-[var(--theme-dark)]/80 hover:bg-[var(--theme-dark)] focus:bg-[var(--theme-dark)] text-xs text-zinc-200 placeholder:text-zinc-500 rounded-full border border-white/10 focus:border-white/20 transition-all outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => searchQuery.trim() && mediaResults.length > 0 && setIsSearchOpen(true)}
@@ -277,7 +277,7 @@ export function Navbar() {
                         <div className="w-8 h-11 clay-poster overflow-hidden shrink-0">
                           {item.poster_path
                             ? <img src={`https://image.tmdb.org/t/p/w92${item.poster_path}`} alt="poster" className="w-full h-full object-cover" />
-                            : <div className="w-full h-full flex items-center justify-center text-zinc-500 bg-[#161722]">{item.media_type === 'movie' ? <Film size={12} /> : <Tv size={12} />}</div>
+                            : <div className="w-full h-full flex items-center justify-center text-zinc-500 bg-[#1b1b22]">{item.media_type === 'movie' ? <Film size={12} /> : <Tv size={12} />}</div>
                           }
                         </div>
                         <div className="flex-1 flex flex-col min-w-0">
@@ -307,13 +307,13 @@ export function Navbar() {
       </div>
 
       {/* Mobile Navigation */}
-      <div className="md:hidden border-t border-zinc-800/50 bg-zinc-950/95 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+      <div className="md:hidden border-t border-white/10/50 bg-[var(--theme-bg)]/95 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
         <div className="flex px-4 py-2 gap-3">
-          <Link to="/" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isHome ? 'bg-white text-black' : 'text-zinc-400 bg-zinc-900 hover:bg-zinc-800'}`}>Home</Link>
-          <Link to="/explore?type=movie&sort=popular" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveMovie ? 'bg-white text-black' : 'text-zinc-400 bg-zinc-900 hover:bg-zinc-800'}`}>Movies</Link>
-          <Link to="/explore?type=tv&sort=popular" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveTV ? 'bg-white text-black' : 'text-zinc-400 bg-zinc-900 hover:bg-zinc-800'}`}>TV Shows</Link>
-          <Link to="/studios" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveStudio ? 'bg-white text-black' : 'text-zinc-400 bg-zinc-900 hover:bg-zinc-800'}`}>Studios</Link>
-          <Link to="/about" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveAbout ? 'bg-white text-black' : 'text-zinc-400 bg-zinc-900 hover:bg-zinc-800'}`}>About</Link>
+          <Link to="/" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isHome ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Home</Link>
+          <Link to="/explore?type=movie&sort=popular" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveMovie ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Movies</Link>
+          <Link to="/explore?type=tv&sort=popular" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveTV ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>TV Shows</Link>
+          <Link to="/studios" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveStudio ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Studios</Link>
+          <Link to="/about" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveAbout ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>About</Link>
         </div>
       </div>
     </nav>

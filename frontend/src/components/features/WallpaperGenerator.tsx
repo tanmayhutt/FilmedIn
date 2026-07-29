@@ -78,9 +78,9 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
 
       {/* Login Prompt Banner */}
       {showLoginPrompt && (
-        <div className="relative flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border border-zinc-700 bg-zinc-900/80 backdrop-blur-sm">
+        <div className="relative flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border border-white/20 bg-[var(--theme-dark)]/80 backdrop-blur-sm">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-zinc-800 shrink-0">
+            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[var(--theme-dark-hover)] shrink-0">
               <Lock className="w-4 h-4 text-zinc-300" />
             </div>
             <div>
@@ -114,11 +114,11 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
           </div>
           
           {/* Theme Toggle */}
-          <div className="flex bg-zinc-900 rounded-full p-1 border border-zinc-800 self-start sm:self-auto">
+          <div className="flex bg-[var(--theme-dark)] rounded-full p-1 border border-white/10 self-start sm:self-auto">
             <button
               onClick={() => setThemeMode('dark')}
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                themeMode === 'dark' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'
+                themeMode === 'dark' ? 'bg-[var(--theme-dark-hover)] text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <Moon size={14} /> Dark
@@ -143,7 +143,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 activeTag === tag 
                   ? 'bg-zinc-100 text-zinc-950 shadow-[0_0_15px_rgba(255,255,255,0.3)] scale-105' 
-                  : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+                  : 'bg-[var(--theme-dark)] border border-white/10 text-zinc-400 hover:bg-[var(--theme-dark-hover)] hover:text-zinc-200'
               }`}
             >
               {tag}
@@ -154,16 +154,16 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
         {/* Desktop Wallpaper Section */}
-        <div className="flex flex-col justify-between items-center bg-zinc-900/30 p-8 rounded-3xl border border-zinc-800/50 backdrop-blur-sm transition-all hover:bg-zinc-900/50">
+        <div className="flex flex-col justify-between items-center bg-[var(--theme-dark)]/30 p-8 rounded-3xl border border-white/10/50 backdrop-blur-sm transition-all hover:bg-[var(--theme-dark)]/50">
           <h3 className="text-white font-medium text-lg mb-6">Desktop (16:9)</h3>
           
           {/* Laptop Silhouette Mockup */}
           <div className="relative w-full max-w-[450px] mx-auto mb-8">
             {/* Screen */}
-            <div className="relative w-full aspect-video rounded-t-xl border-[4px] border-b-[12px] border-zinc-950 bg-zinc-950 shadow-2xl flex items-center justify-center overflow-hidden group">
+            <div className="relative w-full aspect-video rounded-t-xl border-[4px] border-b-[12px] border-zinc-950 bg-[var(--theme-bg)] shadow-2xl flex items-center justify-center overflow-hidden group">
               {/* MacBook Notch */}
-              <div className="absolute top-0 inset-x-0 mx-auto w-[12%] h-[12px] bg-zinc-950 rounded-b-md z-20 flex justify-center items-center pb-[2px]">
-                <div className="w-[4px] h-[4px] bg-zinc-800 rounded-full border border-black/50 shadow-inner"></div>
+              <div className="absolute top-0 inset-x-0 mx-auto w-[12%] h-[12px] bg-[var(--theme-bg)] rounded-b-md z-20 flex justify-center items-center pb-[2px]">
+                <div className="w-[4px] h-[4px] bg-[var(--theme-dark-hover)] rounded-full border border-black/50 shadow-inner"></div>
               </div>
               
               {/* Content */}
@@ -179,7 +179,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
                   )}
                 </>
               ) : (
-                <div className="w-full h-full bg-zinc-900/50 flex flex-col items-center justify-center shadow-inner text-zinc-600">
+                <div className="w-full h-full bg-[var(--theme-dark)]/50 flex flex-col items-center justify-center shadow-inner text-zinc-600">
                   {isLoggedIn ? (
                     <>
                       <Spinner className="w-6 h-6 mb-2" />
@@ -206,7 +206,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               onClick={() => handleGenerate('desktop', true)} 
               disabled={loadingDesktop}
               variant="outline"
-              className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-full h-12"
+              className="flex-1 bg-[var(--theme-dark)] border-white/20 text-zinc-300 hover:bg-[var(--theme-dark-hover)] hover:text-white rounded-full h-12"
             >
               {loadingDesktop ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
               {loadingDesktop ? 'Shuffling...' : 'Shuffle Scene'}
@@ -215,12 +215,12 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
         </div>
 
         {/* Mobile Wallpaper Section */}
-        <div className="flex flex-col justify-between items-center bg-zinc-900/30 p-8 rounded-3xl border border-zinc-800/50 backdrop-blur-sm transition-all hover:bg-zinc-900/50">
+        <div className="flex flex-col justify-between items-center bg-[var(--theme-dark)]/30 p-8 rounded-3xl border border-white/10/50 backdrop-blur-sm transition-all hover:bg-[var(--theme-dark)]/50">
           <h3 className="text-white font-medium text-lg mb-6">Mobile (9:16)</h3>
           
           {/* Phone Silhouette Mockup */}
           <div className="relative w-full max-w-[200px] mx-auto mb-8">
-            <div className="relative w-full aspect-[9/19.5] rounded-[2rem] border-[6px] border-zinc-950 bg-zinc-950 shadow-2xl flex items-center justify-center overflow-hidden group">
+            <div className="relative w-full aspect-[9/19.5] rounded-[2rem] border-[6px] border-zinc-950 bg-[var(--theme-bg)] shadow-2xl flex items-center justify-center overflow-hidden group">
               {/* Dynamic Island */}
               <div className="absolute top-[6px] inset-x-0 mx-auto w-[64px] h-[18px] bg-black rounded-full z-20 flex justify-end items-center px-1.5 shadow-[0_0_1px_rgba(255,255,255,0.1)]">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#111] border border-white/5 shadow-inner flex justify-center items-center">
@@ -241,7 +241,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
                   )}
                 </>
               ) : (
-                <div className="w-full h-full bg-zinc-900/50 flex flex-col items-center justify-center shadow-inner text-zinc-600">
+                <div className="w-full h-full bg-[var(--theme-dark)]/50 flex flex-col items-center justify-center shadow-inner text-zinc-600">
                   {isLoggedIn ? (
                     <>
                       <Spinner className="w-5 h-5 mb-2" />
@@ -264,7 +264,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               onClick={() => handleGenerate('mobile', true)} 
               disabled={loadingMobile}
               variant="outline"
-              className="flex-1 bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-full h-12"
+              className="flex-1 bg-[var(--theme-dark)] border-white/20 text-zinc-300 hover:bg-[var(--theme-dark-hover)] hover:text-white rounded-full h-12"
             >
               {loadingMobile ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
               {loadingMobile ? 'Shuffling...' : 'Shuffle Scene'}

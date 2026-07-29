@@ -128,7 +128,7 @@ export function SocialFeed() {
               placeholder="Title (e.g. Dune Part Two)"
               value={mediaTitle}
               onChange={e => setMediaTitle(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-zinc-900 border border-white/10 rounded-xl text-zinc-200 focus:outline-none placeholder:text-zinc-500"
+              className="w-full px-3 py-2 text-xs bg-[var(--theme-dark)] border border-white/10 rounded-xl text-zinc-200 focus:outline-none placeholder:text-zinc-500"
             />
             
             <textarea 
@@ -136,7 +136,7 @@ export function SocialFeed() {
               value={newReview}
               onChange={e => setNewReview(e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 text-xs bg-zinc-900 border border-white/10 rounded-xl text-zinc-200 focus:outline-none placeholder:text-zinc-500 resize-none"
+              className="w-full px-3 py-2 text-xs bg-[var(--theme-dark)] border border-white/10 rounded-xl text-zinc-200 focus:outline-none placeholder:text-zinc-500 resize-none"
             />
 
             <div className="flex items-center justify-between">

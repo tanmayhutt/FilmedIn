@@ -36,10 +36,10 @@ export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaTy
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 text-sm font-medium transition-colors bg-zinc-800 text-white hover:bg-zinc-700 border-0 h-10 px-4 rounded-full">
+      <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 text-sm font-medium transition-colors bg-[var(--theme-dark-hover)] text-white hover:bg-zinc-700 border-0 h-10 px-4 rounded-full">
         <Plus className="w-4 h-4" /> Add to List
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-zinc-900 border-zinc-800 text-zinc-100 min-w-[200px]">
+      <DropdownMenuContent className="bg-[var(--theme-dark)] border-white/10 text-zinc-100 min-w-[200px]">
         {loading ? (
           <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
         ) : playlists.length > 0 ? (
@@ -47,7 +47,7 @@ export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaTy
             <DropdownMenuItem 
               key={pl.id} 
               onClick={() => handleAdd(pl.id)}
-              className="cursor-pointer focus:bg-zinc-800 focus:text-zinc-50"
+              className="cursor-pointer focus:bg-[var(--theme-dark-hover)] focus:text-zinc-50"
             >
               {pl.name}
             </DropdownMenuItem>

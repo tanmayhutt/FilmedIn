@@ -18,7 +18,7 @@ export function UserAvatar({ avatarUrl, username = 'Cinephile', className = '', 
     'from-amber-500 to-rose-600',
     'from-indigo-500 to-cyan-500',
     'from-emerald-500 to-teal-600',
-    'from-fuchsia-500 to-[#121215]',
+    'from-fuchsia-500 to-[#1b1b22]',
     'from-[#f43f5e] to-[#8b5cf6]'
   ]
 

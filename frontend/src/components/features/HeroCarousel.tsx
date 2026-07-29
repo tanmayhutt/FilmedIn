@@ -44,7 +44,7 @@ export function HeroCarousel() {
   }, [items.length])
 
   if (items.length === 0) {
-    return <div className="w-full h-[60vh] sm:h-[85vh] bg-zinc-900 animate-pulse" />
+    return <div className="w-full h-[60vh] sm:h-[85vh] bg-[var(--theme-dark)] animate-pulse" />
   }
 
   const currentItem = items[currentIndex]
@@ -108,27 +108,34 @@ export function HeroCarousel() {
       {/* Navigation Arrows */}
       <button 
         onClick={handlePrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full clay-badge text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 focus:outline-none"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 border border-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 focus:outline-none hover:bg-black/60"
       >
         <ChevronLeft className="w-6 h-6 -ml-0.5" />
       </button>
       <button 
         onClick={handleNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full clay-badge text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 focus:outline-none"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 border border-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 focus:outline-none hover:bg-black/60"
       >
         <ChevronRight className="w-6 h-6 ml-0.5" />
       </button>
 
+      {/* Subtle Bottom Wave Mask */}
+      <div className="absolute bottom-0 inset-x-0 pointer-events-none z-10">
+        <svg className="w-full h-12 sm:h-20 text-[#444b58] preserve-3d" viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 60C240 100 480 20 720 60C960 100 1200 30 1440 60V120H0V60Z" fill="currentColor"/>
+        </svg>
+      </div>
+
       {/* Pagination Dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
+      <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
         {items.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
             className={`transition-all duration-300 rounded-full focus:outline-none ${
               idx === currentIndex 
-                ? 'w-8 h-2.5 clay-badge-blue' 
-                : 'w-2.5 h-2.5 clay-badge opacity-60 hover:opacity-100'
+                ? 'w-8 h-2.5 bg-[#9062aa] shadow-md' 
+                : 'w-2.5 h-2.5 bg-white/30 hover:bg-white/60'
             }`}
           />
         ))}
