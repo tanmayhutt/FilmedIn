@@ -2,7 +2,7 @@
   "version": 2,
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "cd backend && npm install",
+  "installCommand": "cd backend && npm install --legacy-peer-deps",
   "functions": {
     "api/index.js": {
       "memory": 1024,
