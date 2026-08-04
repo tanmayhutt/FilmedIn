@@ -1,6 +1,6 @@
 <div align="center">
   <h1>🍿 FilmedIn</h1>
-  <p>A custom MERN-stack application for movie and TV enthusiasts to track their favorite media, generate wallpapers, and create custom playlists.</p>
+  <p>A MERN-stack application for movie and TV enthusiasts to track their favorite media, generate wallpapers, and create custom playlists.</p>
 </div>
 
 ---
@@ -8,57 +8,78 @@
 ## ⚡ Architecture
 
 - **Frontend**: React + Vite + TailwindCSS + Shadcn UI
-- **Backend**: Node.js + Express
-- **Database**: MongoDB Atlas (Cloud)
-- **Storage**: Cloudinary (for avatars and media uploads)
-- **Authentication**: Custom JWT Authentication with Bcrypt
-- **API Integration**: TMDB (The Movie Database) for media metadata
+- **Backend**: Node.js + Express (serverless on Vercel)
+- **Database**: MongoDB Atlas
+- **Storage**: Cloudinary (avatars and media uploads)
+- **Authentication**: JWT + Google OAuth
+- **API Integration**: TMDB (The Movie Database)
 
-## 🚀 Deployment & Infrastructure
+## 🚀 Deployment
 
-The application uses a modern distributed architecture:
+The entire app (frontend + backend) is deployed as a **single Vercel project** at:
+- `https://filmedin.tanmaytiwari.me` *(custom domain)*
+- `https://filmedin.vercel.app` *(Vercel default)*
 
-1. **Frontend Hosting (Vercel)**
-   - The React frontend is deployed and served globally via Vercel.
-   - Vercel also acts as a secure Reverse Proxy (`vercel.json`), routing API calls to the backend droplet to prevent Mixed Content (HTTP/HTTPS) errors and hide the backend IP.
+```
+filmedin.tanmaytiwari.me
+        │
+        ├── /api/*   → Express serverless function (api/index.js)
+        │               Routes: /api/auth, /api/users, /api/playlists,
+        │                       /api/tmdb, /api/wallpapers
+        │
+        └── /*       → React SPA (Vite build, served as static files)
+```
 
-2. **Backend Engine (DigitalOcean Droplet)**
-   - Runs a lightweight Docker Compose setup containing the Node.js API.
-   - Fully stateless (MongoDB and Cloudinary handle all state/storage).
-   - Hardened with Helmet, CORS whitelisting, and rate limiting.
-
-3. **CI/CD Pipeline (GitHub Actions)**
-   - Pushing to the `main` branch automatically triggers a deployment workflow.
-   - The workflow securely SSHs into the Droplet, pulls the latest code, and rebuilds the containers with zero manual intervention.
+Vercel handles HTTPS, global CDN, and zero-config CI/CD on every `git push`.
 
 ## 🛠️ Local Development
 
-### 1. Prerequisites
-- Docker and Docker Compose
+### Prerequisites
+- Node.js >= 18
 - A TMDB API Key
-- Cloudinary Credentials
+- Cloudinary credentials
 - MongoDB Atlas URI
+- Google OAuth credentials
+
+### 1. Install dependencies
+```bash
+cd backend && npm install
+cd ../frontend && npm install
+```
 
 ### 2. Environment Variables
-Create a `.env` file in the root directory:
-```bash
-VITE_TMDB_API_KEY=your_tmdb_key
+
+**Backend** — create `backend/.env`:
+```env
+MONGODB_URI=mongodb+srv://...
 JWT_SECRET=your_jwt_secret
+TMDB_API_KEY=your_tmdb_key
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_key
 CLOUDINARY_API_SECRET=your_cloudinary_secret
-MONGODB_URI=your_mongodb_atlas_uri
-ALLOWED_ORIGINS=http://localhost:3001,https://your-domain.com
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+ALLOWED_ORIGINS=http://localhost:5173
+PORT=5000
+```
+
+**Frontend** — create `frontend/.env`:
+```env
+VITE_API_URL=http://localhost:5000/api
 ```
 
 ### 3. Run Locally
-Use Docker Compose to spin up the local development environment:
 ```bash
-docker compose up -d --build
+# Terminal 1 — Backend
+cd backend && npm run dev
+
+# Terminal 2 — Frontend
+cd frontend && npm run dev
 ```
 
-- **Frontend**: `http://localhost:3001`
+- **Frontend**: `http://localhost:5173`
 - **Backend API**: `http://localhost:5000`
 
 ---
+
 *Built with ❤️ for movie lovers.*
