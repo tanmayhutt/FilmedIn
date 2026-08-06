@@ -43,3 +43,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Antigravity IDE / Second Brain Context
+context.md
+implementation_plan.md
+walkthrough.md
+task.md

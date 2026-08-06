@@ -1,11 +1,11 @@
 <div align="center">
-  <h1>🍿 FilmedIn</h1>
+  <h1>FilmedIn</h1>
   <p>A MERN-stack application for movie and TV enthusiasts to track their favorite media, generate wallpapers, and create custom playlists.</p>
 </div>
 
 ---
 
-## ⚡ Architecture
+## Architecture
 
 - **Frontend**: React + Vite + TailwindCSS + Shadcn UI
 - **Backend**: Node.js + Express (serverless on Vercel)
@@ -14,7 +14,7 @@
 - **Authentication**: JWT + Google OAuth
 - **API Integration**: TMDB (The Movie Database)
 
-## 🚀 Deployment
+## Deployment
 
 The entire app (frontend + backend) is deployed as a **single Vercel project** at:
 - `https://filmedin.tanmaytiwari.me` *(custom domain)*
@@ -32,7 +32,11 @@ filmedin.tanmaytiwari.me
 
 Vercel handles HTTPS, global CDN, and zero-config CI/CD on every `git push`.
 
-## 🛠️ Local Development
+### Production Configuration Notes
+- **DNS (Cloudflare):** Ensure the Cloudflare proxy (orange cloud) is set to **"DNS only"**. If proxying is enabled, Vercel will trigger a "Proxy Detected" warning, which interferes with SSL certificate generation and DDoS protection.
+- **Serverless Keep-Alive:** A cron job is configured via `cron-job.org` to ping the `/health` endpoint every 5 minutes. This prevents Vercel's serverless containers from going to sleep, eliminating "Cold Start" delays for end users.
+
+## Local Development
 
 ### Prerequisites
 - Node.js >= 18
@@ -82,4 +86,4 @@ cd frontend && npm run dev
 
 ---
 
-*Built with ❤️ for movie lovers.*
+*Built with passion for movie lovers.*
