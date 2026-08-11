@@ -67,23 +67,44 @@ const authLimiter = rateLimit({ windowMs: 15*60*1000, max: 20, standardHeaders: 
 const apiLimiter  = rateLimit({ windowMs: 15*60*1000, max: 2000, standardHeaders: true, legacyHeaders: false });
 
 // ─── MongoDB — connection cached for serverless cold starts ───────────────────
-let isConnected = false;
+let connectionPromise;
 async function connectDB() {
-  if (isConnected) return;
-  await mongoose.connect(process.env.MONGODB_URI);
-  isConnected = true;
-  console.log('Connected to MongoDB Atlas');
+  if (mongoose.connection.readyState === 1) return mongoose.connection;
+  if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI is not configured');
+
+  if (!connectionPromise) {
+    connectionPromise = mongoose.connect(process.env.MONGODB_URI)
+      .then(() => {
+        console.log('Connected to MongoDB Atlas');
+        return mongoose.connection;
+      })
+      .catch(err => {
+        connectionPromise = undefined;
+        throw err;
+      });
+  }
+
+  return connectionPromise;
 }
 connectDB().catch(err => console.error('MongoDB connection error:', err));
 
 // ─── Health Check (uptime ping endpoint) ──────────────────────────────────────
-app.get('/health', (req, res) => {
-  const databaseConnected = mongoose.connection.readyState === 1;
-  res.status(databaseConnected ? 200 : 503).json({
-    status: databaseConnected ? 'ok' : 'degraded',
-    database: databaseConnected ? 'connected' : 'disconnected',
-    timestamp: new Date().toISOString()
-  });
+app.get('/health', async (req, res) => {
+  try {
+    await connectDB();
+    res.status(200).json({
+      status: 'ok',
+      database: 'connected',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('Health check database error:', err);
+    res.status(503).json({
+      status: 'degraded',
+      database: 'disconnected',
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
