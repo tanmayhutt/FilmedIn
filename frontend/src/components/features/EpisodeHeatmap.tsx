@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { fetchSeasonDetails } from '@/services/tmdb.service';
 
 interface HeatmapProps {
@@ -12,7 +12,10 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
   const [maxEpisodes, setMaxEpisodes] = useState(0);
   const [hasRatings, setHasRatings] = useState(false);
 
-  const validSeasons = seasons.filter(s => s.season_number > 0).sort((a, b) => a.season_number - b.season_number);
+  const validSeasons = useMemo(
+    () => seasons.filter(s => s.season_number > 0).sort((a, b) => a.season_number - b.season_number),
+    [seasons]
+  );
 
   useEffect(() => {
     async function loadAllSeasons() {
@@ -58,7 +61,7 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
     } else {
       setLoading(false);
     }
-  }, [tvId]);
+  }, [tvId, validSeasons]);
 
   if (validSeasons.length === 0 || (!loading && !hasRatings)) return null;
 

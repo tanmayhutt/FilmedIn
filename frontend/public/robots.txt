@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /onboarding
+Disallow: /profile
+Disallow: /u/
+Disallow: /playlist/
+Disallow: /blend/
+Disallow: /api/
+
+Sitemap: https://filmedin.tanmaytiwari.me/sitemap.xml

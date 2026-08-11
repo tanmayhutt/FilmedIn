@@ -4,11 +4,18 @@ import { fetchMovieDetails, TMDBMovie } from '@/services/tmdb.service'
 import { AddToListButton } from '@/components/features/AddToListButton'
 import { WallpaperGenerator } from '@/components/features/WallpaperGenerator'
 import { Star } from 'lucide-react'
+import { usePageMetadata } from '@/components/common/RouteMetadata'
 
 export default function MovieDetails() {
   const { id } = useParams<{ id: string }>()
   const [movie, setMovie] = useState<TMDBMovie | null>(null)
   const [loading, setLoading] = useState(true)
+
+  usePageMetadata(
+    movie?.title,
+    movie?.overview || (movie ? `View details, cast, rating, and playlists for ${movie.title}.` : undefined),
+    movie?.poster_path ? `https://image.tmdb.org/t/p/w780${movie.poster_path}` : undefined
+  )
 
   useEffect(() => {
     window.scrollTo(0, 0)

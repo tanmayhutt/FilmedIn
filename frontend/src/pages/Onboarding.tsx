@@ -1,24 +1,23 @@
 import { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { updateProfile } from '@/services/user.service'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
-import { User, Sparkles } from 'lucide-react'
+import { User, UserRoundCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { getSafeRedirect } from '@/utils/navigation'
 
 export default function Onboarding() {
   const [loading, setLoading] = useState(false)
   const [username, setUsername] = useState('')
-  const navigate = useNavigate()
   const location = useLocation()
-  const redirect = new URLSearchParams(location.search).get('redirect')
+  const redirect = getSafeRedirect(new URLSearchParams(location.search).get('redirect'))
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (username.length < 3) {
-      return toast.error('Username must be at least 3 characters')
+    if (!/^[a-z0-9_]{3,30}$/.test(username)) {
+      return toast.error('Username must be 3–30 characters using letters, numbers, or underscores')
     }
     
     setLoading(true)
@@ -39,10 +38,10 @@ export default function Onboarding() {
       <div className="max-w-md w-full space-y-8 clay-modal p-10 sm:p-12 relative z-10 text-center animate-in zoom-in-95">
         <div className="flex flex-col items-center justify-center text-center">
           <div className="w-20 h-20 clay-badge-blue flex items-center justify-center mb-6 transform -rotate-6">
-            <Sparkles className="w-10 h-10 text-white" />
+            <UserRoundCheck className="w-10 h-10 text-white" aria-hidden="true" />
           </div>
           
-          <h2 className="text-3xl font-black text-white mb-3">Claim Your Identity</h2>
+          <h1 className="text-3xl font-black text-white mb-3">Claim Your Identity</h1>
           <p className="text-zinc-300 mb-8 text-sm px-2 leading-relaxed font-medium">
             You're almost there! Pick a unique username to connect with friends and share your favorite movies.
           </p>
@@ -60,9 +59,13 @@ export default function Onboarding() {
                   className="pl-9 h-14 clay-input text-white text-lg rounded-2xl border-none"
                   placeholder="movielover99"
                   autoFocus
+                  minLength={3}
+                  maxLength={30}
+                  autoComplete="username"
+                  aria-describedby="username-help"
                 />
               </div>
-              <p className="text-xs text-zinc-400 mt-2 ml-1">Letters, numbers, and underscores only.</p>
+              <p id="username-help" className="text-xs text-zinc-400 mt-2 ml-1">3–30 characters. Letters, numbers, and underscores only.</p>
             </div>
 
             <button 

@@ -4,6 +4,15 @@ const User = require('../models/User');
 const Playlist = require('../models/Playlist');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const PRESET_PLAYLISTS = ['Watchlist', 'Currently Watching', 'Watched', 'Liked'];
+
+async function ensurePresetPlaylists(userId) {
+  await Promise.all(PRESET_PLAYLISTS.map(name => Playlist.updateOne(
+    { userId, name },
+    { $setOnInsert: { userId, name, type: 'system' } },
+    { upsert: true }
+  )));
+}
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -24,10 +33,10 @@ exports.googleLogin = async (req, res) => {
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
-    const { email, name, picture, sub: googleId } = payload;
+    const { email, email_verified: emailVerified, name, picture, sub: googleId } = payload;
 
-    if (!email) {
-      return res.status(400).json({ error: 'Email not provided by Google' });
+    if (!email || !emailVerified) {
+      return res.status(400).json({ error: 'A verified Google email is required' });
     }
 
     // Check if user already exists
@@ -39,6 +48,7 @@ exports.googleLogin = async (req, res) => {
       // Create new user if they don't exist
       // Generate a valid username from their name or email
       let baseUsername = name ? name.toLowerCase().replace(/[^a-z0-9_]/g, '') : email.split('@')[0].replace(/[^a-z0-9_]/g, '');
+      baseUsername = baseUsername.slice(0, 24);
       if (!baseUsername || baseUsername.length < 3) baseUsername = 'user' + Math.floor(Math.random() * 10000);
       
       let username = baseUsername;
@@ -56,13 +66,6 @@ exports.googleLogin = async (req, res) => {
       });
       await user.save();
 
-      // Create preset playlists for the new user
-      await Playlist.insertMany([
-        { userId: user._id, name: 'Watchlist', type: 'system' },
-        { userId: user._id, name: 'Currently Watching', type: 'system' },
-        { userId: user._id, name: 'Watched', type: 'system' },
-        { userId: user._id, name: 'Liked', type: 'system' }
-      ]);
     } else if (user) {
       // If user exists but hasn't linked Google, update them
       if (!user.googleId) user.googleId = googleId;
@@ -72,6 +75,8 @@ exports.googleLogin = async (req, res) => {
       }
       await user.save();
     }
+
+    await ensurePresetPlaylists(user._id);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -92,6 +97,7 @@ exports.googleLogin = async (req, res) => {
     });
   } catch (err) {
     console.error('Google Auth Error:', err);
+    if (err?.code === 11000) return res.status(409).json({ error: 'This Google account or username is already registered. Please try signing in again.' });
     res.status(500).json({ error: 'Authentication failed' });
   }
 };

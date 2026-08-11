@@ -1,5 +1,4 @@
 const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 
 cloudinary.config({
@@ -8,15 +7,24 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder:          'FilmedIn/avatars',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }],
+const uploadOptions = {
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, callback) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    callback(allowed.includes(file.mimetype) ? null : new Error('Only JPG, PNG, and WebP images are allowed'), allowed.includes(file.mimetype));
   },
+};
+
+const uploadImage = (buffer, options) => new Promise((resolve, reject) => {
+  const stream = cloudinary.uploader.upload_stream(
+    { resource_type: 'image', format: 'webp', ...options },
+    (error, result) => error ? reject(error) : resolve(result)
+  );
+  stream.end(buffer);
 });
 
-const upload = multer({ storage });
+const avatarUpload = multer(uploadOptions);
+const bannerUpload = multer(uploadOptions);
 
-module.exports = { cloudinary, upload };
+module.exports = { cloudinary, avatarUpload, bannerUpload, uploadImage };

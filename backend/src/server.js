@@ -38,7 +38,7 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.url}`);
+  if (process.env.NODE_ENV !== 'production') console.log(`[${req.method}] ${req.url}`);
   next();
 });
 
@@ -78,7 +78,12 @@ connectDB().catch(err => console.error('MongoDB connection error:', err));
 
 // ─── Health Check (uptime ping endpoint) ──────────────────────────────────────
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  const databaseConnected = mongoose.connection.readyState === 1;
+  res.status(databaseConnected ? 200 : 503).json({
+    status: databaseConnected ? 'ok' : 'degraded',
+    database: databaseConnected ? 'connected' : 'disconnected',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
@@ -88,16 +93,23 @@ app.use('/api/playlists',  apiLimiter,  playlistRoutes);
 app.use('/api/tmdb',       apiLimiter,  tmdbRoutes);
 app.use('/api/wallpapers', apiLimiter,  wallpaperRoutes);
 
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
 // ─── Static Frontend (only in local/Render mode, not on Vercel) ───────────────
 if (process.env.SERVE_STATIC === 'true') {
   const frontendDist = path.join(__dirname, '../../frontend/dist');
   app.use(express.static(frontendDist));
-  app.get('*', (req, res) => res.sendFile(path.join(frontendDist, 'index.html')));
+  app.get('/{*splat}', (req, res) => res.sendFile(path.join(frontendDist, 'index.html')));
 }
 
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error(err.stack);
+  if (err.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ error: 'Image must be 5 MB or smaller' });
+  if (err.message?.includes('Only JPG')) return res.status(415).json({ error: err.message });
+  if (err.message === 'Not allowed by CORS') return res.status(403).json({ error: 'Origin is not allowed' });
   res.status(500).json({ error: 'Internal server error' });
 });
 

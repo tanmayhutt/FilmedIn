@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NavbarProfile } from './NavbarProfile';
 import { Logo } from './Logo';
-import { ChevronDown, Film, Tv, Search } from 'lucide-react';
+import { ChevronDown, Film, Tv, Search, Star } from 'lucide-react';
 import { searchMedia, TMDBMovie, TMDBTVShow } from '@/services/tmdb.service';
 import { Input } from '@/components/ui/input';
 
@@ -288,7 +288,11 @@ export function Navbar() {
                             {item.media_type === 'movie' ? 'Movie' : 'TV Show'} • {(item.media_type === 'movie' ? (item as TMDBMovie).release_date : (item as TMDBTVShow).first_air_date)?.substring(0, 4)}
                           </span>
                         </div>
-                        {item.vote_average > 0 && <span className="px-2 py-0.5 clay-badge-emerald text-[10px] font-bold shrink-0">{item.vote_average.toFixed(1)} ★</span>}
+                        {item.vote_average > 0 && (
+                          <span className="px-2 py-0.5 clay-badge-emerald text-[10px] font-bold shrink-0 inline-flex items-center gap-1">
+                            <Star size={10} aria-hidden="true" /> {item.vote_average.toFixed(1)}
+                          </span>
+                        )}
                       </button>
                     ))}
                     <button onClick={handleSearchSubmit} className="w-full px-3 py-2 text-left text-[11px] font-semibold text-rose-400 hover:bg-white/5 transition-colors flex items-center gap-2 rounded-xl mt-1">
@@ -309,6 +313,9 @@ export function Navbar() {
       {/* Mobile Navigation */}
       <div className="md:hidden border-t border-white/10/50 bg-[var(--theme-bg)]/95 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
         <div className="flex px-4 py-2 gap-3">
+          <Link to="/search" className="text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full text-zinc-200 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)] inline-flex items-center gap-1.5">
+            <Search size={13} aria-hidden="true" /> Search
+          </Link>
           <Link to="/" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isHome ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Home</Link>
           <Link to="/explore?type=movie&sort=popular" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveMovie ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Movies</Link>
           <Link to="/explore?type=tv&sort=popular" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveTV ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>TV Shows</Link>

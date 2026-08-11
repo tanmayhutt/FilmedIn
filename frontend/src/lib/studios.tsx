@@ -1,5 +1,3 @@
-import React from 'react';
-
 export type StudioType = 'movie' | 'tv';
 
 export interface Studio {

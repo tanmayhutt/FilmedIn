@@ -5,10 +5,11 @@ import { searchUsers } from '@/services/public.service'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { MediaCard } from '@/components/features/MediaCard'
 import { Link } from 'react-router-dom'
-import { User, Search as SearchIcon } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Search as SearchIcon } from 'lucide-react'
 
 export default function Search() {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
   const userQuery = searchParams.get('u') || ''
   
@@ -16,6 +17,15 @@ export default function Search() {
   const [shows, setShows] = useState<TMDBTVShow[]>([])
   const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchValue, setSearchValue] = useState(query)
+
+  useEffect(() => setSearchValue(query), [query])
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    const value = searchValue.trim()
+    if (value) setSearchParams({ q: value })
+  }
 
   useEffect(() => {
     if (!query && !userQuery) {
@@ -57,27 +67,37 @@ export default function Search() {
     })
   }, [query, userQuery])
 
-  if (!query && !userQuery) {
-    return (
-      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <h1 className="text-3xl font-bold mb-8">Search</h1>
-        <p className="text-zinc-400">Enter a search term above.</p>
-      </main>
-    )
-  }
-
   return (
     <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in">
       <div className="clay-card p-6 sm:p-8 mb-10">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 clay-badge-blue text-xs font-mono font-bold uppercase tracking-wider mb-2">
           Search Results
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-white">
-          {query ? `"${query}"` : ''} {userQuery ? `"${userQuery}" (Users)` : ''}
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-black text-white">Search FilmedIn</h1>
+        <form onSubmit={handleSubmit} className="mt-6 flex gap-3" role="search">
+          <label htmlFor="title-search" className="sr-only">Search movies and TV shows</label>
+          <Input
+            id="title-search"
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
+            className="clay-input h-12 flex-1"
+            placeholder="Search movies and TV shows"
+            autoComplete="off"
+          />
+          <button type="submit" disabled={!searchValue.trim()} aria-label="Search titles" className="clay-button-primary h-12 px-5 inline-flex items-center gap-2 disabled:opacity-50">
+            <SearchIcon size={17} aria-hidden="true" /> <span className="hidden sm:inline">Search</span>
+          </button>
+        </form>
+        {(query || userQuery) && (
+          <p className="mt-4 text-sm text-zinc-300">Results for {query ? `“${query}”` : `member “${userQuery}”`}</p>
+        )}
       </div>
 
-      {loading ? (
+      {!query && !userQuery && (
+        <div className="clay-card p-10 text-center text-zinc-300">Search by title to find movies and TV shows.</div>
+      )}
+
+      {(query || userQuery) && (loading ? (
         <div className="space-y-12">
           <section>
             <h2 className="text-2xl font-bold mb-6 text-white">Movies</h2>
@@ -137,7 +157,7 @@ export default function Search() {
             </section>
           )}
         </div>
-      )}
+      ))}
     </main>
   )
 }

@@ -1,6 +1,6 @@
 import { fetchApi } from '@/services/api.client'
 
-export async function saveWallpaper(url: string, tmdbId: number, mediaType: 'movie' | 'tv') {
+export async function saveWallpaper(url: string, _tmdbId: number, _mediaType: 'movie' | 'tv') {
   try {
     await fetchApi('/users/me') // Check auth
     return { success: true, url }

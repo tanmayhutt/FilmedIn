@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { STUDIOS } from '@/lib/studios'
 import { GenreRow } from '@/components/features/GenreRow'
 
@@ -38,6 +38,7 @@ export default function Studio() {
   const navigate = useNavigate()
   
   const studio = STUDIOS.find(s => s.id === id)
+  const [activeTab, setActiveTab] = useState<'movie' | 'tv'>(studio?.type || 'movie')
 
   // Scroll to top on mount
   useEffect(() => {
@@ -55,8 +56,6 @@ export default function Studio() {
       </div>
     )
   }
-
-  const [activeTab, setActiveTab] = useState<'movie' | 'tv'>(studio.type)
 
   const activeGenres = activeTab === 'movie' ? MOVIE_GENRES : TV_GENRES
 

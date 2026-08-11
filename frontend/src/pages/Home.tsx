@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Tv, Sparkles, ChevronRight, Compass, Flame, Film, Clapperboard, Star } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { TrendingMovies, TrendingTV } from '@/components/features/TrendingMedia'
 import { GenreRow } from '@/components/features/GenreRow'
 import { HeroCarousel } from '@/components/features/HeroCarousel'
@@ -11,12 +11,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pb-24 space-y-10">
-      {/* ✦ Hero Auto-Sliding Window ✦ */}
+      {/* Hero carousel */}
       <HeroCarousel />
 
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 space-y-12">
         
-        {/* ── Studio Universes Bar ── */}
+        {/* Studio and network shortcuts */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
@@ -44,14 +44,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── Organic Wavy Accent ── */}
+        {/* Organic wave accent */}
         <div className="relative h-12 w-full overflow-hidden flex items-center justify-center my-6 opacity-70">
           <svg className="w-full max-w-2xl h-full text-[#9062aa]" viewBox="0 0 1000 100" preserveAspectRatio="none" fill="none" stroke="currentColor" strokeWidth="4" xmlns="http://www.w3.org/2000/svg">
             <path d="M0,50 C250,100 250,0 500,50 C750,100 750,0 1000,50" />
           </svg>
         </div>
 
-        {/* ── Category Filter Bar ── */}
+        {/* Category filter */}
         <div className="space-y-8">
           <div className="flex items-center gap-2 p-2 bg-[#1b1b22] rounded-full w-fit overflow-x-auto scrollbar-hide border border-white/10 shadow-lg">
             {[
@@ -78,7 +78,7 @@ export default function Home() {
             })}
           </div>
 
-          {/* ── Trending Movies Section ── */}
+          {/* Trending movies */}
           {(activeCategory === 'all' || activeCategory === 'movies') && (
             <section className="space-y-6 animate-in fade-in">
               <div className="flex items-center justify-between">
@@ -91,7 +91,7 @@ export default function Home() {
             </section>
           )}
 
-          {/* ── Trending TV Shows Section ── */}
+          {/* Trending TV shows */}
           {(activeCategory === 'all' || activeCategory === 'tv') && (
             <section className="space-y-6 animate-in fade-in pt-4">
               <div className="flex items-center justify-between">
@@ -104,7 +104,7 @@ export default function Home() {
             </section>
           )}
 
-          {/* ── Action & Sci-Fi Genre Sections ── */}
+          {/* Genre sections */}
           {(activeCategory === 'all' || activeCategory === 'action') && (
             <section className="animate-in fade-in pt-2">
               <GenreRow title="Action & Adventure" genreId={28} type="movie" />

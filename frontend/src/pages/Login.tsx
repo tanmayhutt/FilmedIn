@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { toast } from 'react-hot-toast'
 import { googleLoginAction } from '@/services/auth.service'
 import { Logo } from '@/components/common/Logo'
+import { getSafeRedirect } from '@/utils/navigation'
 
 export default function Login() {
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
   const location = useLocation()
-  const redirect = new URLSearchParams(location.search).get('redirect')
+  const redirect = getSafeRedirect(new URLSearchParams(location.search).get('redirect'))
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setLoading(true)
@@ -20,7 +20,7 @@ export default function Login() {
     } else {
       toast.success('Successfully logged in!')
       if (res.isNewUser) {
-        window.location.href = `/onboarding${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`
+        window.location.href = `/onboarding?redirect=${encodeURIComponent(redirect)}`
       } else {
         window.location.href = redirect || '/'
       }
@@ -40,7 +40,7 @@ export default function Login() {
             <Logo className="scale-150" />
           </div>
           
-          <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Welcome Back</h2>
+          <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Welcome to FilmedIn</h1>
           <p className="text-zinc-300 mb-8 text-sm px-2 leading-relaxed">
             Your personal movie database. Sign in to track, save, and share what you're watching.
           </p>

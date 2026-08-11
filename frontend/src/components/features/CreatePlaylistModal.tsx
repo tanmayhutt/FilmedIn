@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { createPlaylist, addToList } from '@/services/playlist.service'
 import { useSavedMedia } from '@/context/SavedMediaContext'
@@ -23,6 +22,15 @@ export function CreatePlaylistModal({ isOpen, onClose, mediaToAdd, onCreated }: 
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
   const { refreshSaved } = useSavedMedia()
+
+  useEffect(() => {
+    if (!isOpen) return
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !loading) onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, loading, onClose])
 
   if (!isOpen) return null
 
@@ -64,33 +72,40 @@ export function CreatePlaylistModal({ isOpen, onClose, mediaToAdd, onCreated }: 
   return (
     <div 
       className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in"
-      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      onClick={() => !loading && onClose()}
     >
       <div 
         className="clay-modal w-full max-w-md p-8 animate-in zoom-in-95 text-left" 
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-playlist-title"
       >
-        <h3 className="text-xl font-bold mb-4 text-white">Create New Playlist</h3>
+        <h2 id="create-playlist-title" className="text-xl font-bold mb-4 text-white">Create New Playlist</h2>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Playlist Title *</label>
+              <label htmlFor="playlist-name" className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Playlist title</label>
               <Input
+                id="playlist-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Favorite Sci-Fi Movies"
                 className="w-full clay-input text-white border-none py-2.5 px-3.5"
                 autoFocus
                 required
+                maxLength={80}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Description</label>
+              <label htmlFor="playlist-description" className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Description</label>
               <textarea
+                id="playlist-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What is this playlist about?"
                 className="w-full h-24 min-h-[5rem] clay-input p-3 text-sm transition-colors placeholder:text-zinc-600 resize-none text-white border-none"
+                maxLength={500}
               />
             </div>
           </div>

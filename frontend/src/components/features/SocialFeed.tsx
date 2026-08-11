@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { UserAvatar } from '@/components/common/UserAvatar'
-import { Heart, MessageSquare, Share2, Star, Film, Sparkles, Send } from 'lucide-react'
+import { Heart, MessageSquare, Share2, Star, Send } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface FeedPost {

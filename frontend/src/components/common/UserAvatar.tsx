@@ -4,10 +4,9 @@ interface UserAvatarProps {
   avatarUrl?: string
   username?: string
   className?: string
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
-export function UserAvatar({ avatarUrl, username = 'Cinephile', className = '', size = 'md' }: UserAvatarProps) {
+export function UserAvatar({ avatarUrl, username = 'Cinephile', className = '' }: UserAvatarProps) {
   const [hasError, setHasError] = useState(false)
 
   const initial = username ? username.charAt(0).toUpperCase() : '?'

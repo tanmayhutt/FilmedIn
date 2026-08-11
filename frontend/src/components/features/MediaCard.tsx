@@ -91,21 +91,20 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
                 onClick={handleToggleLike}
                 className={`p-1 transition-all hover:scale-110 active:scale-125 focus:outline-none ${isLiked ? 'text-[#9062aa]' : 'text-zinc-400 hover:text-[#9062aa]'}`}
                 title={isLiked ? 'Liked' : 'Like'}
+                aria-label={isLiked ? `Unlike ${title}` : `Like ${title}`}
               >
                 <Heart className={`w-4 h-4 transition-all ${isLiked ? 'fill-[#9062aa]' : ''}`} />
               </button>
 
               {/* Plain Bookmark Save Dropdown */}
               <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <button
-                    type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    className={`p-1 transition-all hover:scale-110 active:scale-125 focus:outline-none ${saved ? 'text-[#9062aa]' : 'text-zinc-400 hover:text-[#9062aa]'}`}
-                    title={saved ? `Saved in: ${savedPlaylistNames.join(', ')}` : 'Save to list'}
-                  >
-                    <Bookmark className={`w-4 h-4 transition-all ${saved ? 'fill-[#9062aa]' : ''}`} />
-                  </button>
+                <DropdownMenuTrigger
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  className={`p-1 transition-all hover:scale-110 active:scale-125 focus:outline-none ${saved ? 'text-[#9062aa]' : 'text-zinc-400 hover:text-[#9062aa]'}`}
+                  title={saved ? `Saved in: ${savedPlaylistNames.join(', ')}` : 'Save to list'}
+                  aria-label={saved ? `Manage ${title} in your lists` : `Save ${title} to a list`}
+                >
+                  <Bookmark className={`w-4 h-4 transition-all ${saved ? 'fill-[#9062aa]' : ''}`} />
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent 

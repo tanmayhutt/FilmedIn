@@ -4,7 +4,7 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');
   
   const headers: Record<string, string> = {
-    ...((options.headers as any) || {})
+    ...Object.fromEntries(new Headers(options.headers).entries())
   };
 
   if (token) {
@@ -21,10 +21,15 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
     headers
   });
 
-  const data = await response.json();
+  const contentType = response.headers.get('content-type') || '';
+  const data = contentType.includes('application/json') ? await response.json() : null;
 
   if (!response.ok) {
-    throw new Error(data.error || 'API Error');
+    if (response.status === 401 && token) {
+      localStorage.removeItem('token');
+      window.dispatchEvent(new Event('auth-changed'));
+    }
+    throw new Error(data?.error || `Request failed with status ${response.status}`);
   }
 
   return data;

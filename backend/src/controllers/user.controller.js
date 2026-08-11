@@ -2,6 +2,18 @@ const User = require('../models/User');
 const Playlist = require('../models/Playlist');
 const PlaylistItem = require('../models/PlaylistItem');
 const jwt = require('jsonwebtoken');
+const { uploadImage } = require('../config/cloudinary');
+
+const USERNAME_PATTERN = /^[a-z0-9_]{3,30}$/;
+const isSafeImageUrl = (value) => {
+  if (value === null || value === '') return true;
+  if (typeof value !== 'string' || value.length > 2048) return false;
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
 
 exports.updateProfile = async (req, res) => {
   try {
@@ -12,30 +24,31 @@ exports.updateProfile = async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     // Validate and check username uniqueness
-    if (username && username !== user.username) {
-      if (username.length < 3) {
-        return res.status(400).json({ error: 'Username must be at least 3 characters long' });
-      }
-      if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-        return res.status(400).json({ error: 'Username can only contain letters, numbers, and underscores' });
+    if (username && username.toLowerCase() !== user.username) {
+      const normalizedUsername = username.trim().toLowerCase();
+      if (!USERNAME_PATTERN.test(normalizedUsername)) {
+        return res.status(400).json({ error: 'Username must be 3–30 characters and use only letters, numbers, or underscores' });
       }
       
-      const existingUser = await User.findOne({ username: username.toLowerCase() });
+      const existingUser = await User.findOne({ username: normalizedUsername });
       if (existingUser) {
         return res.status(400).json({ error: 'Username is already taken' });
       }
       
-      user.username = username.toLowerCase();
+      user.username = normalizedUsername;
     }
 
     if (avatarUrl !== undefined) {
+      if (!isSafeImageUrl(avatarUrl)) return res.status(400).json({ error: 'Avatar must use a valid secure image URL' });
       user.avatarUrl = avatarUrl;
     }
     if (bannerUrl !== undefined) {
+      if (!isSafeImageUrl(bannerUrl)) return res.status(400).json({ error: 'Banner must use a valid secure image URL' });
       user.bannerUrl = bannerUrl;
     }
     if (bio !== undefined) {
-      user.bio = bio;
+      if (typeof bio !== 'string' || bio.length > 280) return res.status(400).json({ error: 'Bio must be 280 characters or fewer' });
+      user.bio = bio.trim();
     }
 
     await user.save();
@@ -73,7 +86,7 @@ exports.getProfile = async (req, res) => {
 exports.getPublicProfile = async (req, res) => {
   try {
     const { username } = req.params;
-    const user = await User.findOne({ username }).select('username avatarUrl _id followers following');
+    const user = await User.findOne({ username: username.toLowerCase() }).select('username avatarUrl bannerUrl bio _id followers following');
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     let isFollowing = false;
@@ -92,6 +105,8 @@ exports.getPublicProfile = async (req, res) => {
       _id: user._id,
       username: user.username,
       avatarUrl: user.avatarUrl,
+      bannerUrl: user.bannerUrl,
+      bio: user.bio,
       followersCount: user.followers.length,
       followingCount: user.following.length,
       isFollowing
@@ -157,6 +172,7 @@ exports.getFollowing = async (req, res) => {
 exports.updateAvatar = async (req, res) => {
   try {
     const { avatarUrl } = req.body;
+    if (!isSafeImageUrl(avatarUrl)) return res.status(400).json({ error: 'Avatar must use a valid secure image URL' });
     const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl }, { new: true }).select('-passwordHash');
     res.json(user);
   } catch (err) {
@@ -168,8 +184,11 @@ exports.updateAvatar = async (req, res) => {
 exports.uploadAvatar = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    // Cloudinary returns the secure URL directly on req.file.path
-    const avatarUrl = req.file.path;
+    const upload = await uploadImage(req.file.buffer, {
+      folder: 'FilmedIn/avatars',
+      transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face', quality: 'auto' }]
+    });
+    const avatarUrl = upload.secure_url;
     const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl }, { new: true }).select('-passwordHash');
     res.json(user);
   } catch (err) {
@@ -181,7 +200,11 @@ exports.uploadAvatar = async (req, res) => {
 exports.uploadBanner = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const bannerUrl = req.file.path;
+    const upload = await uploadImage(req.file.buffer, {
+      folder: 'FilmedIn/banners',
+      transformation: [{ width: 1600, height: 600, crop: 'fill', gravity: 'auto', quality: 'auto' }]
+    });
+    const bannerUrl = upload.secure_url;
     const user = await User.findByIdAndUpdate(req.user.id, { bannerUrl }, { new: true }).select('-passwordHash');
     res.json(user);
   } catch (err) {
@@ -206,6 +229,12 @@ exports.deleteAccount = async (req, res) => {
     // Delete all playlists
     await Playlist.deleteMany({ userId });
 
+    // Remove the deleted account from other members' social graphs
+    await User.updateMany(
+      { $or: [{ followers: userId }, { following: userId }] },
+      { $pull: { followers: userId, following: userId } }
+    );
+
     // Delete the user
     await User.findByIdAndDelete(userId);
 
@@ -218,11 +247,11 @@ exports.deleteAccount = async (req, res) => {
 
 exports.searchUsers = async (req, res) => {
   try {
-    const { q } = req.query;
-    if (!q) return res.json([]);
+    const q = typeof req.query.q === 'string' ? req.query.q.trim().slice(0, 64) : '';
+    if (q.length < 2) return res.json([]);
     
-    // Search by username or email (case-insensitive)
-    const regex = new RegExp(q, 'i');
+    const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedQuery, 'i');
     const users = await User.find({
       $or: [
         { username: regex },

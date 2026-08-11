@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchTrendingMovies, fetchTrendingTV, TMDBMovie, TMDBTVShow } from '@/services/tmdb.service'
 import { ChevronLeft, ChevronRight, Info } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 export function HeroCarousel() {
   const [items, setItems] = useState<(TMDBMovie | TMDBTVShow)[]>([])
@@ -17,8 +16,6 @@ export function HeroCarousel() {
           fetchTrendingTV()
         ])
         
-        // Combine and shuffle top items to feature
-        const combined = [...movies.slice(0, 5), ...tv.slice(0, 5)]
         const interleaved = []
         for (let i = 0; i < 5; i++) {
           if (movies[i]) interleaved.push(movies[i])

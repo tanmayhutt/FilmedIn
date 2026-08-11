@@ -1,6 +1,6 @@
 import { cn } from "@/utils/cn"
 
-export interface SpinnerProps extends React.SVGProps<SVGSVGElement> {}
+export type SpinnerProps = React.SVGProps<SVGSVGElement>
 
 export function Spinner({ className, ...props }: SpinnerProps) {
   return (

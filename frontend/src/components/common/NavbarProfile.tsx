@@ -1,16 +1,11 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { fetchApi } from '@/services/api.client'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { signout } from '@/services/auth.service'
-import { LogOut, User } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
 import { UserAvatar } from './UserAvatar'
 
 export function NavbarProfile() {
   const [profile, setProfile] = useState<any>(null)
-  const [isOpen, setIsOpen] = useState(false)
   const location = useLocation()
-  const navigate = useNavigate()
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -25,23 +20,6 @@ export function NavbarProfile() {
       setProfile(null)
     }
   }, [location])
-
-  // Close dropdown on click outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const handleSignOut = async () => {
-    await signout()
-    setIsOpen(false)
-    navigate('/')
-  }
 
   if (!profile) {
     return (

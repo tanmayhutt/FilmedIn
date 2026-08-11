@@ -12,11 +12,11 @@ export interface OpenCreateModalOptions {
 }
 
 interface SavedMediaContextType {
-  savedIds: Set<number>;
-  itemMap: Record<number, string[]>;
+  savedKeys: Set<string>;
+  itemMap: Record<string, string[]>;
   userPlaylists: { id: string; name: string }[];
-  isSaved: (tmdbId: number) => boolean;
-  isItemInPlaylist: (tmdbId: number, playlistId: string) => boolean;
+  isSaved: (tmdbId: number, mediaType: 'movie' | 'tv') => boolean;
+  isItemInPlaylist: (tmdbId: number, mediaType: 'movie' | 'tv', playlistId: string) => boolean;
   refreshSaved: () => Promise<void>;
   togglePlaylist: (tmdbId: number, mediaType: 'movie' | 'tv', playlistId: string) => Promise<boolean>;
   openCreateModal: (options?: OpenCreateModalOptions) => void;
@@ -24,7 +24,7 @@ interface SavedMediaContextType {
 }
 
 const SavedMediaContext = createContext<SavedMediaContextType>({
-  savedIds: new Set(),
+  savedKeys: new Set(),
   itemMap: {},
   userPlaylists: [],
   isSaved: () => false,
@@ -36,8 +36,8 @@ const SavedMediaContext = createContext<SavedMediaContextType>({
 });
 
 export const SavedMediaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [savedIds, setSavedIds] = useState<Set<number>>(new Set());
-  const [itemMap, setItemMap] = useState<Record<number, string[]>>({});
+  const [savedKeys, setSavedKeys] = useState<Set<string>>(new Set());
+  const [itemMap, setItemMap] = useState<Record<string, string[]>>({});
   const [userPlaylists, setUserPlaylists] = useState<{ id: string; name: string }[]>([]);
 
   // Global Create Playlist Modal state
@@ -50,15 +50,15 @@ export const SavedMediaProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const refreshSaved = useCallback(async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (!token) {
-      setSavedIds(new Set());
+      setSavedKeys(new Set());
       setItemMap({});
       setUserPlaylists([]);
       return;
     }
     try {
       const data = await getSavedMediaData();
-      if (data && data.savedIds) {
-        setSavedIds(new Set(data.savedIds));
+      if (data && data.savedKeys) {
+        setSavedKeys(new Set(data.savedKeys));
         setItemMap(data.itemMap || {});
         setUserPlaylists(data.playlists || []);
       }
@@ -71,19 +71,18 @@ export const SavedMediaProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     refreshSaved();
   }, [refreshSaved]);
 
-  const isSaved = (tmdbId: number): boolean => {
-    if (!savedIds || !tmdbId) return false;
-    return savedIds.has(Number(tmdbId));
+  const isSaved = (tmdbId: number, mediaType: 'movie' | 'tv'): boolean => {
+    if (!savedKeys || !tmdbId) return false;
+    return savedKeys.has(`${mediaType}:${Number(tmdbId)}`);
   };
 
-  const isItemInPlaylist = (tmdbId: number, playlistId: string): boolean => {
+  const isItemInPlaylist = (tmdbId: number, mediaType: 'movie' | 'tv', playlistId: string): boolean => {
     if (!itemMap || !tmdbId || !playlistId) return false;
-    const numId = Number(tmdbId);
-    return !!itemMap[numId]?.includes(playlistId) || !!itemMap[tmdbId]?.includes(playlistId);
+    return !!itemMap[`${mediaType}:${Number(tmdbId)}`]?.includes(playlistId);
   };
 
   const togglePlaylist = async (tmdbId: number, mediaType: 'movie' | 'tv', playlistId: string): Promise<boolean> => {
-    const inPlaylist = isItemInPlaylist(tmdbId, playlistId);
+    const inPlaylist = isItemInPlaylist(tmdbId, mediaType, playlistId);
     let res;
     if (inPlaylist) {
       res = await removeFromList(playlistId, tmdbId);
@@ -109,7 +108,7 @@ export const SavedMediaProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   return (
     <SavedMediaContext.Provider
       value={{
-        savedIds,
+        savedKeys,
         itemMap,
         userPlaylists,
         isSaved,

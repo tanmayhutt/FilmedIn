@@ -6,6 +6,7 @@ import { MediaCard } from '@/components/features/MediaCard'
 import { removeFromList } from '@/services/playlist.service'
 import { Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { usePageMetadata } from '@/components/common/RouteMetadata'
 
 export default function PlaylistDetails() {
     const { id } = useParams<{ id: string }>()
@@ -13,6 +14,8 @@ export default function PlaylistDetails() {
     const [items, setItems] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [currentUser, setCurrentUser] = useState<any>(null)
+
+    usePageMetadata(playlist?.name, playlist?.description || (playlist ? `${playlist.name}, a curated FilmedIn playlist.` : undefined))
 
     const navigate = useNavigate()
     const location = useLocation()
@@ -25,7 +28,7 @@ export default function PlaylistDetails() {
             return
         }
         fetchApi('/users/me').then(setCurrentUser).catch(() => {})
-    }, [navigate])
+    }, [navigate, location.pathname])
 
     useEffect(() => {
         if (!id) return

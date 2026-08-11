@@ -50,7 +50,7 @@ export async function searchMedia(query: string): Promise<(TMDBMovie | TMDBTVSho
 export async function fetchMovieDetails(id: string): Promise<TMDBMovie | null> {
   try {
     return await fetchApi(`/tmdb/movie/${id}`);
-  } catch (err) {
+  } catch {
     return null;
   }
 }
@@ -58,7 +58,7 @@ export async function fetchMovieDetails(id: string): Promise<TMDBMovie | null> {
 export async function fetchTVDetails(id: string): Promise<TMDBTVShow | null> {
   try {
     return await fetchApi(`/tmdb/tv/${id}`);
-  } catch (err) {
+  } catch {
     return null;
   }
 }

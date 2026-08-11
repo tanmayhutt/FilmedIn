@@ -3,8 +3,6 @@ const PlaylistItem = require('../models/PlaylistItem');
 const User = require('../models/User');
 
 const NodeCache = require('node-cache');
-const posterCache = new NodeCache({ stdTTL: 86400 });
-
 const mediaDetailsCache = new NodeCache({ stdTTL: 86400 });
 
 async function getMediaDetails(tmdbId, mediaType) {
@@ -41,31 +39,34 @@ async function getPosterPath(tmdbId, mediaType) {
   return details ? details.poster_path : null;
 }
 
+async function enrichPlaylists(playlists) {
+  if (playlists.length === 0) return playlists;
+  const playlistIds = playlists.map(playlist => playlist._id);
+  const allItems = await PlaylistItem.find({ playlistId: { $in: playlistIds } }).sort({ createdAt: -1 }).lean();
+  const itemsByPlaylist = new Map();
+
+  allItems.forEach(item => {
+    const key = item.playlistId.toString();
+    if (!itemsByPlaylist.has(key)) itemsByPlaylist.set(key, []);
+    itemsByPlaylist.get(key).push(item);
+  });
+
+  return Promise.all(playlists.map(async playlist => {
+    const items = itemsByPlaylist.get(playlist._id.toString()) || [];
+    const posterPaths = await Promise.all(items.slice(0, 3).map(item => getPosterPath(item.tmdbId, item.mediaType)));
+    return {
+      ...playlist,
+      id: playlist._id.toString(),
+      playlist_items: [{ count: items.length }],
+      preview_posters: posterPaths.filter(Boolean).map(path => `https://image.tmdb.org/t/p/w500${path}`)
+    };
+  }));
+}
+
 exports.getPlaylists = async (req, res) => {
   try {
-    const requiredPresets = ['Watchlist', 'Currently Watching', 'Watched', 'Liked'];
-    for (const preset of requiredPresets) {
-      const exists = await Playlist.findOne({ userId: req.user.id, name: preset });
-      if (!exists) {
-        await Playlist.create({ userId: req.user.id, name: preset, type: 'system' });
-      }
-    }
-
     const playlists = await Playlist.find({ userId: req.user.id }).sort({ createdAt: -1 }).lean();
-    for (let pl of playlists) {
-      const items = await PlaylistItem.find({ playlistId: pl._id }).sort({ createdAt: -1 });
-      pl.playlist_items = [{ count: items.length }];
-      pl.id = pl._id.toString();
-      
-      const previewItems = items.slice(0, 3);
-      const posters = [];
-      for (const item of previewItems) {
-         const path = await getPosterPath(item.tmdbId, item.mediaType);
-         if (path) posters.push(`https://image.tmdb.org/t/p/w500${path}`);
-      }
-      pl.preview_posters = posters;
-    }
-    res.json(playlists);
+    res.json(await enrichPlaylists(playlists));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -75,20 +76,7 @@ exports.getPlaylists = async (req, res) => {
 exports.getPublicPlaylists = async (req, res) => {
   try {
     const playlists = await Playlist.find({ userId: req.params.userId }).sort({ createdAt: -1 }).lean();
-    for (let pl of playlists) {
-      const items = await PlaylistItem.find({ playlistId: pl._id }).sort({ createdAt: -1 });
-      pl.playlist_items = [{ count: items.length }];
-      pl.id = pl._id.toString();
-      
-      const previewItems = items.slice(0, 3);
-      const posters = [];
-      for (const item of previewItems) {
-         const path = await getPosterPath(item.tmdbId, item.mediaType);
-         if (path) posters.push(`https://image.tmdb.org/t/p/w500${path}`);
-      }
-      pl.preview_posters = posters;
-    }
-    res.json(playlists);
+    res.json(await enrichPlaylists(playlists));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -98,9 +86,13 @@ exports.getPublicPlaylists = async (req, res) => {
 exports.createPlaylist = async (req, res) => {
   try {
     const { name, description } = req.body;
-    if (!name) return res.status(400).json({ error: 'Name is required' });
+    const cleanName = typeof name === 'string' ? name.trim() : '';
+    const cleanDescription = typeof description === 'string' ? description.trim() : '';
+    if (!cleanName) return res.status(400).json({ error: 'Name is required' });
+    if (cleanName.length > 80) return res.status(400).json({ error: 'Playlist name must be 80 characters or fewer' });
+    if (cleanDescription.length > 500) return res.status(400).json({ error: 'Description must be 500 characters or fewer' });
 
-    const newPlaylist = new Playlist({ userId: req.user.id, name, description: description || '', type: 'custom' });
+    const newPlaylist = new Playlist({ userId: req.user.id, name: cleanName, description: cleanDescription, type: 'custom' });
     await newPlaylist.save();
     
     const plObj = newPlaylist.toObject();
@@ -133,12 +125,15 @@ exports.deletePlaylist = async (req, res) => {
 exports.addItem = async (req, res) => {
   try {
     const { playlistId, tmdbId, mediaType } = req.body;
+    if (!Number.isInteger(Number(tmdbId)) || Number(tmdbId) <= 0 || !['movie', 'tv'].includes(mediaType)) {
+      return res.status(400).json({ error: 'A valid title and media type are required' });
+    }
 
     const playlist = await Playlist.findById(playlistId);
     if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
     if (playlist.userId.toString() !== req.user.id) return res.status(401).json({ error: 'Unauthorized' });
 
-    const newItem = new PlaylistItem({ playlistId, tmdbId, mediaType });
+    const newItem = new PlaylistItem({ playlistId, tmdbId: Number(tmdbId), mediaType });
     await newItem.save();
     res.status(201).json({ success: true });
   } catch (err) {
@@ -195,15 +190,16 @@ exports.getSavedIds = async (req, res) => {
     const playlistIds = playlists.map(p => p._id);
     const items = await PlaylistItem.find({ playlistId: { $in: playlistIds } });
     
-    const savedIds = Array.from(new Set(items.map(i => i.tmdbId)));
+    const savedKeys = Array.from(new Set(items.map(i => `${i.mediaType}:${i.tmdbId}`)));
     const itemMap = {};
     items.forEach(i => {
-      if (!itemMap[i.tmdbId]) itemMap[i.tmdbId] = [];
-      itemMap[i.tmdbId].push(i.playlistId.toString());
+      const key = `${i.mediaType}:${i.tmdbId}`;
+      if (!itemMap[key]) itemMap[key] = [];
+      itemMap[key].push(i.playlistId.toString());
     });
 
     res.json({
-      savedIds,
+      savedKeys,
       itemMap,
       playlists: playlists.map(p => ({ id: p._id.toString(), name: p.name }))
     });

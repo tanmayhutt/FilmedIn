@@ -8,15 +8,15 @@ export function useMediaCard(media: TMDBMovie | TMDBTVShow) {
   const { isSaved, isItemInPlaylist, userPlaylists, togglePlaylist, openCreateModal, refreshSaved, itemMap } = useSavedMedia()
 
   const details = parseMediaDetails(media)
-  const saved = media?.id ? isSaved(media.id) : false
+  const saved = media?.id ? isSaved(media.id, details.mediaType) : false
   const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token')
 
-  const savedPlaylistNames = getSavedPlaylistNames(media?.id, itemMap, userPlaylists)
+  const savedPlaylistNames = getSavedPlaylistNames(media?.id, details.mediaType, itemMap, userPlaylists)
 
   const handleToggle = async (e: React.MouseEvent, playlistId: string, playlistName: string) => {
     e.preventDefault()
     e.stopPropagation()
-    const currentlyIn = isItemInPlaylist(media.id, playlistId)
+    const currentlyIn = isItemInPlaylist(media.id, details.mediaType, playlistId)
     const success = await togglePlaylist(media.id, details.mediaType, playlistId)
     if (success) {
       if (currentlyIn) {
@@ -42,7 +42,7 @@ export function useMediaCard(media: TMDBMovie | TMDBTVShow) {
   }
 
   const likedPlaylist = userPlaylists.find(pl => pl.name.toLowerCase() === 'liked')
-  const isLiked = likedPlaylist && media?.id ? isItemInPlaylist(media.id, likedPlaylist.id) : false
+  const isLiked = likedPlaylist && media?.id ? isItemInPlaylist(media.id, details.mediaType, likedPlaylist.id) : false
 
   const handleToggleLike = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -75,7 +75,7 @@ export function useMediaCard(media: TMDBMovie | TMDBTVShow) {
     hasToken,
     savedPlaylistNames,
     userPlaylists,
-    isItemInPlaylist: (playlistId: string) => isItemInPlaylist(media.id, playlistId),
+    isItemInPlaylist: (playlistId: string) => isItemInPlaylist(media.id, details.mediaType, playlistId),
     handleToggle,
     handleToggleLike,
     handleOpenCreateModal,

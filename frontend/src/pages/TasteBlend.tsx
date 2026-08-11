@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getTasteBlend } from '@/services/playlist.service'
 import { MediaCard } from '@/components/features/MediaCard'
-import { ArrowLeft, Sparkles, User, Bookmark, Tv, CheckCircle2, FolderHeart, Compass, Share2, Film, Clapperboard, Layers } from 'lucide-react'
+import { ArrowLeft, Sparkles, User, Bookmark, Tv, CheckCircle2, FolderHeart, Compass, Share2, Clapperboard, Layers } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function TasteBlend() {

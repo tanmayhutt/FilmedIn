@@ -7,7 +7,7 @@ import { signout } from '@/services/auth.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
-import { Upload, Camera, User, Image as ImageIcon } from 'lucide-react'
+import { Upload, Camera, User, Image as ImageIcon, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Props {
@@ -48,7 +48,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
       } else {
         toast.error(res.error || 'Failed to upload avatar')
       }
-    } catch (err) {
+    } catch {
       toast.error('Upload failed')
     } finally {
       setLoading(false)
@@ -70,7 +70,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
       } else {
         toast.error(res.error || 'Failed to upload banner')
       }
-    } catch (err) {
+    } catch {
       toast.error('Upload failed')
     } finally {
       setLoading(false)
@@ -131,12 +131,13 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
               <button 
                 onClick={() => setIsOpen(false)}
                 className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center text-xs transition-colors"
+                aria-label="Close profile editor"
               >
-                ✕
+                <X size={16} aria-hidden="true" />
               </button>
             </div>
             
-            {/* Modal Body (Scrollable) */}
+            {/* Scrollable modal body */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Left Side: Avatar */}

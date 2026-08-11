@@ -14,7 +14,9 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    match: [/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores']
+    minlength: 3,
+    maxlength: 30,
+    match: [/^[a-z0-9_]+$/, 'Username can only contain lowercase letters, numbers, and underscores']
   },
   passwordHash: {
     type: String,
@@ -22,7 +24,9 @@ const userSchema = new mongoose.Schema({
   },
   googleId: {
     type: String,
-    default: null
+    default: null,
+    unique: true,
+    sparse: true
   },
   avatarUrl: {
     type: String,
@@ -34,7 +38,8 @@ const userSchema = new mongoose.Schema({
   },
   bio: {
     type: String,
-    default: ''
+    default: '',
+    maxlength: 280
   },
   followers: [{
     type: mongoose.Schema.Types.ObjectId,

@@ -5,6 +5,7 @@ import { AddToListButton } from '@/components/features/AddToListButton'
 import { WallpaperGenerator } from '@/components/features/WallpaperGenerator'
 import { EpisodeHeatmap } from '@/components/features/EpisodeHeatmap'
 import { Star, ChevronDown, ChevronRight, Tv } from 'lucide-react'
+import { usePageMetadata } from '@/components/common/RouteMetadata'
 
 function RatingPill({ rating }: { rating: number }) {
   const color = rating >= 8.5 ? 'clay-badge-emerald' : rating >= 7.5 ? 'clay-badge-blue' : 'clay-badge-amber'
@@ -125,6 +126,12 @@ export default function TVDetails() {
   const { id } = useParams<{ id: string }>()
   const [show, setShow] = useState<TMDBTVShow | null>(null)
   const [loading, setLoading] = useState(true)
+
+  usePageMetadata(
+    show?.name,
+    show?.overview || (show ? `View details, cast, seasons, episode ratings, and playlists for ${show.name}.` : undefined),
+    show?.poster_path ? `https://image.tmdb.org/t/p/w780${show.poster_path}` : undefined
+  )
 
   useEffect(() => {
     window.scrollTo(0, 0)

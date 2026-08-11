@@ -14,8 +14,6 @@ interface Props {
 export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
   const [blendData, setBlendData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [activeCategory, setActiveCategory] = useState<'all' | 'watchlist' | 'watching' | 'watched' | 'custom'>('all')
-
   useEffect(() => {
     if (isOpen && targetUsername) {
       setLoading(true)

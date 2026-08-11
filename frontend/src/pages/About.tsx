@@ -1,4 +1,4 @@
-import { Film, Tv, Users, Shield, Zap, Globe, ArrowRight } from 'lucide-react'
+import { Film, Users, Shield, Zap, Globe, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function About() {

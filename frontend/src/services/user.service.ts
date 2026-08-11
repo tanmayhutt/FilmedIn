@@ -50,7 +50,7 @@ export async function updateProfile(data: { username?: string, avatarUrl?: strin
 
 export async function deleteAccount() {
   try {
-    const res = await fetchApi('/users/me', {
+    await fetchApi('/users/me', {
       method: 'DELETE'
     })
     return { success: true }

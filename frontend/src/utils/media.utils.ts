@@ -35,13 +35,15 @@ export function parseMediaDetails(media: TMDBMovie | TMDBTVShow): FormattedMedia
 
 export function getSavedPlaylistNames(
   mediaId: number | undefined,
-  itemMap: Record<number, string[]>,
+  mediaType: 'movie' | 'tv',
+  itemMap: Record<string, string[]>,
   userPlaylists: { id: string; name: string }[]
 ): string[] {
-  if (!mediaId || !itemMap || !itemMap[mediaId] || !Array.isArray(userPlaylists)) {
+  const key = `${mediaType}:${mediaId}`
+  if (!mediaId || !itemMap || !itemMap[key] || !Array.isArray(userPlaylists)) {
     return []
   }
-  const savedIds = itemMap[mediaId] || []
+  const savedIds = itemMap[key] || []
   return userPlaylists
     .filter(pl => pl && pl.id && savedIds.includes(pl.id))
     .map(pl => pl.name)

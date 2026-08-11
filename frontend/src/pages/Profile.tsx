@@ -3,17 +3,17 @@ import { useNavigate, useParams, Link, useLocation } from 'react-router-dom'
 import { fetchApi } from '@/services/api.client'
 import { signout } from '@/services/auth.service'
 import { toggleFollow } from '@/services/user.service'
-import { getPlaylists, createPlaylist, deletePlaylist } from '@/services/playlist.service'
+import { getPlaylists, deletePlaylist } from '@/services/playlist.service'
 import { getPublicProfile, getPublicPlaylists, getFollowers, getFollowing, searchUsers } from '@/services/public.service'
 import { EditProfileModal } from '@/components/features/EditProfileModal'
-import { useSavedMedia } from '@/context/SavedMediaContext'
-import { Button } from '@/components/ui/button'
+import { CreatePlaylistModal } from '@/components/features/CreatePlaylistModal'
 import { Input } from '@/components/ui/input'
-import { Plus, LogOut, Trash2, Share2, Bookmark, UserPlus, UserMinus, User, X, Sparkles, Search } from 'lucide-react'
+import { Plus, LogOut, Trash2, Share2, Bookmark, UserPlus, UserMinus, X, Sparkles, Search } from 'lucide-react'
 import { PRESET_AVATARS } from '@/utils/avatars'
 import toast from 'react-hot-toast'
 
 import { UserAvatar } from '@/components/common/UserAvatar'
+import { usePageMetadata } from '@/components/common/RouteMetadata'
 
 export default function Profile() {
     const navigate = useNavigate()
@@ -30,6 +30,9 @@ export default function Profile() {
     const [followLoading, setFollowLoading] = useState(false)
     const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false)
     const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false)
+    const [isCreatePlaylistOpen, setIsCreatePlaylistOpen] = useState(false)
+
+    usePageMetadata(profile?.username ? `@${profile.username}` : undefined, profile?.bio || undefined, profile?.avatarUrl || undefined)
 
     // Dedicated User Search state on Profile
     const [userQuery, setUserQuery] = useState('')
@@ -128,7 +131,7 @@ export default function Profile() {
         img.onerror = () => {
             setPfpTheme(getUniqueColor(url + (profile.username || '')))
         }
-    }, [profile?.avatarUrl, profile?.username])
+    }, [profile])
 
     useEffect(() => {
         const initializeProfile = async () => {
@@ -194,7 +197,7 @@ export default function Profile() {
         }
 
         initializeProfile()
-    }, [username, navigate])
+    }, [username, navigate, location.pathname])
 
     const handleShareProfile = async () => {
         if (!profile?.username) return
@@ -253,19 +256,6 @@ export default function Profile() {
         setModalLoading(false)
     }
 
-    const handleCreatePlaylist = async () => {
-        const name = window.prompt('Enter playlist title:')
-        if (!name || !name.trim()) return
-        try {
-            await createPlaylist(name.trim())
-            toast.success('Playlist created!')
-            const ownerPlaylists = await getPlaylists()
-            setPlaylists(ownerPlaylists)
-        } catch (err) {
-            toast.error('Failed to create playlist')
-        }
-    }
-
     const handleDeletePlaylist = async (id: string) => {
         const res = await deletePlaylist(id)
         if (res.success) {
@@ -287,7 +277,7 @@ export default function Profile() {
 
     return (
         <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-10 animate-in fade-in relative space-y-10">
-            {/* ✦ Premium Organic Profile Header ✦ */}
+            {/* Profile header */}
             <div className="clay-card p-0 overflow-visible relative border border-white/10 rounded-[2.5rem]">
                 {/* Cinematic Header Cover Backdrop */}
                 <div 
@@ -458,7 +448,7 @@ export default function Profile() {
                     <h2 className="text-xl font-bold text-white">{isOwner ? 'Your Playlists & Watchlists' : `${profile.username}'s Playlists`}</h2>
                     {isOwner && (
                         <button 
-                            onClick={handleCreatePlaylist} 
+                            onClick={() => setIsCreatePlaylistOpen(true)}
                             className="px-5 py-2 text-xs font-bold transition-all rounded-full flex items-center justify-center gap-2 bg-white text-black hover:bg-zinc-200"
                         >
                             <Plus className="w-4 h-4" />
@@ -518,6 +508,12 @@ export default function Profile() {
                     )}
                 </div>
             </section>
+
+            <CreatePlaylistModal
+                isOpen={isCreatePlaylistOpen}
+                onClose={() => setIsCreatePlaylistOpen(false)}
+                onCreated={async () => setPlaylists(await getPlaylists())}
+            />
 
             {/* Followers / Following Modals */}
             {(isFollowersModalOpen || isFollowingModalOpen) && (

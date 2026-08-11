@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#444b58"/>
+  <circle cx="1040" cy="90" r="260" fill="#9062aa" opacity=".35"/>
+  <circle cx="120" cy="650" r="330" fill="#82ac62" opacity=".22"/>
+  <rect x="72" y="68" width="1056" height="494" rx="58" fill="#1b1b22" stroke="#ffffff" stroke-opacity=".12" stroke-width="2"/>
+  <g transform="translate(116 126) scale(4.2)" fill="#fff">
+    <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/>
+    <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>
+  </g>
+  <text x="230" y="216" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="82" font-weight="800" letter-spacing="-4">FilmedIn</text>
+  <text x="116" y="354" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="55" font-weight="750">Your cinematic identity.</text>
+  <text x="116" y="420" fill="#d4d4d8" font-family="Arial, Helvetica, sans-serif" font-size="30">Track. Curate. Compare. Discover.</text>
+  <rect x="116" y="475" width="270" height="10" rx="5" fill="#9062aa"/>
+  <rect x="398" y="475" width="130" height="10" rx="5" fill="#82ac62"/>
+</svg>

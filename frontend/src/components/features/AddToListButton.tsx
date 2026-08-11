@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +26,7 @@ export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaTy
     try {
       const res = await addToList(playlistId, tmdbId, mediaType)
       toast.success(res.message || "Added to playlist!")
-    } catch (e) {
+    } catch {
       toast.error("Error adding to playlist.")
     }
   }

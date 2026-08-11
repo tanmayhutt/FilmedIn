@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { MediaCard } from '@/components/features/MediaCard';
 import { TMDBMovie, TMDBTVShow, fetchByGenre, fetchTrendingMovies, fetchTrendingTV, fetchGenres } from '@/services/tmdb.service';
 import { Loader2, Construction } from 'lucide-react';
+import { usePageMetadata } from '@/components/common/RouteMetadata';
 
 export default function Explore() {
   const [searchParams] = useSearchParams();
@@ -13,6 +14,8 @@ export default function Explore() {
   const [media, setMedia] = useState<(TMDBMovie | TMDBTVShow)[]>([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('Explore');
+
+  usePageMetadata(title, `Browse ${title.toLowerCase()} on FilmedIn.`);
 
   useEffect(() => {
     async function loadData() {

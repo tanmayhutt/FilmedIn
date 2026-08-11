@@ -57,10 +57,10 @@ export async function removeFromList(playlistId: string, tmdbId: number) {
 export async function getSavedMediaData() {
   try {
     const data = await fetchApi('/playlists/saved-ids')
-    return data || { savedIds: [], itemMap: {}, playlists: [] }
+    return data || { savedKeys: [], itemMap: {}, playlists: [] }
   } catch (err) {
     console.error(err)
-    return { savedIds: [], itemMap: {}, playlists: [] }
+    return { savedKeys: [], itemMap: {}, playlists: [] }
   }
 }
 
