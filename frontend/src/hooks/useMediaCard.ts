@@ -3,13 +3,14 @@ import { useSavedMedia } from '@/context/SavedMediaContext'
 import { parseMediaDetails, getSavedPlaylistNames } from '@/utils/media.utils'
 import { createPlaylist } from '@/services/playlist.service'
 import toast from 'react-hot-toast'
+import { hasSessionHint } from '@/utils/auth'
 
 export function useMediaCard(media: TMDBMovie | TMDBTVShow) {
   const { isSaved, isItemInPlaylist, userPlaylists, togglePlaylist, openCreateModal, refreshSaved, itemMap } = useSavedMedia()
 
   const details = parseMediaDetails(media)
   const saved = media?.id ? isSaved(media.id, details.mediaType) : false
-  const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token')
+  const hasToken = hasSessionHint()
 
   const savedPlaylistNames = getSavedPlaylistNames(media?.id, details.mediaType, itemMap, userPlaylists)
 

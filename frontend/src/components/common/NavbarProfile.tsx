@@ -2,23 +2,28 @@ import { useEffect, useState } from 'react'
 import { fetchApi } from '@/services/api.client'
 import { Link, useLocation } from 'react-router-dom'
 import { UserAvatar } from './UserAvatar'
+import { clearSessionHint, hasSessionHint } from '@/utils/auth'
 
 export function NavbarProfile() {
   const [profile, setProfile] = useState<any>(null)
   const location = useLocation()
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
+    const loadProfile = () => {
+      if (hasSessionHint()) {
       fetchApi('/users/me')
         .then(data => setProfile(data))
         .catch(() => {
-          localStorage.removeItem('token')
+          clearSessionHint()
           setProfile(null)
         })
-    } else {
-      setProfile(null)
+      } else {
+        setProfile(null)
+      }
     }
+    loadProfile()
+    window.addEventListener('auth-changed', loadProfile)
+    return () => window.removeEventListener('auth-changed', loadProfile)
   }, [location])
 
   if (!profile) {

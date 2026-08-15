@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { generateWallpaper } from '@/services/wallpaper.service'
 import { Spinner } from '@/components/ui/spinner'
 import { RefreshCw, Download, Moon, Sun, Lock, X } from 'lucide-react'
+import { hasSessionHint } from '@/utils/auth'
 
 interface Props {
   tmdbId: number
@@ -23,7 +24,7 @@ const STYLE_TAGS = [
 ]
 
 export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'))
+  const [isLoggedIn, setIsLoggedIn] = useState(hasSessionHint())
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [loadingDesktop, setLoadingDesktop] = useState(false)
   const [loadingMobile, setLoadingMobile] = useState(false)
@@ -34,7 +35,10 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark')
 
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem('token'))
+    const syncAuthentication = () => setIsLoggedIn(hasSessionHint())
+    syncAuthentication()
+    window.addEventListener('auth-changed', syncAuthentication)
+    return () => window.removeEventListener('auth-changed', syncAuthentication)
   }, [])
 
   const handleGenerate = async (type: 'desktop' | 'mobile', forceRegenerate: boolean = false, currentTag: string = activeTag, currentTheme: 'dark' | 'light' = themeMode) => {
@@ -64,11 +68,11 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
     }
   }
 
-  // Auto-generate on mount and when tag/theme changes (only if logged in)
+  // Generate one preview at a time to avoid expensive duplicate server work.
   useEffect(() => {
     if (!isLoggedIn) return
     handleGenerate('desktop', true, activeTag, themeMode)
-    handleGenerate('mobile', true, activeTag, themeMode)
+    setMobileUrl(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTag, themeMode, tmdbId, isLoggedIn])
 

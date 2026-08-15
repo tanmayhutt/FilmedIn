@@ -5,6 +5,7 @@ const authMiddleware = require('../middleware/auth');
 
 // Public routes
 router.post('/google', authController.googleLogin);
+router.post('/logout', authController.logout);
 
 // Protected routes
 router.get('/me', authMiddleware, authController.getMe);

@@ -42,6 +42,11 @@ export async function fetchTrendingTV(): Promise<TMDBTVShow[]> {
   return data.results;
 }
 
+export async function fetchTopRated(type: 'movie' | 'tv'): Promise<(TMDBMovie | TMDBTVShow)[]> {
+  const data = await fetchApi(`/tmdb/top-rated/${type}`);
+  return (data.results || []).map((item: TMDBMovie | TMDBTVShow) => ({ ...item, media_type: type }));
+}
+
 export async function searchMedia(query: string): Promise<(TMDBMovie | TMDBTVShow)[]> {
   const data = await fetchApi(`/tmdb/search?query=${encodeURIComponent(query)}`);
   return data.results.filter((item: any) => item.media_type === 'movie' || item.media_type === 'tv');

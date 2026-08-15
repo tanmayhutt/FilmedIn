@@ -43,9 +43,9 @@ export async function addToList(playlistId: string, tmdbId: number, mediaType: '
   }
 }
 
-export async function removeFromList(playlistId: string, tmdbId: number) {
+export async function removeFromList(playlistId: string, tmdbId: number, mediaType: 'movie' | 'tv') {
   try {
-    await fetchApi(`/playlists/${playlistId}/items/${tmdbId}`, {
+    await fetchApi(`/playlists/${playlistId}/items/${tmdbId}?mediaType=${mediaType}`, {
       method: 'DELETE'
     })
     return { success: true, message: 'Removed from playlist' }

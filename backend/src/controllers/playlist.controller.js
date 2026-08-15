@@ -3,35 +3,53 @@ const PlaylistItem = require('../models/PlaylistItem');
 const User = require('../models/User');
 
 const NodeCache = require('node-cache');
-const mediaDetailsCache = new NodeCache({ stdTTL: 86400 });
+const mediaDetailsCache = new NodeCache({ stdTTL: 86400, checkperiod: 3600, maxKeys: 1000 });
+const mediaDetailsRequests = new Map();
+const MAX_CUSTOM_PLAYLISTS = 50;
+const MAX_ITEMS_PER_PLAYLIST = 500;
 
 async function getMediaDetails(tmdbId, mediaType) {
   const cacheKey = `${mediaType}_${tmdbId}_details_v2`;
-  let details = mediaDetailsCache.get(cacheKey);
+  const details = mediaDetailsCache.get(cacheKey);
   if (details) return details;
+  if (mediaDetailsRequests.has(cacheKey)) return mediaDetailsRequests.get(cacheKey);
   
-  try {
-    const url = `https://api.tmdb.org/3/${mediaType}/${tmdbId}?api_key=${process.env.TMDB_API_KEY}`;
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const data = await res.json();
-    details = {
-      id: data.id,
-      title: data.title || data.name,
-      name: data.name || data.title,
-      poster_path: data.poster_path,
-      release_date: data.release_date || data.first_air_date,
-      first_air_date: data.first_air_date || data.release_date,
-      vote_average: data.vote_average ?? 0,
-      vote_count: data.vote_count ?? 0,
-      overview: data.overview || '',
-      mediaType: mediaType
-    };
-    mediaDetailsCache.set(cacheKey, details);
-    return details;
-  } catch (e) {
-    return null;
-  }
+  const request = (async () => {
+    try {
+      const url = `https://api.tmdb.org/3/${mediaType}/${tmdbId}?api_key=${process.env.TMDB_API_KEY}`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const response = {
+        id: data.id,
+        title: data.title || data.name,
+        name: data.name || data.title,
+        poster_path: data.poster_path,
+        release_date: data.release_date || data.first_air_date,
+        first_air_date: data.first_air_date || data.release_date,
+        vote_average: data.vote_average ?? 0,
+        vote_count: data.vote_count ?? 0,
+        overview: data.overview || '',
+        mediaType
+      };
+      try {
+        mediaDetailsCache.set(cacheKey, response);
+      } catch (error) {
+        if (error?.errorcode === 'ECACHEFULL') {
+          mediaDetailsCache.flushAll();
+          mediaDetailsCache.set(cacheKey, response);
+        }
+      }
+      return response;
+    } catch {
+      return null;
+    } finally {
+      mediaDetailsRequests.delete(cacheKey);
+    }
+  })();
+
+  mediaDetailsRequests.set(cacheKey, request);
+  return request;
 }
 
 async function getPosterPath(tmdbId, mediaType) {
@@ -42,22 +60,26 @@ async function getPosterPath(tmdbId, mediaType) {
 async function enrichPlaylists(playlists) {
   if (playlists.length === 0) return playlists;
   const playlistIds = playlists.map(playlist => playlist._id);
-  const allItems = await PlaylistItem.find({ playlistId: { $in: playlistIds } }).sort({ createdAt: -1 }).lean();
-  const itemsByPlaylist = new Map();
-
-  allItems.forEach(item => {
-    const key = item.playlistId.toString();
-    if (!itemsByPlaylist.has(key)) itemsByPlaylist.set(key, []);
-    itemsByPlaylist.get(key).push(item);
-  });
+  const summaries = await PlaylistItem.aggregate([
+    { $match: { playlistId: { $in: playlistIds } } },
+    { $sort: { createdAt: -1 } },
+    { $group: {
+      _id: '$playlistId',
+      count: { $sum: 1 },
+      previewItems: { $push: { tmdbId: '$tmdbId', mediaType: '$mediaType' } },
+    } },
+    { $project: { count: 1, previewItems: { $slice: ['$previewItems', 3] } } },
+  ]);
+  const summariesByPlaylist = new Map(summaries.map(summary => [summary._id.toString(), summary]));
 
   return Promise.all(playlists.map(async playlist => {
-    const items = itemsByPlaylist.get(playlist._id.toString()) || [];
-    const posterPaths = await Promise.all(items.slice(0, 3).map(item => getPosterPath(item.tmdbId, item.mediaType)));
+    const summary = summariesByPlaylist.get(playlist._id.toString());
+    const previewItems = summary?.previewItems || [];
+    const posterPaths = await Promise.all(previewItems.map(item => getPosterPath(item.tmdbId, item.mediaType)));
     return {
       ...playlist,
       id: playlist._id.toString(),
-      playlist_items: [{ count: items.length }],
+      playlist_items: [{ count: summary?.count || 0 }],
       preview_posters: posterPaths.filter(Boolean).map(path => `https://image.tmdb.org/t/p/w500${path}`)
     };
   }));
@@ -65,20 +87,20 @@ async function enrichPlaylists(playlists) {
 
 exports.getPlaylists = async (req, res) => {
   try {
-    const playlists = await Playlist.find({ userId: req.user.id }).sort({ createdAt: -1 }).lean();
+    const playlists = await Playlist.find({ userId: req.user.id }).sort({ createdAt: -1 }).limit(MAX_CUSTOM_PLAYLISTS + 4).lean();
     res.json(await enrichPlaylists(playlists));
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
 
 exports.getPublicPlaylists = async (req, res) => {
   try {
-    const playlists = await Playlist.find({ userId: req.params.userId }).sort({ createdAt: -1 }).lean();
+    const playlists = await Playlist.find({ userId: req.params.userId }).sort({ createdAt: -1 }).limit(MAX_CUSTOM_PLAYLISTS + 4).lean();
     res.json(await enrichPlaylists(playlists));
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -91,6 +113,10 @@ exports.createPlaylist = async (req, res) => {
     if (!cleanName) return res.status(400).json({ error: 'Name is required' });
     if (cleanName.length > 80) return res.status(400).json({ error: 'Playlist name must be 80 characters or fewer' });
     if (cleanDescription.length > 500) return res.status(400).json({ error: 'Description must be 500 characters or fewer' });
+    const customPlaylistCount = await Playlist.countDocuments({ userId: req.user.id, type: 'custom' });
+    if (customPlaylistCount >= MAX_CUSTOM_PLAYLISTS) {
+      return res.status(400).json({ error: `You can create up to ${MAX_CUSTOM_PLAYLISTS} custom playlists` });
+    }
 
     const newPlaylist = new Playlist({ userId: req.user.id, name: cleanName, description: cleanDescription, type: 'custom' });
     await newPlaylist.save();
@@ -101,7 +127,7 @@ exports.createPlaylist = async (req, res) => {
 
     res.status(201).json(plObj);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -110,14 +136,15 @@ exports.deletePlaylist = async (req, res) => {
   try {
     const playlist = await Playlist.findById(req.params.id);
     if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
-    if (playlist.userId.toString() !== req.user.id) return res.status(401).json({ error: 'Unauthorized' });
+    if (playlist.userId.toString() !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
+    if (playlist.type === 'system') return res.status(400).json({ error: 'System playlists cannot be deleted' });
 
     await PlaylistItem.deleteMany({ playlistId: req.params.id });
     await playlist.deleteOne();
 
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -131,25 +158,29 @@ exports.addItem = async (req, res) => {
 
     const playlist = await Playlist.findById(playlistId);
     if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
-    if (playlist.userId.toString() !== req.user.id) return res.status(401).json({ error: 'Unauthorized' });
+    if (playlist.userId.toString() !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
+    const itemCount = await PlaylistItem.countDocuments({ playlistId });
+    if (itemCount >= MAX_ITEMS_PER_PLAYLIST) {
+      return res.status(400).json({ error: `A playlist can contain up to ${MAX_ITEMS_PER_PLAYLIST} titles` });
+    }
 
     const newItem = new PlaylistItem({ playlistId, tmdbId: Number(tmdbId), mediaType });
     await newItem.save();
     res.status(201).json({ success: true });
   } catch (err) {
     if (err.code === 11000) return res.status(400).json({ error: 'Item already exists in playlist' });
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
 
 exports.getItems = async (req, res) => {
   try {
-    const items = await PlaylistItem.find({ playlistId: req.params.id }).sort({ createdAt: -1 });
-    const formatted = items.map(i => ({ ...i.toObject(), id: i._id.toString(), tmdb_id: i.tmdbId, media_type: i.mediaType }));
+    const items = await PlaylistItem.find({ playlistId: req.params.id }).sort({ createdAt: -1 }).limit(MAX_ITEMS_PER_PLAYLIST).lean();
+    const formatted = items.map(i => ({ ...i, id: i._id.toString(), tmdb_id: i.tmdbId, media_type: i.mediaType }));
     res.json(formatted);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -157,15 +188,17 @@ exports.getItems = async (req, res) => {
 exports.removeItem = async (req, res) => {
   try {
     const { playlistId, tmdbId } = req.params;
+    const { mediaType } = req.query;
+    if (!['movie', 'tv'].includes(mediaType)) return res.status(400).json({ error: 'Media type must be movie or tv' });
     
     const playlist = await Playlist.findById(playlistId);
     if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
-    if (playlist.userId.toString() !== req.user.id) return res.status(401).json({ error: 'Unauthorized' });
+    if (playlist.userId.toString() !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
 
-    await PlaylistItem.deleteOne({ playlistId, tmdbId });
+    await PlaylistItem.deleteOne({ playlistId, tmdbId: Number(tmdbId), mediaType });
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -179,7 +212,7 @@ exports.getPlaylist = async (req, res) => {
     formatted.id = formatted._id.toString();
     res.json(formatted);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -188,7 +221,9 @@ exports.getSavedIds = async (req, res) => {
   try {
     const playlists = await Playlist.find({ userId: req.user.id }).select('_id name');
     const playlistIds = playlists.map(p => p._id);
-    const items = await PlaylistItem.find({ playlistId: { $in: playlistIds } });
+    const items = await PlaylistItem.find({ playlistId: { $in: playlistIds } })
+      .select('playlistId tmdbId mediaType')
+      .lean();
     
     const savedKeys = Array.from(new Set(items.map(i => `${i.mediaType}:${i.tmdbId}`)));
     const itemMap = {};
@@ -204,7 +239,7 @@ exports.getSavedIds = async (req, res) => {
       playlists: playlists.map(p => ({ id: p._id.toString(), name: p.name }))
     });
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -370,7 +405,7 @@ exports.getTasteBlend = async (req, res) => {
       totalSharedCount: allMutualIds.length
     });
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };

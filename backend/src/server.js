@@ -14,6 +14,9 @@ const wallpaperRoutes = require('./routes/wallpaper.routes');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
+
+app.disable('x-powered-by');
 
 // ─── Trust Proxy ──────────────────────────────────────────────────────────────
 app.set('trust proxy', 1);
@@ -49,8 +52,7 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin) ||
-        origin.startsWith('http://localhost:') ||
-        origin.startsWith('http://127.0.0.1:')) {
+        (!isProduction && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')))) {
       return callback(null, true);
     }
     console.error(`[CORS REJECTED] Origin: '${origin}'`);
@@ -60,11 +62,12 @@ app.use(cors({
 }));
 
 // ─── Body Limit ───────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '4mb' }));
+app.use(express.json({ limit: '1mb' }));
 
 // ─── Rate Limiting ────────────────────────────────────────────────────────────
 const authLimiter = rateLimit({ windowMs: 15*60*1000, max: 20, standardHeaders: true, legacyHeaders: false });
 const apiLimiter  = rateLimit({ windowMs: 15*60*1000, max: 2000, standardHeaders: true, legacyHeaders: false });
+const wallpaperLimiter = rateLimit({ windowMs: 60*60*1000, max: 12, standardHeaders: true, legacyHeaders: false });
 
 // ─── MongoDB — connection cached for serverless cold starts ───────────────────
 let connectionPromise;
@@ -73,7 +76,12 @@ async function connectDB() {
   if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI is not configured');
 
   if (!connectionPromise) {
-    connectionPromise = mongoose.connect(process.env.MONGODB_URI)
+    connectionPromise = mongoose.connect(process.env.MONGODB_URI, {
+      maxPoolSize: 10,
+      minPoolSize: 0,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 30000,
+    })
       .then(() => {
         console.log('Connected to MongoDB Atlas');
         return mongoose.connection;
@@ -86,7 +94,7 @@ async function connectDB() {
 
   return connectionPromise;
 }
-connectDB().catch(err => console.error('MongoDB connection error:', err));
+connectDB().catch(err => console.error('MongoDB connection error:', err.message));
 
 // ─── Health Check (uptime ping endpoint) ──────────────────────────────────────
 app.get('/health', async (req, res) => {
@@ -98,7 +106,7 @@ app.get('/health', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (err) {
-    console.error('Health check database error:', err);
+    console.error('Health check database error:', err.message);
     res.status(503).json({
       status: 'degraded',
       database: 'disconnected',
@@ -112,7 +120,7 @@ app.use('/api/auth',       authLimiter, authRoutes);
 app.use('/api/users',      apiLimiter,  userRoutes);
 app.use('/api/playlists',  apiLimiter,  playlistRoutes);
 app.use('/api/tmdb',       apiLimiter,  tmdbRoutes);
-app.use('/api/wallpapers', apiLimiter,  wallpaperRoutes);
+app.use('/api/wallpapers', wallpaperLimiter, apiLimiter, wallpaperRoutes);
 
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
@@ -127,7 +135,7 @@ if (process.env.SERVE_STATIC === 'true') {
 
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error(isProduction ? err.message : err.stack);
   if (err.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ error: 'Image must be 5 MB or smaller' });
   if (err.message?.includes('Only JPG')) return res.status(415).json({ error: err.message });
   if (err.message === 'Not allowed by CORS') return res.status(403).json({ error: 'Origin is not allowed' });

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NavbarProfile } from './NavbarProfile';
 import { Logo } from './Logo';
-import { ChevronDown, Film, Tv, Search, Star } from 'lucide-react';
+import { ArrowRight, ChevronDown, Film, Tv, Search, Star } from 'lucide-react';
 import { searchMedia, TMDBMovie, TMDBTVShow } from '@/services/tmdb.service';
 import { Input } from '@/components/ui/input';
 
@@ -97,6 +97,8 @@ export function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setActiveDropdown(activeDropdown === 'movies' ? null : 'movies')}
+                aria-expanded={activeDropdown === 'movies'}
+                aria-haspopup="menu"
                 className={`text-xs font-bold transition-all px-4 py-2 rounded-full flex items-center gap-1.5 focus:outline-none ${
                   isActiveMovie ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
                 }`}
@@ -115,9 +117,9 @@ export function Navbar() {
                       </div>
                       <Link
                         to="/explore?type=movie&sort=popular"
-                        className="px-4 py-2 text-xs font-medium clay-button-secondary transition-colors"
+                        className="px-4 py-2 text-xs font-medium clay-button-secondary transition-colors inline-flex items-center gap-1.5"
                       >
-                        All Movies &rarr;
+                        All Movies <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                       </Link>
                     </div>
 
@@ -160,6 +162,8 @@ export function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setActiveDropdown(activeDropdown === 'tv' ? null : 'tv')}
+                aria-expanded={activeDropdown === 'tv'}
+                aria-haspopup="menu"
                 className={`text-xs font-bold transition-all px-4 py-2 rounded-full flex items-center gap-1.5 focus:outline-none ${
                   isActiveTV ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
                 }`}
@@ -178,9 +182,9 @@ export function Navbar() {
                       </div>
                       <Link
                         to="/explore?type=tv&sort=popular"
-                        className="px-4 py-2 text-xs font-medium clay-button-secondary transition-colors"
+                        className="px-4 py-2 text-xs font-medium clay-button-secondary transition-colors inline-flex items-center gap-1.5"
                       >
-                        All TV Shows &rarr;
+                        All TV Shows <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                       </Link>
                     </div>
 
@@ -248,6 +252,7 @@ export function Navbar() {
               </div>
               <Input
                 type="text"
+                aria-label="Search movies and TV shows"
                 placeholder="Search movies & shows..."
                 className="w-full h-9 pl-9 pr-3 bg-[var(--theme-dark)]/80 hover:bg-[var(--theme-dark)] focus:bg-[var(--theme-dark)] text-xs text-zinc-200 placeholder:text-zinc-500 rounded-full border border-white/10 focus:border-white/20 transition-all outline-none"
                 value={searchQuery}

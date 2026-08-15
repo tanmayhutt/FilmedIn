@@ -86,8 +86,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
     const res = await updateProfile({ username, avatarUrl: avatar, bannerUrl: banner, bio })
     setLoading(false)
     
-    if (res.success && res.token) {
-      localStorage.setItem('token', res.token)
+    if (res.success) {
       toast.success('Profile updated!')
       setIsOpen(false)
       window.location.href = `/u/${username}`

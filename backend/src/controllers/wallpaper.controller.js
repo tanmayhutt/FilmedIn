@@ -2,7 +2,18 @@ const sharp = require('sharp');
 const NodeCache = require('node-cache');
 
 // Cache TMDB image lists for 24 hours (86400 seconds)
-const tmdbImageCache = new NodeCache({ stdTTL: 86400, checkperiod: 3600 });
+const tmdbImageCache = new NodeCache({ stdTTL: 86400, checkperiod: 3600, maxKeys: 1000 });
+const ALLOWED_STYLES = new Set(['Paper Cutout', 'Fluid Grain', 'Abstract Bauhaus', 'Neon Retro-Wave', 'Linear Mesh', 'Glassmorphism']);
+
+function cacheTmdbImages(key, data) {
+  try {
+    tmdbImageCache.set(key, data);
+  } catch (error) {
+    if (error?.errorcode !== 'ECACHEFULL') throw error;
+    tmdbImageCache.flushAll();
+    tmdbImageCache.set(key, data);
+  }
+}
 
 // Convert RGB to HSL
 function rgbToHsl(r, g, b) {
@@ -267,25 +278,29 @@ const generateWallpaper = async (req, res) => {
   try {
     const { tmdbId, mediaType, style = 'Linear Mesh', type = 'desktop', themeMode = 'dark' } = req.body;
 
-    if (!tmdbId || !mediaType) {
-      return res.status(400).json({ error: 'Missing TMDB ID or Media Type' });
+    const normalizedTmdbId = Number(tmdbId);
+    if (!Number.isInteger(normalizedTmdbId) || normalizedTmdbId <= 0 || !['movie', 'tv'].includes(mediaType)) {
+      return res.status(400).json({ error: 'A valid title and media type are required' });
+    }
+    if (!ALLOWED_STYLES.has(style) || !['desktop', 'mobile'].includes(type) || !['dark', 'light'].includes(themeMode)) {
+      return res.status(400).json({ error: 'Invalid wallpaper configuration' });
     }
 
     // 1. Fetch image list from TMDB (with Cache)
     const axios = require('axios');
-    const cacheKey = `images_${mediaType}_${tmdbId}`;
+    const cacheKey = `images_${mediaType}_${normalizedTmdbId}`;
     let data = tmdbImageCache.get(cacheKey);
 
     if (!data) {
       const tmdbRes = await axios.get(
-        `https://api.tmdb.org/3/${mediaType === 'tv' ? 'tv' : 'movie'}/${tmdbId}/images?api_key=${process.env.TMDB_API_KEY}`,
+        `https://api.tmdb.org/3/${mediaType}/${normalizedTmdbId}/images?api_key=${process.env.TMDB_API_KEY}`,
         { headers: { 
           'Accept': 'application/json',
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        } }
+        }, timeout: 10000, maxContentLength: 2 * 1024 * 1024 }
       );
       data = tmdbRes.data;
-      tmdbImageCache.set(cacheKey, data);
+      cacheTmdbImages(cacheKey, data);
     }
     const pool = [...(data.backdrops || []), ...(data.posters || [])].slice(0, 20);
     if (!pool.length) throw new Error('No images found for this media.');
@@ -298,7 +313,9 @@ const generateWallpaper = async (req, res) => {
       const url = `https://wsrv.nl/?url=image.tmdb.org/t/p/w500${item.file_path}`;
       const r = await axios.get(url, { 
         responseType: 'arraybuffer',
-        headers: { 'User-Agent': 'Mozilla/5.0' } 
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+        timeout: 10000,
+        maxContentLength: 10 * 1024 * 1024,
       });
       const buf = Buffer.from(r.data);
       return extractVividPalette(buf, 4);
@@ -352,7 +369,7 @@ const generateWallpaper = async (req, res) => {
 
     // 7. Render SVG → PNG
     const finalBuffer = await sharp(Buffer.from(svg))
-      .png()
+      .png({ compressionLevel: 9, quality: 90 })
       .toBuffer();
 
     return res.json({ success: true, base64: finalBuffer.toString('base64') });

@@ -1,181 +1,237 @@
 const NodeCache = require('node-cache');
-// Standard TTL is 2 hours (7200 seconds)
-const tmdbCache = new NodeCache({ stdTTL: 7200, checkperiod: 120 });
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const tmdbCache = new NodeCache({ stdTTL: 7200, checkperiod: 120, maxKeys: 2000 });
+const inFlightRequests = new Map();
 const TMDB_BASE_URL = 'https://api.tmdb.org/3';
+const DEFAULT_TTL = 7200;
 
-// Helper function to fetch with caching
-const fetchWithCache = async (cacheKey, url, ttl = 7200) => {
+function cacheResponse(key, data, ttl) {
+  try {
+    tmdbCache.set(key, data, ttl);
+  } catch (error) {
+    if (error?.errorcode !== 'ECACHEFULL') throw error;
+    tmdbCache.flushAll();
+    tmdbCache.set(key, data, ttl);
+  }
+}
+
+function buildTmdbUrl(pathname, params = {}) {
+  if (!process.env.TMDB_API_KEY) throw new Error('TMDB API is not configured');
+  const url = new URL(`${TMDB_BASE_URL}${pathname}`);
+  url.searchParams.set('api_key', process.env.TMDB_API_KEY);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value));
+  });
+  return url;
+}
+
+async function fetchWithCache(cacheKey, url, ttl = DEFAULT_TTL) {
   const cachedData = tmdbCache.get(cacheKey);
-  if (cachedData) {
-    return cachedData;
-  }
+  if (cachedData) return cachedData;
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    const errText = await response.text();
-    console.error('TMDB Error URL:', url, 'Response:', errText);
-    throw new Error(`Failed to fetch from TMDB: ${response.status} ${errText}`);
+  if (inFlightRequests.has(cacheKey)) return inFlightRequests.get(cacheKey);
+
+  const request = (async () => {
+    const staleKey = `stale:${cacheKey}`;
+    try {
+      const response = await fetch(url, {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!response.ok) throw new Error(`TMDB request failed with status ${response.status}`);
+
+      const data = await response.json();
+      cacheResponse(cacheKey, data, ttl);
+      cacheResponse(staleKey, data, Math.max(ttl * 6, 86400));
+      return data;
+    } catch (error) {
+      const staleData = tmdbCache.get(staleKey);
+      if (staleData) return staleData;
+      throw error;
+    } finally {
+      inFlightRequests.delete(cacheKey);
+    }
+  })();
+
+  inFlightRequests.set(cacheKey, request);
+  return request;
+}
+
+function setPublicCache(res, seconds) {
+  res.set('Cache-Control', `public, s-maxage=${seconds}, stale-while-revalidate=${Math.max(seconds * 4, 3600)}`);
+}
+
+function getMediaType(value) {
+  return value === 'tv' ? 'tv' : value === 'movie' || value === undefined ? 'movie' : null;
+}
+
+function getPositiveInteger(value, max = Number.MAX_SAFE_INTEGER) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 && parsed <= max ? parsed : null;
+}
+
+function handleProxyError(res, error) {
+  console.error('[TMDB Proxy Error]:', error.message);
+  res.status(502).json({ error: 'The movie catalogue is temporarily unavailable' });
+}
+
+exports.getTrendingMovies = async (_req, res) => {
+  try {
+    const data = await fetchWithCache('trending_movie_day', buildTmdbUrl('/trending/movie/day'), 3600);
+    setPublicCache(res, 3600);
+    res.json(data);
+  } catch (error) {
+    handleProxyError(res, error);
   }
-  
-  const data = await response.json();
-  // Store in cache
-  tmdbCache.set(cacheKey, data, ttl);
-  return data;
 };
 
-exports.getTrendingMovies = async (req, res) => {
+exports.getTrendingTV = async (_req, res) => {
   try {
-    const cacheKey = 'trending_movie_day';
-    const url = `${TMDB_BASE_URL}/trending/movie/day?api_key=${TMDB_API_KEY}`;
-    // Trending updates daily, cache for 1 hour (3600)
-    const data = await fetchWithCache(cacheKey, url, 3600);
+    const data = await fetchWithCache('trending_tv_day', buildTmdbUrl('/trending/tv/day'), 3600);
+    setPublicCache(res, 3600);
     res.json(data);
-  } catch (err) {
-    console.error('[TMDB Proxy Error]:', err.message);
-    res.status(500).json({ error: 'Failed to proxy request to TMDB' });
+  } catch (error) {
+    handleProxyError(res, error);
   }
 };
 
-exports.getTrendingTV = async (req, res) => {
+exports.getTopRated = async (req, res) => {
   try {
-    const cacheKey = 'trending_tv_day';
-    const url = `${TMDB_BASE_URL}/trending/tv/day?api_key=${TMDB_API_KEY}`;
-    // Trending updates daily, cache for 1 hour (3600)
-    const data = await fetchWithCache(cacheKey, url, 3600);
+    const mediaType = getMediaType(req.params.type);
+    if (!mediaType) return res.status(400).json({ error: 'Media type must be movie or tv' });
+    const data = await fetchWithCache(`top_rated_${mediaType}`, buildTmdbUrl(`/${mediaType}/top_rated`, { language: 'en-US', page: 1 }), 3600);
+    setPublicCache(res, 3600);
     res.json(data);
-  } catch (err) {
-    console.error('[TMDB Proxy Error]:', err.message);
-    res.status(500).json({ error: 'Failed to proxy request to TMDB' });
+  } catch (error) {
+    handleProxyError(res, error);
   }
 };
 
 exports.searchMedia = async (req, res) => {
   try {
-    const { query } = req.query;
-    if (!query) return res.status(400).json({ error: 'Query is required' });
-    
-    const cacheKey = `search_${query}`;
-    const url = `${TMDB_BASE_URL}/search/multi?query=${encodeURIComponent(query)}&api_key=${TMDB_API_KEY}`;
-    // Search results are dynamic, cache for 30 minutes (1800)
-    const data = await fetchWithCache(cacheKey, url, 1800);
+    const query = typeof req.query.query === 'string' ? req.query.query.trim().slice(0, 100) : '';
+    if (query.length < 2) return res.status(400).json({ error: 'Search query must contain at least two characters' });
+    const normalizedQuery = query.toLocaleLowerCase('en-US');
+    const data = await fetchWithCache(`search_${normalizedQuery}`, buildTmdbUrl('/search/multi', { query }), 1800);
+    setPublicCache(res, 1800);
     res.json(data);
-  } catch (err) {
-    console.error('[TMDB Proxy Error]:', err.message);
-    res.status(500).json({ error: 'Failed to proxy request to TMDB' });
+  } catch (error) {
+    handleProxyError(res, error);
   }
 };
 
 exports.getMovieDetails = async (req, res) => {
   try {
-    const { id } = req.params;
-    const cacheKey = `movie_${id}`;
-    const url = `${TMDB_BASE_URL}/movie/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits`;
-    const data = await fetchWithCache(cacheKey, url);
+    const id = getPositiveInteger(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Invalid movie ID' });
+    const data = await fetchWithCache(`movie_${id}`, buildTmdbUrl(`/movie/${id}`, { append_to_response: 'credits' }));
+    setPublicCache(res, DEFAULT_TTL);
     res.json(data);
-  } catch (err) {
-    console.error('[TMDB Proxy Error]:', err.message);
-    res.status(500).json({ error: 'Failed to proxy request to TMDB' });
+  } catch (error) {
+    handleProxyError(res, error);
   }
 };
 
 exports.getTVDetails = async (req, res) => {
   try {
-    const { id } = req.params;
-    const cacheKey = `tv_${id}`;
-    const url = `${TMDB_BASE_URL}/tv/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits`;
-    const data = await fetchWithCache(cacheKey, url);
+    const id = getPositiveInteger(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Invalid TV show ID' });
+    const data = await fetchWithCache(`tv_${id}`, buildTmdbUrl(`/tv/${id}`, { append_to_response: 'credits' }));
+    setPublicCache(res, DEFAULT_TTL);
     res.json(data);
-  } catch (err) {
-    console.error('[TMDB Proxy Error]:', err.message);
-    res.status(500).json({ error: 'Failed to proxy request to TMDB' });
+  } catch (error) {
+    handleProxyError(res, error);
   }
 };
 
 exports.getSeasonDetails = async (req, res) => {
   try {
-    const { id, season } = req.params;
-    const cacheKey = `tv_${id}_season_${season}`;
-    const url = `${TMDB_BASE_URL}/tv/${id}/season/${season}?api_key=${TMDB_API_KEY}&language=en-US`;
-    const data = await fetchWithCache(cacheKey, url);
+    const id = getPositiveInteger(req.params.id);
+    const season = getPositiveInteger(req.params.season, 200);
+    if (!id || !season) return res.status(400).json({ error: 'Invalid TV show or season ID' });
+    const data = await fetchWithCache(`tv_${id}_season_${season}`, buildTmdbUrl(`/tv/${id}/season/${season}`, { language: 'en-US' }));
+    setPublicCache(res, DEFAULT_TTL);
     res.json(data);
-  } catch (err) {
-    console.error('[TMDB Proxy Error]:', err.message);
-    res.status(500).json({ error: 'Failed to proxy request to TMDB' });
+  } catch (error) {
+    handleProxyError(res, error);
   }
 };
 
 exports.getByGenre = async (req, res) => {
   try {
-    const { genre_id, type = 'movie', page = 1 } = req.query;
-    if (!genre_id) return res.status(400).json({ error: 'genre_id is required' });
-    
-    const mediaType = type === 'tv' ? 'tv' : 'movie';
-    const cacheKey = `genre_${mediaType}_${genre_id}_page_${page}`;
-    const url = `${TMDB_BASE_URL}/discover/${mediaType}?api_key=${TMDB_API_KEY}&with_genres=${genre_id}&sort_by=popularity.desc&page=${page}&language=en-US`;
-    
-    // Discover pages update rarely, cache for 1 hour
-    const data = await fetchWithCache(cacheKey, url, 3600);
+    const genreId = getPositiveInteger(req.query.genre_id);
+    const mediaType = getMediaType(req.query.type);
+    const page = getPositiveInteger(req.query.page || 1, 500);
+    if (!genreId || !mediaType || !page) return res.status(400).json({ error: 'Invalid genre, media type, or page' });
+
+    const cacheKey = `genre_${mediaType}_${genreId}_page_${page}`;
+    const data = await fetchWithCache(cacheKey, buildTmdbUrl(`/discover/${mediaType}`, {
+      with_genres: genreId,
+      sort_by: 'popularity.desc',
+      page,
+      language: 'en-US',
+    }), 3600);
+    setPublicCache(res, 3600);
     res.json(data);
-  } catch (err) {
-    console.error('[TMDB Proxy Error]:', err.message);
-    res.status(500).json({ error: 'Failed to proxy request to TMDB' });
+  } catch (error) {
+    handleProxyError(res, error);
   }
 };
 
 exports.getGenres = async (req, res) => {
   try {
-    const { type = 'movie' } = req.query;
-    const mediaType = type === 'tv' ? 'tv' : 'movie';
-    const cacheKey = `genres_list_${mediaType}`;
-    const url = `${TMDB_BASE_URL}/genre/${mediaType}/list?api_key=${TMDB_API_KEY}&language=en-US`;
-    
-    // Genres never change, cache for 24 hours (86400)
-    const data = await fetchWithCache(cacheKey, url, 86400);
+    const mediaType = getMediaType(req.query.type);
+    if (!mediaType) return res.status(400).json({ error: 'Media type must be movie or tv' });
+    const data = await fetchWithCache(`genres_list_${mediaType}`, buildTmdbUrl(`/genre/${mediaType}/list`, { language: 'en-US' }), 86400);
+    setPublicCache(res, 86400);
     res.json(data);
-  } catch (err) {
-    console.error('[TMDB Proxy Error]:', err.message);
-    res.status(500).json({ error: 'Failed to proxy request to TMDB' });
+  } catch (error) {
+    handleProxyError(res, error);
   }
 };
 
-// Fetch movies by production company (e.g. Marvel=420, Pixar=3, Universal=33)
 exports.getByCompany = async (req, res) => {
   try {
-    const { company_id, genre_id, page = 1, type = 'movie' } = req.query;
-    if (!company_id) return res.status(400).json({ error: 'company_id is required' });
-    
-    const cacheKey = `company_${company_id}_genre_${genre_id || 'all'}_page_${page}_type_${type}`;
-    let url = `${TMDB_BASE_URL}/discover/${type}?api_key=${TMDB_API_KEY}&with_companies=${company_id}&sort_by=popularity.desc&page=${page}&language=en-US`;
-    if (genre_id) {
-      url += `&with_genres=${genre_id}`;
-    }
-    
-    const data = await fetchWithCache(cacheKey, url, 3600);
+    const companyId = getPositiveInteger(req.query.company_id);
+    const genreId = req.query.genre_id ? getPositiveInteger(req.query.genre_id) : undefined;
+    const mediaType = getMediaType(req.query.type);
+    const page = getPositiveInteger(req.query.page || 1, 500);
+    if (!companyId || !mediaType || !page || (req.query.genre_id && !genreId)) return res.status(400).json({ error: 'Invalid company, genre, media type, or page' });
+
+    const cacheKey = `company_${companyId}_genre_${genreId || 'all'}_page_${page}_type_${mediaType}`;
+    const data = await fetchWithCache(cacheKey, buildTmdbUrl(`/discover/${mediaType}`, {
+      with_companies: companyId,
+      with_genres: genreId,
+      sort_by: 'popularity.desc',
+      page,
+      language: 'en-US',
+    }), 3600);
+    setPublicCache(res, 3600);
     res.json(data);
-  } catch (err) {
-    console.error('[TMDB Proxy Error]:', err.message);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    handleProxyError(res, error);
   }
 };
 
-// Fetch TV shows by network (e.g. HBO=49, Netflix=213, Hulu=453)
 exports.getByNetwork = async (req, res) => {
   try {
-    const { network_id, genre_id, page = 1, type = 'tv' } = req.query;
-    if (!network_id) return res.status(400).json({ error: 'network_id is required' });
-    
-    const cacheKey = `network_${network_id}_genre_${genre_id || 'all'}_page_${page}_type_${type}`;
-    let url = `${TMDB_BASE_URL}/discover/${type}?api_key=${TMDB_API_KEY}&with_networks=${network_id}&sort_by=popularity.desc&page=${page}&language=en-US`;
-    if (genre_id) {
-      url += `&with_genres=${genre_id}`;
-    }
+    const networkId = getPositiveInteger(req.query.network_id);
+    const genreId = req.query.genre_id ? getPositiveInteger(req.query.genre_id) : undefined;
+    const mediaType = getMediaType(req.query.type);
+    const page = getPositiveInteger(req.query.page || 1, 500);
+    if (!networkId || !mediaType || !page || (req.query.genre_id && !genreId)) return res.status(400).json({ error: 'Invalid network, genre, media type, or page' });
 
-    const data = await fetchWithCache(cacheKey, url, 3600);
+    const cacheKey = `network_${networkId}_genre_${genreId || 'all'}_page_${page}_type_${mediaType}`;
+    const data = await fetchWithCache(cacheKey, buildTmdbUrl(`/discover/${mediaType}`, {
+      with_networks: networkId,
+      with_genres: genreId,
+      sort_by: 'popularity.desc',
+      page,
+      language: 'en-US',
+    }), 3600);
+    setPublicCache(res, 3600);
     res.json(data);
-  } catch (err) {
-    console.error('[TMDB Proxy Error]:', err.message);
-    res.status(500).json({ error: 'Failed to proxy request to TMDB' });
+  } catch (error) {
+    handleProxyError(res, error);
   }
 };

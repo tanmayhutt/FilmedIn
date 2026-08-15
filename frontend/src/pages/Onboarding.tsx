@@ -24,8 +24,7 @@ export default function Onboarding() {
     const res = await updateProfile({ username })
     setLoading(false)
     
-    if (res.success && res.token) {
-      localStorage.setItem('token', res.token)
+    if (res.success) {
       toast.success('Welcome to FilmedIn!')
       window.location.href = redirect || '/' // Force a full reload to reset all app states with the new token
     } else {

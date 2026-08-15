@@ -4,6 +4,7 @@ const tmdbController = require('../controllers/tmdb.controller');
 
 router.get('/trending/movie', tmdbController.getTrendingMovies);
 router.get('/trending/tv', tmdbController.getTrendingTV);
+router.get('/top-rated/:type', tmdbController.getTopRated);
 router.get('/search', tmdbController.searchMedia);
 router.get('/movie/:id', tmdbController.getMovieDetails);
 router.get('/tv/:id/season/:season', tmdbController.getSeasonDetails);

@@ -7,6 +7,7 @@ import { removeFromList } from '@/services/playlist.service'
 import { Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { usePageMetadata } from '@/components/common/RouteMetadata'
+import { hasSessionHint } from '@/utils/auth'
 
 export default function PlaylistDetails() {
     const { id } = useParams<{ id: string }>()
@@ -21,8 +22,7 @@ export default function PlaylistDetails() {
     const location = useLocation()
 
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        if (!token) {
+        if (!hasSessionHint()) {
             const currentPath = encodeURIComponent(location.pathname)
             navigate(`/login?redirect=${currentPath}`, { replace: true })
             return
@@ -66,9 +66,9 @@ export default function PlaylistDetails() {
         }).catch(() => setLoading(false))
     }, [id])
 
-    const handleRemoveItem = async (tmdbId: number) => {
+    const handleRemoveItem = async (tmdbId: number, mediaType: 'movie' | 'tv') => {
         if (!id) return
-        const res = await removeFromList(id, tmdbId)
+        const res = await removeFromList(id, tmdbId, mediaType)
         if (res.success) {
             setItems(items.filter(item => item.id !== tmdbId))
             toast.success('Item removed')
@@ -128,7 +128,7 @@ export default function PlaylistDetails() {
                                         onClick={(e) => {
                                             e.preventDefault()
                                             e.stopPropagation()
-                                            handleRemoveItem(item.id)
+                                            handleRemoveItem(item.id, item.media_type || item.mediaType)
                                         }}
                                         className="p-2 bg-black/60 hover:bg-red-500/90 text-white rounded-full backdrop-blur-md transition-colors"
                                         title="Remove from playlist"

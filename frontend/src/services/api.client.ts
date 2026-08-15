@@ -1,14 +1,16 @@
+import { clearSessionHint, completeLegacyMigration, getLegacyToken } from '@/utils/auth';
+
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export async function fetchApi(endpoint: string, options: RequestInit = {}) {
-  const token = localStorage.getItem('token');
+  const legacyToken = getLegacyToken();
   
   const headers: Record<string, string> = {
     ...Object.fromEntries(new Headers(options.headers).entries())
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  if (legacyToken) {
+    headers['Authorization'] = `Bearer ${legacyToken}`;
   }
 
   // Only set Content-Type to application/json if not sending FormData
@@ -18,19 +20,21 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
 
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
-    headers
+    headers,
+    credentials: 'include',
   });
 
   const contentType = response.headers.get('content-type') || '';
   const data = contentType.includes('application/json') ? await response.json() : null;
 
   if (!response.ok) {
-    if (response.status === 401 && token) {
-      localStorage.removeItem('token');
-      window.dispatchEvent(new Event('auth-changed'));
+    if (response.status === 401) {
+      clearSessionHint();
     }
     throw new Error(data?.error || `Request failed with status ${response.status}`);
   }
+
+  if (legacyToken) completeLegacyMigration();
 
   return data;
 }

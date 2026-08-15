@@ -10,12 +10,17 @@ import {
 import { Plus } from 'lucide-react'
 import { addToList, getPlaylists } from '@/services/playlist.service'
 import toast from 'react-hot-toast'
+import { hasSessionHint } from '@/utils/auth'
 
 export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaType: 'movie' | 'tv' }) {
   const [playlists, setPlaylists] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!hasSessionHint()) {
+      setLoading(false)
+      return
+    }
     getPlaylists().then((data) => {
       setPlaylists(data)
       setLoading(false)
@@ -31,7 +36,7 @@ export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaTy
     }
   }
 
-  const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
+  const hasToken = hasSessionHint();
 
   return (
     <DropdownMenu>

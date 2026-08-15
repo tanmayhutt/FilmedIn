@@ -42,7 +42,7 @@ export async function updateProfile(data: { username?: string, avatarUrl?: strin
       method: 'PUT',
       body: JSON.stringify(data)
     })
-    return { success: true, user: res.user, token: res.token }
+    return { success: true, user: res.user }
   } catch (err: any) {
     return { error: err.message || 'Failed to update profile' }
   }

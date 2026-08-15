@@ -35,6 +35,12 @@ function PageFallback() {
 export default function App() {
   return (
     <>
+      <a
+        href="#main-content"
+        className="fixed left-4 top-3 z-[100] -translate-y-20 rounded-full bg-white px-4 py-2 text-sm font-bold text-zinc-950 shadow-xl transition-transform focus:translate-y-0"
+      >
+        Skip to content
+      </a>
       <Toaster position="bottom-right" toastOptions={{
         icon: null,
         style: {
@@ -48,7 +54,7 @@ export default function App() {
       <ScrollToTop />
       <RouteMetadata />
       <Navbar />
-      <div className="flex-1 flex flex-col w-full pb-12 md:pb-24">
+      <div id="main-content" tabIndex={-1} className="flex-1 flex flex-col w-full pb-12 md:pb-24 outline-none">
         <Suspense fallback={<PageFallback />}>
           <Routes>
             <Route path="/" element={<Home />} />

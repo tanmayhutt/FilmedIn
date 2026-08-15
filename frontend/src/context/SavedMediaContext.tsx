@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getSavedMediaData, addToList, removeFromList } from '@/services/playlist.service';
 import { CreatePlaylistModal } from '@/components/features/CreatePlaylistModal';
+import { hasSessionHint } from '@/utils/auth';
 
 export interface OpenCreateModalOptions {
   mediaToAdd?: {
@@ -48,8 +49,7 @@ export const SavedMediaProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }>({ isOpen: false });
 
   const refreshSaved = useCallback(async () => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (!token) {
+    if (!hasSessionHint()) {
       setSavedKeys(new Set());
       setItemMap({});
       setUserPlaylists([]);
@@ -69,6 +69,8 @@ export const SavedMediaProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     refreshSaved();
+    window.addEventListener('auth-changed', refreshSaved);
+    return () => window.removeEventListener('auth-changed', refreshSaved);
   }, [refreshSaved]);
 
   const isSaved = (tmdbId: number, mediaType: 'movie' | 'tv'): boolean => {
@@ -85,7 +87,7 @@ export const SavedMediaProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const inPlaylist = isItemInPlaylist(tmdbId, mediaType, playlistId);
     let res;
     if (inPlaylist) {
-      res = await removeFromList(playlistId, tmdbId);
+      res = await removeFromList(playlistId, tmdbId, mediaType);
     } else {
       res = await addToList(playlistId, tmdbId, mediaType);
     }

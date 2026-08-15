@@ -14,6 +14,7 @@ import toast from 'react-hot-toast'
 
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { usePageMetadata } from '@/components/common/RouteMetadata'
+import { clearSessionHint, hasSessionHint } from '@/utils/auth'
 
 export default function Profile() {
     const navigate = useNavigate()
@@ -137,10 +138,9 @@ export default function Profile() {
         const initializeProfile = async () => {
             try {
                 setLoading(true)
-                const token = localStorage.getItem('token')
                 let currentUser = null
                 // Force authentication to view ANY profile
-                if (!token) {
+                if (!hasSessionHint()) {
                     const currentPath = encodeURIComponent(location.pathname)
                     navigate(`/login?redirect=${currentPath}`, { replace: true })
                     return
@@ -150,7 +150,7 @@ export default function Profile() {
                 try {
                     currentUser = await fetchApi('/users/me')
                 } catch {
-                    localStorage.removeItem('token')
+                    clearSessionHint()
                     const currentPath = encodeURIComponent(location.pathname)
                     navigate(`/login?redirect=${currentPath}`, { replace: true })
                     return

@@ -3,8 +3,10 @@ const Playlist = require('../models/Playlist');
 const PlaylistItem = require('../models/PlaylistItem');
 const jwt = require('jsonwebtoken');
 const { uploadImage } = require('../config/cloudinary');
+const { setSessionCookie } = require('../utils/session');
 
 const USERNAME_PATTERN = /^[a-z0-9_]{3,30}$/;
+const MAX_FOLLOWING = 5000;
 const isSafeImageUrl = (value) => {
   if (value === null || value === '') return true;
   if (typeof value !== 'string' || value.length > 2048) return false;
@@ -60,9 +62,11 @@ exports.updateProfile = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    res.json({ user, token });
+    setSessionCookie(res, token);
+
+    res.json({ user });
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -78,7 +82,7 @@ exports.getProfile = async (req, res) => {
     
     res.json(userObj);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -89,17 +93,7 @@ exports.getPublicProfile = async (req, res) => {
     const user = await User.findOne({ username: username.toLowerCase() }).select('username avatarUrl bannerUrl bio _id followers following');
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    let isFollowing = false;
-    const authHeader = req.header('Authorization');
-    if (authHeader) {
-      try {
-        const token = authHeader.replace('Bearer ', '');
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        isFollowing = user.followers.includes(decoded.userId);
-      } catch (e) {
-        // Ignore invalid token
-      }
-    }
+    const isFollowing = user.followers.some(followerId => followerId.toString() === req.user.id);
 
     res.json({
       _id: user._id,
@@ -112,7 +106,7 @@ exports.getPublicProfile = async (req, res) => {
       isFollowing
     });
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -133,6 +127,11 @@ exports.toggleFollow = async (req, res) => {
       await User.findByIdAndUpdate(currentUserId, { $pull: { following: targetUser._id } });
       await User.findByIdAndUpdate(targetUser._id, { $pull: { followers: currentUserId } });
     } else {
+      const currentUser = await User.findById(currentUserId).select('following');
+      if (!currentUser) return res.status(404).json({ error: 'User not found' });
+      if (currentUser.following.length >= MAX_FOLLOWING) {
+        return res.status(400).json({ error: `You can follow up to ${MAX_FOLLOWING} members` });
+      }
       // Follow
       await User.findByIdAndUpdate(currentUserId, { $addToSet: { following: targetUser._id } });
       await User.findByIdAndUpdate(targetUser._id, { $addToSet: { followers: currentUserId } });
@@ -140,7 +139,7 @@ exports.toggleFollow = async (req, res) => {
 
     res.json({ success: true, isFollowing: !isFollowing });
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -148,11 +147,15 @@ exports.toggleFollow = async (req, res) => {
 exports.getFollowers = async (req, res) => {
   try {
     const { username } = req.params;
-    const user = await User.findOne({ username }).populate('followers', 'username avatarUrl');
+    const user = await User.findOne({ username: username.toLowerCase() }).populate({
+      path: 'followers',
+      select: 'username avatarUrl',
+      options: { limit: 100 },
+    });
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user.followers);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -160,11 +163,15 @@ exports.getFollowers = async (req, res) => {
 exports.getFollowing = async (req, res) => {
   try {
     const { username } = req.params;
-    const user = await User.findOne({ username }).populate('following', 'username avatarUrl');
+    const user = await User.findOne({ username: username.toLowerCase() }).populate({
+      path: 'following',
+      select: 'username avatarUrl',
+      options: { limit: 100 },
+    });
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user.following);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -176,7 +183,7 @@ exports.updateAvatar = async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl }, { new: true }).select('-passwordHash');
     res.json(user);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -192,7 +199,7 @@ exports.uploadAvatar = async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl }, { new: true }).select('-passwordHash');
     res.json(user);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -208,7 +215,7 @@ exports.uploadBanner = async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user.id, { bannerUrl }, { new: true }).select('-passwordHash');
     res.json(user);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -240,7 +247,7 @@ exports.deleteAccount = async (req, res) => {
 
     res.json({ success: true, message: 'Account and all related data deleted successfully' });
   } catch (err) {
-    console.error('Delete account error:', err);
+    console.error('Delete account error:', err.message);
     res.status(500).json({ error: 'Failed to delete account' });
   }
 };
@@ -251,17 +258,15 @@ exports.searchUsers = async (req, res) => {
     if (q.length < 2) return res.json([]);
     
     const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escapedQuery, 'i');
-    const users = await User.find({
-      $or: [
-        { username: regex },
-        { email: regex }
-      ]
-    }).select('_id username avatarUrl').limit(10);
+    const regex = new RegExp(`^${escapedQuery}`, 'i');
+    const users = await User.find({ username: regex })
+      .select('_id username avatarUrl')
+      .limit(10)
+      .lean();
     
     res.json(users);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };

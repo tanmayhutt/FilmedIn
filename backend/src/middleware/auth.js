@@ -1,9 +1,12 @@
 const jwt = require('jsonwebtoken');
+const { getSessionCookie, setSessionCookie } = require('../utils/session');
 
 module.exports = function(req, res, next) {
   // Get token from header
   const authHeader = req.header('Authorization');
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const cookieToken = getSessionCookie(req);
+  const token = cookieToken || bearerToken;
 
   if (!token) {
     return res.status(401).json({ error: 'No token, authorization denied' });
@@ -18,6 +21,7 @@ module.exports = function(req, res, next) {
     if (req.user.userId && !req.user.id) {
       req.user.id = req.user.userId;
     }
+    if (!cookieToken && bearerToken) setSessionCookie(res, bearerToken);
     next();
   } catch (err) {
     res.status(401).json({ error: 'Token is not valid' });

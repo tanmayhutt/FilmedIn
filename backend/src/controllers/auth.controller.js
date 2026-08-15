@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const Playlist = require('../models/Playlist');
+const { clearSessionCookie, setSessionCookie } = require('../utils/session');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const PRESET_PLAYLISTS = ['Watchlist', 'Currently Watching', 'Watched', 'Liked'];
@@ -85,8 +86,9 @@ exports.googleLogin = async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    setSessionCookie(res, token);
+
     res.json({
-      token,
       isNewUser,
       user: {
         id: user._id,
@@ -96,10 +98,15 @@ exports.googleLogin = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('Google Auth Error:', err);
+    console.error('Google Auth Error:', err.message);
     if (err?.code === 11000) return res.status(409).json({ error: 'This Google account or username is already registered. Please try signing in again.' });
     res.status(500).json({ error: 'Authentication failed' });
   }
+};
+
+exports.logout = (_req, res) => {
+  clearSessionCookie(res);
+  res.json({ success: true });
 };
 
 
@@ -112,7 +119,7 @@ exports.getMe = async (req, res) => {
     }
     res.json(user);
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
