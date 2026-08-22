@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { Navbar } from '@/components/common/Navbar'
 import { Footer } from '@/components/common/Footer'
@@ -38,6 +38,25 @@ export default function App() {
   const location = useLocation()
   const signedIn = hasSessionHint()
   const isAuthLanding = location.pathname === '/login' || (location.pathname === '/' && !signedIn)
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    try {
+      return window.localStorage.getItem('filmedin-sidebar') !== 'closed'
+    } catch {
+      return true
+    }
+  })
+
+  const toggleSidebar = () => {
+    setSidebarOpen((current) => {
+      const next = !current
+      try {
+        window.localStorage.setItem('filmedin-sidebar', next ? 'open' : 'closed')
+      } catch {
+        // The navigation still works when browser storage is unavailable.
+      }
+      return next
+    })
+  }
 
   return (
     <>
@@ -59,8 +78,8 @@ export default function App() {
       }} />
       <ScrollToTop />
       <RouteMetadata />
-      {!isAuthLanding && <Navbar />}
-      <div className={`flex min-h-screen min-w-0 flex-1 flex-col ${isAuthLanding ? '' : 'lg:pl-[280px]'}`}>
+      {!isAuthLanding && <Navbar sidebarOpen={sidebarOpen} onToggleSidebar={toggleSidebar} />}
+      <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ${isAuthLanding ? '' : sidebarOpen ? 'lg:pl-[280px]' : 'lg:pl-0'}`}>
         <div id="main-content" tabIndex={-1} className="flex min-w-0 flex-1 flex-col pb-24 outline-none lg:pb-16">
           <Suspense fallback={<PageFallback />}>
             <Routes>

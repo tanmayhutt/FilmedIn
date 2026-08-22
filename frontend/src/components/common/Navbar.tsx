@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Building2, ChevronDown, Compass, Film, Home, Info, Library, Search, Star, Tv } from 'lucide-react'
+import { Building2, ChevronDown, Compass, Film, Home, Info, Library, Menu, PanelLeftClose, Search, Star, Tv } from 'lucide-react'
 import { Logo } from './Logo'
 import { NavbarProfile } from './NavbarProfile'
 import { searchMedia, TMDBMovie, TMDBTVShow } from '@/services/tmdb.service'
@@ -83,7 +83,7 @@ function mediaYear(item: SearchResult) {
   return date?.slice(0, 4)
 }
 
-export function Navbar() {
+export function Navbar({ sidebarOpen, onToggleSidebar }: { sidebarOpen: boolean; onToggleSidebar: () => void }) {
   const location = useLocation()
   const navigate = useNavigate()
   const searchRef = useRef<HTMLDivElement>(null)
@@ -159,9 +159,34 @@ export function Navbar() {
 
   return (
     <>
-      <aside className="scrollbar-hide fixed inset-y-0 left-0 z-50 hidden w-[280px] overflow-y-auto border-r border-white/[0.07] bg-[#111210]/97 p-5 backdrop-blur-2xl lg:flex lg:flex-col">
+      <button
+        type="button"
+        onClick={onToggleSidebar}
+        aria-label="Open navigation"
+        aria-controls="desktop-sidebar"
+        aria-expanded={sidebarOpen}
+        title="Open navigation"
+        className={`fixed left-4 top-4 z-50 hidden h-11 w-11 items-center justify-center rounded-xl border border-white/[0.09] bg-[#171817]/95 text-zinc-300 shadow-xl backdrop-blur-xl transition-all hover:border-white/[0.16] hover:bg-[#20211f] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d2b48c] lg:inline-flex ${sidebarOpen ? 'pointer-events-none -translate-x-3 opacity-0' : 'translate-x-0 opacity-100'}`}
+      >
+        <Menu className="h-5 w-5" aria-hidden="true" />
+      </button>
+
+      <aside id="desktop-sidebar" aria-hidden={!sidebarOpen} className={`scrollbar-hide fixed inset-y-0 left-0 z-50 hidden w-[280px] overflow-y-auto border-r border-white/[0.07] bg-[#111210]/97 p-5 backdrop-blur-2xl transition-[transform,visibility] duration-200 lg:flex lg:flex-col ${sidebarOpen ? 'visible translate-x-0' : 'invisible -translate-x-full'}`}>
         <div className="px-2 py-2">
-          <Logo />
+          <div className="flex items-center justify-between gap-3">
+            <Logo />
+            <button
+              type="button"
+              onClick={onToggleSidebar}
+              aria-label="Hide navigation"
+              aria-controls="desktop-sidebar"
+              aria-expanded={sidebarOpen}
+              title="Hide navigation"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-white/[0.06] hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d2b48c]"
+            >
+              <PanelLeftClose className="h-[18px] w-[18px]" aria-hidden="true" />
+            </button>
+          </div>
           <p className="mt-2 text-[11px] font-medium tracking-wide text-zinc-600">YOUR CINEMATIC IDENTITY</p>
         </div>
 
@@ -223,7 +248,7 @@ export function Navbar() {
 
         <div className="mt-auto space-y-3 pt-6">
           {navigationLink({ label: 'About', to: '/about', icon: Info })}
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-2"><NavbarProfile showLibraryLink={false} /></div>
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-2"><NavbarProfile showLibraryLink={false} showLogout /></div>
         </div>
       </aside>
 
