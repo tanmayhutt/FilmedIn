@@ -4,7 +4,13 @@ const User = require('../models/User');
 const Playlist = require('../models/Playlist');
 const { clearSessionCookie, setSessionCookie } = require('../utils/session');
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const DEFAULT_GOOGLE_CLIENT_ID = '741007561589-smjao34064v663da3h7nsak6vnh0g11g.apps.googleusercontent.com';
+const googleClientIds = Array.from(new Set([
+  process.env.GOOGLE_CLIENT_ID,
+  ...(process.env.GOOGLE_CLIENT_IDS || '').split(','),
+  DEFAULT_GOOGLE_CLIENT_ID,
+].map(value => value?.trim()).filter(Boolean)));
+const client = new OAuth2Client();
 const PRESET_PLAYLISTS = ['Watchlist', 'Currently Watching', 'Watched', 'Liked'];
 
 async function ensurePresetPlaylists(userId) {
@@ -31,7 +37,7 @@ exports.googleLogin = async (req, res) => {
     // Verify the Google JWT token
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: googleClientIds,
     });
     const payload = ticket.getPayload();
     const { email, email_verified: emailVerified, name, picture, sub: googleId } = payload;
@@ -100,6 +106,12 @@ exports.googleLogin = async (req, res) => {
   } catch (err) {
     console.error('Google Auth Error:', err.message);
     if (err?.code === 11000) return res.status(409).json({ error: 'This Google account or username is already registered. Please try signing in again.' });
+    if (err?.name === 'MongoServerSelectionError' || err?.name === 'MongooseServerSelectionError') {
+      return res.status(503).json({ error: 'Sign-in is temporarily unavailable. Please try again shortly.' });
+    }
+    if (/wrong recipient|invalid token|token used too late|no pem found/i.test(err?.message || '')) {
+      return res.status(401).json({ error: 'Google could not verify this sign-in. Please try again.' });
+    }
     res.status(500).json({ error: 'Authentication failed' });
   }
 };

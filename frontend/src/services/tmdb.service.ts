@@ -131,6 +131,40 @@ export interface TMDBSeason {
   episodes: TMDBEpisode[];
 }
 
+export interface TMDBPersonCredit {
+  id: number;
+  media_type: 'movie' | 'tv';
+  title?: string;
+  name?: string;
+  character?: string;
+  job?: string;
+  poster_path: string | null;
+  release_date?: string;
+  first_air_date?: string;
+  vote_average: number;
+  vote_count: number;
+  popularity: number;
+}
+
+export interface TMDBPerson {
+  id: number;
+  name: string;
+  biography: string;
+  birthday: string | null;
+  place_of_birth: string | null;
+  profile_path: string | null;
+  known_for_department: string;
+  combined_credits?: { cast: TMDBPersonCredit[]; crew: TMDBPersonCredit[] };
+}
+
+export async function fetchPersonDetails(id: string): Promise<TMDBPerson | null> {
+  try {
+    return await fetchApi(`/tmdb/person/${id}`)
+  } catch {
+    return null
+  }
+}
+
 export async function fetchSeasonDetails(tvId: string, seasonNumber: number): Promise<TMDBSeason | null> {
   try {
     return await fetchApi(`/tmdb/tv/${tvId}/season/${seasonNumber}`);

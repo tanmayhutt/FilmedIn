@@ -120,7 +120,7 @@ export default function MovieDetails() {
           <h2 className="text-xl font-bold mb-6 text-white">Cast</h2>
           <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
             {movie.credits?.cast?.slice(0, 10).map((actor: any) => (
-              <div key={actor.id} className="w-[120px] shrink-0 flex flex-col gap-2 group">
+              <Link to={`/person/${actor.id}`} key={actor.id} className="w-[120px] shrink-0 flex flex-col gap-2 group" aria-label={`View ${actor.name}'s filmography`}>
                 <div className="aspect-[2/3] w-full clay-poster overflow-hidden relative">
                   {actor.profile_path ? (
                     <img 
@@ -138,7 +138,7 @@ export default function MovieDetails() {
                   <div className="font-semibold text-sm text-zinc-100 line-clamp-1">{actor.name}</div>
                   <div className="text-xs text-zinc-400 line-clamp-1">{actor.character}</div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

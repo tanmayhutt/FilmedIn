@@ -24,6 +24,7 @@ function getRouteMeta(pathname: string): RouteMeta {
   if (pathname === '/profile') return { title: `Your profile | ${SITE_NAME}`, description: 'Manage your FilmedIn profile, playlists, and social connections.', noIndex: true }
   if (pathname.startsWith('/movie/')) return { title: `Movie details | ${SITE_NAME}`, description: 'View movie details, cast, ratings, and save it to a FilmedIn playlist.' }
   if (pathname.startsWith('/tv/')) return { title: `TV show details | ${SITE_NAME}`, description: 'View TV show details, cast, seasons, episode ratings, and playlists.' }
+  if (pathname.startsWith('/person/')) return { title: `Cast and filmography | ${SITE_NAME}`, description: 'Explore a cast member’s movie and TV credits.' }
   if (pathname.startsWith('/studio/')) return { title: `Studio titles | ${SITE_NAME}`, description: 'Browse movies and TV shows from this studio or network.' }
   if (pathname.startsWith('/u/')) return { title: `Member profile | ${SITE_NAME}`, description: 'View a FilmedIn member profile and public watchlists.', noIndex: true }
   if (pathname.startsWith('/playlist/') || pathname.startsWith('/profile/playlist/')) return { title: `Playlist | ${SITE_NAME}`, description: 'View a curated movie and TV playlist on FilmedIn.', noIndex: true }

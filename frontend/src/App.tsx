@@ -1,11 +1,12 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { Navbar } from '@/components/common/Navbar'
 import { Footer } from '@/components/common/Footer'
 import { ScrollToTop } from '@/components/common/ScrollToTop'
 import { RouteMetadata } from '@/components/common/RouteMetadata'
 import { Spinner } from '@/components/ui/spinner'
 import { Toaster } from 'react-hot-toast'
+import { hasSessionHint } from '@/utils/auth'
 
 const Home = lazy(() => import('@/pages/Home'))
 const Search = lazy(() => import('@/pages/Search'))
@@ -22,6 +23,7 @@ const About = lazy(() => import('@/pages/About'))
 const TasteBlend = lazy(() => import('@/pages/TasteBlend'))
 const Legal = lazy(() => import('@/pages/Legal'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
+const PersonDetails = lazy(() => import('@/pages/PersonDetails'))
 
 function PageFallback() {
   return (
@@ -33,6 +35,10 @@ function PageFallback() {
 }
 
 export default function App() {
+  const location = useLocation()
+  const signedIn = hasSessionHint()
+  const isAuthLanding = location.pathname === '/login' || (location.pathname === '/' && !signedIn)
+
   return (
     <>
       <a
@@ -53,12 +59,12 @@ export default function App() {
       }} />
       <ScrollToTop />
       <RouteMetadata />
-      <Navbar />
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:pl-[280px]">
+      {!isAuthLanding && <Navbar />}
+      <div className={`flex min-h-screen min-w-0 flex-1 flex-col ${isAuthLanding ? '' : 'lg:pl-[280px]'}`}>
         <div id="main-content" tabIndex={-1} className="flex min-w-0 flex-1 flex-col pb-24 outline-none lg:pb-16">
           <Suspense fallback={<PageFallback />}>
             <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={signedIn ? <Home /> : <Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/search" element={<Search />} />
@@ -66,6 +72,7 @@ export default function App() {
             <Route path="/u/:username" element={<Profile />} />
             <Route path="/movie/:id" element={<MovieDetails />} />
             <Route path="/tv/:id" element={<TVDetails />} />
+            <Route path="/person/:id" element={<PersonDetails />} />
             <Route path="/studios" element={<StudiosIndex />} />
             <Route path="/studio/:id" element={<Studio />} />
             <Route path="/explore" element={<Explore />} />
@@ -79,7 +86,7 @@ export default function App() {
             </Routes>
           </Suspense>
         </div>
-        <Footer />
+        {!isAuthLanding && <Footer />}
       </div>
     </>
   )

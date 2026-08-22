@@ -234,7 +234,7 @@ export default function TVDetails() {
           <h2 className="text-xl font-semibold mb-5">Cast</h2>
           <div className="flex overflow-x-auto gap-4 pb-4" style={{ scrollbarWidth: 'none' }}>
             {show.credits?.cast?.slice(0, 12).map((actor: any) => (
-              <div key={actor.id} className="w-[100px] shrink-0 flex flex-col gap-2 group">
+              <Link to={`/person/${actor.id}`} key={actor.id} className="w-[100px] shrink-0 flex flex-col gap-2 group" aria-label={`View ${actor.name}'s filmography`}>
                 <div className="aspect-[2/3] w-full rounded-lg bg-[var(--theme-dark)] overflow-hidden relative border border-white/10/50 group-hover:border-white/20 transition-colors">
                   {actor.profile_path ? (
                     <img src={`https://image.tmdb.org/t/p/w200${actor.profile_path}`} alt={actor.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -246,7 +246,7 @@ export default function TVDetails() {
                   <div className="font-medium text-xs text-zinc-100 line-clamp-1">{actor.name}</div>
                   <div className="text-xs text-zinc-500 line-clamp-1">{actor.character}</div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

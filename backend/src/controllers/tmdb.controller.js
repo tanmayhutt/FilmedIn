@@ -144,6 +144,21 @@ exports.getTVDetails = async (req, res) => {
   }
 };
 
+exports.getPersonDetails = async (req, res) => {
+  try {
+    const id = getPositiveInteger(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Invalid person ID' });
+    const data = await fetchWithCache(`person_${id}`, buildTmdbUrl(`/person/${id}`, {
+      append_to_response: 'combined_credits,external_ids',
+      language: 'en-US',
+    }));
+    setPublicCache(res, DEFAULT_TTL);
+    res.json(data);
+  } catch (error) {
+    handleProxyError(res, error);
+  }
+};
+
 exports.getSeasonDetails = async (req, res) => {
   try {
     const id = getPositiveInteger(req.params.id);
