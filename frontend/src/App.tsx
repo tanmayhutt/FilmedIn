@@ -54,9 +54,10 @@ export default function App() {
       <ScrollToTop />
       <RouteMetadata />
       <Navbar />
-      <div id="main-content" tabIndex={-1} className="flex-1 flex flex-col w-full pb-12 md:pb-24 outline-none">
-        <Suspense fallback={<PageFallback />}>
-          <Routes>
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:pl-[280px]">
+        <div id="main-content" tabIndex={-1} className="flex min-w-0 flex-1 flex-col pb-24 outline-none lg:pb-16">
+          <Suspense fallback={<PageFallback />}>
+            <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/onboarding" element={<Onboarding />} />
@@ -75,10 +76,11 @@ export default function App() {
             <Route path="/profile/playlist/:id" element={<PlaylistDetails />} />
             <Route path="/playlist/:id" element={<PlaylistDetails />} />
             <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+            </Routes>
+          </Suspense>
+        </div>
+        <Footer />
       </div>
-      <Footer />
     </>
   )
 }

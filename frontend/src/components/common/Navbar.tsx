@@ -1,334 +1,175 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { NavbarProfile } from './NavbarProfile';
-import { Logo } from './Logo';
-import { ArrowRight, ChevronDown, Film, Tv, Search, Star } from 'lucide-react';
-import { searchMedia, TMDBMovie, TMDBTVShow } from '@/services/tmdb.service';
-import { Input } from '@/components/ui/input';
+import { useEffect, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Building2, Compass, Film, Home, Info, Library, Search, Star, Tv } from 'lucide-react'
+import { Logo } from './Logo'
+import { NavbarProfile } from './NavbarProfile'
+import { searchMedia, TMDBMovie, TMDBTVShow } from '@/services/tmdb.service'
+import { Input } from '@/components/ui/input'
+
+type SearchResult = TMDBMovie | TMDBTVShow
+type NavigationItem = { label: string; to: string; icon: typeof Home }
+
+const primaryNavigation: NavigationItem[] = [
+  { label: 'Home', to: '/', icon: Home },
+  { label: 'Explore', to: '/explore', icon: Compass },
+  { label: 'My Library', to: '/profile', icon: Library },
+]
+
+const browseNavigation: NavigationItem[] = [
+  { label: 'Movies', to: '/explore?type=movie&sort=popular', icon: Film },
+  { label: 'TV Shows', to: '/explore?type=tv&sort=popular', icon: Tv },
+  { label: 'Studios', to: '/studios', icon: Building2 },
+]
+
+function mediaTitle(item: SearchResult) {
+  return item.media_type === 'movie' ? (item as TMDBMovie).title : (item as TMDBTVShow).name
+}
+
+function mediaYear(item: SearchResult) {
+  const date = item.media_type === 'movie' ? (item as TMDBMovie).release_date : (item as TMDBTVShow).first_air_date
+  return date?.slice(0, 4)
+}
 
 export function Navbar() {
-  const [activeDropdown, setActiveDropdown] = useState<'movies' | 'tv' | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const searchDropdownRef = useRef<HTMLDivElement>(null);
-  
-  const [searchQuery, setSearchQuery] = useState('');
-  const [mediaResults, setMediaResults] = useState<(TMDBMovie | TMDBTVShow)[]>([]);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searching, setSearching] = useState(false);
+  const location = useLocation()
+  const navigate = useNavigate()
+  const searchRef = useRef<HTMLDivElement>(null)
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<SearchResult[]>([])
+  const [searching, setSearching] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
 
-  const location = useLocation();
-  const navigate = useNavigate();
-  const isHome = location.pathname === '/';
+  const isActive = (to: string) => {
+    const type = new URLSearchParams(location.search).get('type')
+    if (to === '/') return location.pathname === '/'
+    if (to === '/profile') return location.pathname === '/profile' || location.pathname.startsWith('/profile/')
+    if (to.startsWith('/explore?type=movie')) return location.pathname.startsWith('/movie/') || (location.pathname === '/explore' && type === 'movie')
+    if (to.startsWith('/explore?type=tv')) return location.pathname.startsWith('/tv/') || (location.pathname === '/explore' && type === 'tv')
+    if (to === '/explore') return location.pathname === '/explore' && !type
+    return location.pathname === to || location.pathname.startsWith(`${to}/`)
+  }
 
-  const searchParams = new URLSearchParams(location.search);
-  const currentType = searchParams.get('type');
-  const isActiveMovie = (location.pathname === '/explore' && currentType === 'movie') || location.pathname.startsWith('/movie/');
-  const isActiveTV = (location.pathname === '/explore' && currentType === 'tv') || location.pathname.startsWith('/tv/');
-  const isActiveStudio = location.pathname === '/studios' || location.pathname.startsWith('/studio/');
-  const isActiveAbout = location.pathname === '/about';
-
-  // Close dropdown on click outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setActiveDropdown(null);
-      }
-      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target as Node)) {
-        setIsSearchOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Close dropdown on navigation
-  useEffect(() => {
-    setActiveDropdown(null);
-    setIsSearchOpen(false);
-  }, [location.pathname, location.search]);
+  useEffect(() => setSearchOpen(false), [location.pathname, location.search])
 
   useEffect(() => {
-    if (!searchQuery.trim()) { 
-      setMediaResults([]); 
-      setIsSearchOpen(false); 
-      return; 
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) setSearchOpen(false)
     }
-    const timer = setTimeout(async () => {
-      setSearching(true);
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [])
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([])
+      setSearchOpen(false)
+      return
+    }
+
+    const timer = window.setTimeout(async () => {
+      setSearching(true)
       try {
-        const data = await searchMedia(searchQuery);
-        setMediaResults(data.slice(0, 5));
-        setIsSearchOpen(true);
-      } catch (e) { 
-        console.error(e); 
-      } finally { 
-        setSearching(false); 
+        const data = await searchMedia(query)
+        setResults(data.slice(0, 4))
+        setSearchOpen(true)
+      } catch {
+        setResults([])
+      } finally {
+        setSearching(false)
       }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+    }, 300)
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      setIsSearchOpen(false);
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
+    return () => window.clearTimeout(timer)
+  }, [query])
+
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!query.trim()) return
+    setSearchOpen(false)
+    navigate(`/search?q=${encodeURIComponent(query.trim())}`)
+  }
+
+  const navigationLink = ({ label, to, icon: Icon }: NavigationItem) => {
+    const active = isActive(to)
+    return (
+      <Link
+        key={label}
+        to={to}
+        aria-current={active ? 'page' : undefined}
+        className={`group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all ${active ? 'bg-[#9a6bc1] text-white shadow-[0_12px_30px_rgba(154,107,193,0.25)]' : 'text-zinc-400 hover:bg-white/[0.06] hover:text-white'}`}
+      >
+        <Icon className={`h-[18px] w-[18px] ${active ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-200'}`} aria-hidden="true" />
+        <span>{label}</span>
+      </Link>
+    )
+  }
 
   return (
-    <nav className="w-full bg-[#444b58]/90 backdrop-blur-xl sticky top-0 z-50 p-2 sm:p-3">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between clay-navbar rounded-full border border-white/10 bg-[#1b1b22]/90 shadow-2xl">
-        {/* Left: Logo + Nav */}
-        <div className="flex items-center gap-8">
+    <>
+      <aside className="fixed inset-y-0 left-0 z-50 hidden w-[280px] border-r border-white/[0.07] bg-[#11131a]/95 p-5 backdrop-blur-2xl lg:flex lg:flex-col">
+        <div className="px-2 py-2">
           <Logo />
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-2" ref={dropdownRef}>
-            <Link
-              to="/"
-              className={`text-xs font-bold transition-all px-4 py-2 rounded-full ${
-                isHome ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Home
-            </Link>
-
-            <div className="relative">
-              <button
-                onClick={() => setActiveDropdown(activeDropdown === 'movies' ? null : 'movies')}
-                aria-expanded={activeDropdown === 'movies'}
-                aria-haspopup="menu"
-                className={`text-xs font-bold transition-all px-4 py-2 rounded-full flex items-center gap-1.5 focus:outline-none ${
-                  isActiveMovie ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Movies
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'movies' ? 'rotate-180 text-white' : 'text-zinc-500'}`} />
-              </button>
-              {activeDropdown === 'movies' && (
-                <div className="absolute top-full -left-12 pt-4 w-[500px] z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="clay-modal p-6">
-                    
-                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/10/50">
-                      <div>
-                        <h3 className="text-base font-semibold text-white">Movies</h3>
-                        <p className="text-xs text-zinc-500 mt-1">Discover blockbusters, indies, and classics.</p>
-                      </div>
-                      <Link
-                        to="/explore?type=movie&sort=popular"
-                        className="px-4 py-2 text-xs font-medium clay-button-secondary transition-colors inline-flex items-center gap-1.5"
-                      >
-                        All Movies <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                      </Link>
-                    </div>
-
-                    <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Browse by Genre</div>
-                    <div className="grid grid-cols-3 gap-x-4 gap-y-2">
-                      {[
-                        { id: 28, name: 'Action' },
-                        { id: 12, name: 'Adventure' },
-                        { id: 16, name: 'Animation' },
-                        { id: 35, name: 'Comedy' },
-                        { id: 80, name: 'Crime' },
-                        { id: 99, name: 'Documentary' },
-                        { id: 18, name: 'Drama' },
-                        { id: 10751, name: 'Family' },
-                        { id: 14, name: 'Fantasy' },
-                        { id: 36, name: 'History' },
-                        { id: 27, name: 'Horror' },
-                        { id: 10402, name: 'Music' },
-                        { id: 9648, name: 'Mystery' },
-                        { id: 10749, name: 'Romance' },
-                        { id: 878, name: 'Sci-Fi' },
-                        { id: 53, name: 'Thriller' },
-                        { id: 10752, name: 'War' },
-                        { id: 37, name: 'Western' }
-                      ].map(genre => (
-                        <Link
-                          key={genre.id}
-                          to={`/explore?type=movie&genre=${genre.id}`}
-                          className="text-sm text-zinc-400 hover:text-white hover:bg-[var(--theme-dark)]/50 px-2 py-1.5 rounded-md transition-colors -ml-2"
-                        >
-                          {genre.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="relative">
-              <button
-                onClick={() => setActiveDropdown(activeDropdown === 'tv' ? null : 'tv')}
-                aria-expanded={activeDropdown === 'tv'}
-                aria-haspopup="menu"
-                className={`text-xs font-bold transition-all px-4 py-2 rounded-full flex items-center gap-1.5 focus:outline-none ${
-                  isActiveTV ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                TV Shows
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'tv' ? 'rotate-180 text-white' : 'text-zinc-500'}`} />
-              </button>
-              {activeDropdown === 'tv' && (
-                <div className="absolute top-full -left-12 pt-4 w-[500px] z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="clay-modal p-6">
-                    
-                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/10/50">
-                      <div>
-                        <h3 className="text-base font-semibold text-white">TV Shows</h3>
-                        <p className="text-xs text-zinc-500 mt-1">Binge-worthy dramas, comedies, and more.</p>
-                      </div>
-                      <Link
-                        to="/explore?type=tv&sort=popular"
-                        className="px-4 py-2 text-xs font-medium clay-button-secondary transition-colors inline-flex items-center gap-1.5"
-                      >
-                        All TV Shows <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                      </Link>
-                    </div>
-
-                    <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Browse by Genre</div>
-                    <div className="grid grid-cols-3 gap-x-4 gap-y-2">
-                      {[
-                        { id: 10759, name: 'Action & Adventure' },
-                        { id: 16, name: 'Animation' },
-                        { id: 35, name: 'Comedy' },
-                        { id: 80, name: 'Crime' },
-                        { id: 99, name: 'Documentary' },
-                        { id: 18, name: 'Drama' },
-                        { id: 10751, name: 'Family' },
-                        { id: 10762, name: 'Kids' },
-                        { id: 9648, name: 'Mystery' },
-                        { id: 10763, name: 'News' },
-                        { id: 10764, name: 'Reality' },
-                        { id: 10765, name: 'Sci-Fi & Fantasy' },
-                        { id: 10766, name: 'Soap' },
-                        { id: 10767, name: 'Talk' },
-                        { id: 10768, name: 'War & Politics' },
-                        { id: 37, name: 'Western' }
-                      ].map(genre => (
-                        <Link
-                          key={genre.id}
-                          to={`/explore?type=tv&genre=${genre.id}`}
-                          className="text-sm text-zinc-400 hover:text-white hover:bg-[var(--theme-dark)]/50 px-2 py-1.5 rounded-md transition-colors -ml-2"
-                        >
-                          {genre.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <Link
-              to="/studios"
-              className={`text-xs font-bold transition-all px-4 py-2 rounded-full ${
-                isActiveStudio ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Studios
-            </Link>
-
-            <Link
-              to="/about"
-              className={`text-xs font-bold transition-all px-4 py-2 rounded-full ${
-                isActiveAbout ? 'bg-[#9062aa] text-white shadow-md scale-105' : 'text-zinc-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              About
-            </Link>
-          </div>
+          <p className="mt-2 text-[11px] font-medium tracking-wide text-zinc-600">YOUR CINEMATIC IDENTITY</p>
         </div>
 
-        {/* Right: Title Search + Profile */}
-        <div className="flex items-center gap-4">
-          {/* Search Bar */}
-          <div className="hidden lg:block relative" ref={searchDropdownRef}>
-            <form onSubmit={handleSearchSubmit} className="relative group w-64">
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-white transition-colors z-10">
-                <Search className="h-3.5 w-3.5" />
-              </div>
-              <Input
-                type="text"
-                aria-label="Search movies and TV shows"
-                placeholder="Search movies & shows..."
-                className="w-full h-9 pl-9 pr-3 bg-[var(--theme-dark)]/80 hover:bg-[var(--theme-dark)] focus:bg-[var(--theme-dark)] text-xs text-zinc-200 placeholder:text-zinc-500 rounded-full border border-white/10 focus:border-white/20 transition-all outline-none"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => searchQuery.trim() && mediaResults.length > 0 && setIsSearchOpen(true)}
-              />
-            </form>
+        <div ref={searchRef} className="relative mt-7">
+          <form onSubmit={submitSearch} className="relative">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" aria-hidden="true" />
+            <Input value={query} onChange={(event) => setQuery(event.target.value)} onFocus={() => query.trim() && setSearchOpen(true)} aria-label="Search movies and TV shows" placeholder="Search titles" className="h-11 w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] pl-10 pr-4 text-sm text-white placeholder:text-zinc-600 focus:border-[#9a6bc1]/60" />
+          </form>
 
-            {isSearchOpen && searchQuery.trim().length > 0 && (
-              <div className="absolute top-full right-0 mt-2 w-80 clay-modal overflow-hidden z-50 p-2 animate-in fade-in slide-in-from-top-2">
-                {searching ? (
-                  <div className="px-4 py-3 text-zinc-500 text-xs">Searching titles...</div>
-                ) : mediaResults.length > 0 ? (
-                  <>
-                    <div className="px-3 py-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Titles</div>
-                    {mediaResults.map(item => (
-                      <button 
-                        key={item.id} 
-                        onClick={() => { 
-                          setIsSearchOpen(false); 
-                          setSearchQuery(''); 
-                          if (item.media_type === 'movie') navigate(`/movie/${item.id}`)
-                          else navigate(`/tv/${item.id}`)
-                        }}
-                        className="w-full px-3 py-2 flex items-center gap-3 hover:bg-white/5 transition-colors text-left rounded-xl group/item"
-                      >
-                        <div className="w-8 h-11 clay-poster overflow-hidden shrink-0">
-                          {item.poster_path
-                            ? <img src={`https://image.tmdb.org/t/p/w92${item.poster_path}`} alt="poster" className="w-full h-full object-cover" />
-                            : <div className="w-full h-full flex items-center justify-center text-zinc-500 bg-[#1b1b22]">{item.media_type === 'movie' ? <Film size={12} /> : <Tv size={12} />}</div>
-                          }
-                        </div>
-                        <div className="flex-1 flex flex-col min-w-0">
-                          <span className="text-zinc-200 text-xs font-semibold truncate group-hover/item:text-white transition-colors">
-                            {item.media_type === 'movie' ? (item as TMDBMovie).title : (item as TMDBTVShow).name}
-                          </span>
-                          <span className="text-[10px] text-zinc-400 mt-0.5">
-                            {item.media_type === 'movie' ? 'Movie' : 'TV Show'} • {(item.media_type === 'movie' ? (item as TMDBMovie).release_date : (item as TMDBTVShow).first_air_date)?.substring(0, 4)}
-                          </span>
-                        </div>
-                        {item.vote_average > 0 && (
-                          <span className="px-2 py-0.5 clay-badge-emerald text-[10px] font-bold shrink-0 inline-flex items-center gap-1">
-                            <Star size={10} aria-hidden="true" /> {item.vote_average.toFixed(1)}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                    <button onClick={handleSearchSubmit} className="w-full px-3 py-2 text-left text-[11px] font-semibold text-rose-400 hover:bg-white/5 transition-colors flex items-center gap-2 rounded-xl mt-1">
-                      <Search size={10} /> View all title results for <span className="text-white">"{searchQuery}"</span>
+          {searchOpen && (
+            <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#191c25] p-2 shadow-2xl">
+              {searching ? (
+                <p className="px-3 py-3 text-xs text-zinc-500">Searching titles...</p>
+              ) : results.length ? (
+                <>
+                  {results.map((item) => (
+                    <button key={`${item.media_type}-${item.id}`} type="button" onClick={() => { navigate(`/${item.media_type === 'movie' ? 'movie' : 'tv'}/${item.id}`); setQuery('') }} className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-white/[0.06]">
+                      <div className="h-12 w-8 shrink-0 overflow-hidden rounded-lg bg-white/[0.05]">
+                        {item.poster_path ? <img src={`https://image.tmdb.org/t/p/w92${item.poster_path}`} alt="" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-zinc-600"><Film className="h-3.5 w-3.5" /></div>}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold text-zinc-200">{mediaTitle(item)}</p>
+                        <p className="mt-1 text-[10px] text-zinc-500">{item.media_type === 'movie' ? 'Movie' : 'TV Show'}{mediaYear(item) ? ` · ${mediaYear(item)}` : ''}</p>
+                      </div>
+                      {item.vote_average > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-zinc-500"><Star className="h-3 w-3" />{item.vote_average.toFixed(1)}</span>}
                     </button>
-                  </>
-                ) : (
-                  <div className="px-4 py-3 text-zinc-500 text-xs">No titles found.</div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <NavbarProfile />
+                  ))}
+                  <button type="button" onClick={submitSearch} className="mt-1 w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#caa4df] hover:bg-white/[0.06]">View every result</button>
+                </>
+              ) : <p className="px-3 py-3 text-xs text-zinc-500">No titles found.</p>}
+            </div>
+          )}
         </div>
-      </div>
 
-      {/* Mobile Navigation */}
-      <div className="md:hidden border-t border-white/10/50 bg-[var(--theme-bg)]/95 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-        <div className="flex px-4 py-2 gap-3">
-          <Link to="/search" className="text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full text-zinc-200 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)] inline-flex items-center gap-1.5">
-            <Search size={13} aria-hidden="true" /> Search
-          </Link>
-          <Link to="/" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isHome ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Home</Link>
-          <Link to="/profile" className="text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]">My Library</Link>
-          <Link to="/explore?type=movie&sort=popular" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveMovie ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Movies</Link>
-          <Link to="/explore?type=tv&sort=popular" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveTV ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>TV Shows</Link>
-          <Link to="/studios" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveStudio ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Studios</Link>
-          <Link to="/about" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveAbout ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>About</Link>
+        <nav aria-label="Primary navigation" className="mt-7 space-y-1">{primaryNavigation.map(navigationLink)}</nav>
+        <div className="my-6 h-px bg-white/[0.07]" />
+        <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-600">Browse</p>
+        <nav aria-label="Browse" className="space-y-1">{browseNavigation.map(navigationLink)}</nav>
+
+        <div className="mt-auto space-y-3 pt-6">
+          {navigationLink({ label: 'About', to: '/about', icon: Info })}
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-2"><NavbarProfile showLibraryLink={false} /></div>
         </div>
-      </div>
-    </nav>
-  );
+      </aside>
+
+      <header className="sticky top-0 z-40 border-b border-white/[0.07] bg-[#11131a]/90 px-4 py-3 backdrop-blur-xl lg:hidden">
+        <div className="flex items-center justify-between"><Logo /><NavbarProfile showLibraryLink={false} /></div>
+      </header>
+
+      <nav aria-label="Mobile navigation" className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-5 rounded-[1.5rem] border border-white/10 bg-[#151821]/95 p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.55)] backdrop-blur-2xl lg:hidden">
+        {[
+          { label: 'Home', to: '/', icon: Home },
+          { label: 'Search', to: '/search', icon: Search },
+          { label: 'Library', to: '/profile', icon: Library },
+          { label: 'Movies', to: '/explore?type=movie&sort=popular', icon: Film },
+          { label: 'TV', to: '/explore?type=tv&sort=popular', icon: Tv },
+        ].map(({ label, to, icon: Icon }) => {
+          const active = isActive(to)
+          return <Link key={label} to={to} aria-current={active ? 'page' : undefined} className={`flex min-w-0 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[9px] font-semibold transition-colors ${active ? 'bg-[#9a6bc1] text-white' : 'text-zinc-500 hover:bg-white/[0.05] hover:text-zinc-200'}`}><Icon className="h-[18px] w-[18px]" aria-hidden="true" /><span className="truncate">{label}</span></Link>
+        })}
+      </nav>
+    </>
+  )
 }

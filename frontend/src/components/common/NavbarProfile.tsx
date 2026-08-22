@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { UserAvatar } from './UserAvatar'
 import { clearSessionHint, hasSessionHint } from '@/utils/auth'
 
-export function NavbarProfile() {
+export function NavbarProfile({ showLibraryLink = true }: { showLibraryLink?: boolean }) {
   const [profile, setProfile] = useState<any>(null)
   const location = useLocation()
 
@@ -38,9 +38,11 @@ export function NavbarProfile() {
 
   return (
     <div className="flex items-center gap-2">
-      <Link to="/profile" className="hidden rounded-full px-3 py-2 text-xs font-bold text-zinc-400 transition-colors hover:bg-white/5 hover:text-white sm:block">
-        My Library
-      </Link>
+      {showLibraryLink && (
+        <Link to="/profile" className="hidden rounded-full px-3 py-2 text-xs font-bold text-zinc-400 transition-colors hover:bg-white/5 hover:text-white sm:block">
+          My Library
+        </Link>
+      )}
       <Link
         to={`/u/${profile.username}`}
         aria-label={`Open ${profile.username}'s profile`}
