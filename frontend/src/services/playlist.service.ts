@@ -33,11 +33,11 @@ export async function deletePlaylist(id: string) {
 
 export async function addToList(playlistId: string, tmdbId: number, mediaType: 'movie' | 'tv') {
   try {
-    await fetchApi('/playlists/items', {
+    const data = await fetchApi('/playlists/items', {
       method: 'POST',
       body: JSON.stringify({ playlistId, tmdbId, mediaType })
     })
-    return { success: true, message: 'Added to playlist!' }
+    return { success: true, message: data.message || 'Added to collection' }
   } catch (err: any) {
     return { error: err.message || 'Error adding to playlist' }
   }

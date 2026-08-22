@@ -3,7 +3,7 @@ const NodeCache = require('node-cache');
 
 // Cache TMDB image lists for 24 hours (86400 seconds)
 const tmdbImageCache = new NodeCache({ stdTTL: 86400, checkperiod: 3600, maxKeys: 1000 });
-const ALLOWED_STYLES = new Set(['Paper Cutout', 'Fluid Grain', 'Abstract Bauhaus', 'Neon Retro-Wave', 'Linear Mesh', 'Glassmorphism']);
+const ALLOWED_STYLES = new Set(['Cinematic Landscape', 'Paper Cutout', 'Fluid Grain', 'Abstract Bauhaus', 'Neon Retro-Wave', 'Linear Mesh', 'Glassmorphism']);
 
 function cacheTmdbImages(key, data) {
   try {
@@ -113,6 +113,56 @@ function buildSvg(palette, width, height, style, themeMode) {
   const W = width, H = height;
   const bg = themeMode === 'dark' ? '#050505' : '#f8f8f8';
   const c = palette; // array of { hex, r, g, b }
+
+  if (style === 'Cinematic Landscape') {
+    const starColor = themeMode === 'dark' ? '#ffffff' : c[2].hex;
+    const grainOpacity = themeMode === 'dark' ? 0.13 : 0.07;
+    const skyTop = themeMode === 'dark' ? '#05060b' : c[6].hex;
+    return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="landscapeSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${skyTop}"/>
+          <stop offset="48%" stop-color="${c[0].hex}"/>
+          <stop offset="100%" stop-color="${c[1].hex}"/>
+        </linearGradient>
+        <radialGradient id="horizonGlow" cx="72%" cy="48%" r="34%">
+          <stop offset="0%" stop-color="${c[2].hex}" stop-opacity="0.95"/>
+          <stop offset="42%" stop-color="${c[3].hex}" stop-opacity="0.42"/>
+          <stop offset="100%" stop-color="${c[3].hex}" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${c[1].hex}" stop-opacity="0.72"/>
+          <stop offset="100%" stop-color="${bg}"/>
+        </linearGradient>
+        <filter id="landscapeGrain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" stitchTiles="stitch"/>
+          <feColorMatrix type="saturate" values="0"/>
+          <feComponentTransfer><feFuncA type="table" tableValues="0 ${grainOpacity}"/></feComponentTransfer>
+        </filter>
+        <filter id="softGlow"><feGaussianBlur stdDeviation="${Math.max(W, H) * 0.012}"/></filter>
+      </defs>
+      <rect width="${W}" height="${H}" fill="url(#landscapeSky)"/>
+      <rect width="${W}" height="${H}" fill="url(#horizonGlow)"/>
+      <g fill="${starColor}" opacity="${themeMode === 'dark' ? 0.55 : 0.18}">
+        ${Array.from({length: 26}, (_, index) => {
+          const x = ((index * 173) % 947) / 947 * W;
+          const y = (0.05 + (((index * 97) % 331) / 331) * 0.38) * H;
+          const radius = Math.max(1.2, Math.min(W, H) * (index % 5 === 0 ? 0.0018 : 0.0008));
+          return `<circle cx="${x}" cy="${y}" r="${radius}"/>`;
+        }).join('\n')}
+      </g>
+      <circle cx="${W * 0.73}" cy="${H * 0.43}" r="${Math.min(W, H) * 0.085}" fill="${c[2].hex}" opacity="0.86" filter="url(#softGlow)"/>
+      <circle cx="${W * 0.73}" cy="${H * 0.43}" r="${Math.min(W, H) * 0.052}" fill="${c[6].hex}" opacity="0.92"/>
+      <path d="M0 ${H * 0.63} L${W * 0.12} ${H * 0.49} L${W * 0.22} ${H * 0.59} L${W * 0.38} ${H * 0.39} L${W * 0.55} ${H * 0.60} L${W * 0.67} ${H * 0.48} L${W * 0.82} ${H * 0.62} L${W} ${H * 0.47} V${H} H0 Z" fill="${c[4].hex}" opacity="0.48"/>
+      <path d="M0 ${H * 0.71} L${W * 0.17} ${H * 0.55} L${W * 0.29} ${H * 0.67} L${W * 0.47} ${H * 0.50} L${W * 0.62} ${H * 0.70} L${W * 0.79} ${H * 0.54} L${W} ${H * 0.69} V${H} H0 Z" fill="${c[5].hex}" opacity="0.75"/>
+      <rect y="${H * 0.72}" width="${W}" height="${H * 0.28}" fill="url(#water)"/>
+      <path d="M0 ${H * 0.82} Q${W * 0.19} ${H * 0.74} ${W * 0.38} ${H * 0.82} T${W * 0.76} ${H * 0.82} T${W * 1.14} ${H * 0.82} V${H} H0 Z" fill="${bg}" opacity="0.82"/>
+      <g stroke="${c[6].hex}" stroke-linecap="round" opacity="0.24">
+        ${Array.from({length: 8}, (_, index) => `<line x1="${W * (0.48 + index * 0.025)}" y1="${H * (0.76 + index * 0.018)}" x2="${W * (0.92 - index * 0.035)}" y2="${H * (0.76 + index * 0.018)}" stroke-width="${Math.max(2, H * 0.002)}"/>`).join('\n')}
+      </g>
+      <rect width="${W}" height="${H}" filter="url(#landscapeGrain)" opacity="1"/>
+    </svg>`;
+  }
 
   if (style === 'Linear Mesh') {
     // Figma-style mesh: many overlapping radial gradients create a smooth multi-color blend
@@ -381,3 +431,7 @@ const generateWallpaper = async (req, res) => {
 };
 
 module.exports = { generateWallpaper };
+
+if (process.env.NODE_ENV === 'test') {
+  module.exports.buildSvg = buildSvg;
+}

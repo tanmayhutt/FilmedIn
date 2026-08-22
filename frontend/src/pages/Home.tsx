@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight } from 'lucide-react'
+import { Bookmark, CheckCircle2, ChevronRight, Heart, Library, PlayCircle, Users } from 'lucide-react'
 import { TrendingMovies, TrendingTV } from '@/components/features/TrendingMedia'
 import { GenreRow } from '@/components/features/GenreRow'
 import { HeroCarousel } from '@/components/features/HeroCarousel'
@@ -15,6 +15,46 @@ export default function Home() {
       <HeroCarousel />
 
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 space-y-12">
+        <section className="clay-card border border-white/10 p-6 sm:p-9 lg:p-10" aria-labelledby="collection-promise">
+          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div className="max-w-2xl">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#caa4df]">Movies and TV, finally together</p>
+              <h2 id="collection-promise" className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
+                One calm place for everything you watch.
+              </h2>
+              <p className="mt-4 text-sm leading-6 text-zinc-300 sm:text-base sm:leading-7">
+                Keep your watchlist, current shows, completed titles, favourites, and personal collections in one library. Share your profile and compare taste without the clutter of a media database.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link to="/profile" className="clay-button-primary inline-flex items-center gap-2 px-6 py-3 text-sm">
+                  <Library className="h-4 w-4" aria-hidden="true" /> Open My Library
+                </Link>
+                <Link to="/search" className="clay-button-secondary inline-flex items-center gap-2 px-6 py-3 text-sm">
+                  Find a title <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'Watching', detail: 'In progress', icon: PlayCircle, color: '#c69b61' },
+                { label: 'Watchlist', detail: 'Up next', icon: Bookmark, color: '#7299c6' },
+                { label: 'Watched', detail: 'Completed', icon: CheckCircle2, color: '#82ac62' },
+                { label: 'Liked', detail: 'Favourites', icon: Heart, color: '#b6789e' },
+              ].map(({ label, detail, icon: Icon, color }) => (
+                <div key={label} className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4 sm:p-5">
+                  <Icon className="h-5 w-5" style={{ color }} aria-hidden="true" />
+                  <p className="mt-5 text-sm font-bold text-white">{label}</p>
+                  <p className="mt-0.5 text-xs text-zinc-500">{detail}</p>
+                </div>
+              ))}
+              <div className="col-span-2 flex items-center gap-3 rounded-[1.5rem] border border-white/10 bg-[#9062aa]/15 px-5 py-4">
+                <Users className="h-5 w-5 text-[#caa4df]" aria-hidden="true" />
+                <p className="text-xs font-semibold text-zinc-300">Follow people whose taste you trust and build a Taste Blend together.</p>
+              </div>
+            </div>
+          </div>
+        </section>
         
         {/* Studio and network shortcuts */}
         <div className="space-y-4">
@@ -53,7 +93,7 @@ export default function Home() {
 
         {/* Category filter */}
         <div className="space-y-8">
-          <div className="flex items-center gap-2 p-2 bg-[#1b1b22] rounded-full w-fit overflow-x-auto scrollbar-hide border border-white/10 shadow-lg">
+          <div className="flex max-w-full w-fit items-center gap-2 overflow-x-auto rounded-full border border-white/10 bg-[#1b1b22] p-2 shadow-lg scrollbar-hide">
             {[
               { id: 'all', label: 'All Trending' },
               { id: 'movies', label: 'Movies' },

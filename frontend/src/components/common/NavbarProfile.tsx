@@ -37,18 +37,21 @@ export function NavbarProfile() {
   }
 
   return (
-    <Link 
-      to={`/u/${profile.username}`}
-      className="flex items-center gap-3 group focus:outline-none hover:opacity-90 transition-opacity"
-    >
-      <span className="text-sm font-medium text-zinc-400 group-hover:text-white hidden sm:block transition-colors">
-        {profile?.username || 'Profile'}
-      </span>
-      <UserAvatar 
-        avatarUrl={profile?.avatarUrl} 
-        username={profile?.username} 
-        className="w-9 h-9 border border-white/20/80 group-hover:border-white transition-colors"
-      />
-    </Link>
+    <div className="flex items-center gap-2">
+      <Link to="/profile" className="hidden rounded-full px-3 py-2 text-xs font-bold text-zinc-400 transition-colors hover:bg-white/5 hover:text-white sm:block">
+        My Library
+      </Link>
+      <Link
+        to={`/u/${profile.username}`}
+        aria-label={`Open ${profile.username}'s profile`}
+        className="group transition-opacity hover:opacity-90 focus:outline-none"
+      >
+        <UserAvatar
+          avatarUrl={profile?.avatarUrl}
+          username={profile?.username}
+          className="w-9 h-9 border border-white/20/80 group-hover:border-white transition-colors"
+        />
+      </Link>
+    </div>
   )
 }

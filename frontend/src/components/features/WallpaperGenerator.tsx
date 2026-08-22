@@ -15,6 +15,7 @@ interface Props {
 }
 
 const STYLE_TAGS = [
+  "Cinematic Landscape",
   "Paper Cutout",
   "Fluid Grain",
   "Abstract Bauhaus",
@@ -89,7 +90,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
             </div>
             <div>
               <p className="text-white font-medium text-sm">Sign in to generate wallpapers</p>
-              <p className="text-zinc-500 text-xs mt-0.5">Create a free account to unlock AI wallpaper generation.</p>
+              <p className="text-zinc-500 text-xs mt-0.5">Create a free account to unlock palette-based wallpaper generation.</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -113,8 +114,8 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-1">
           <div>
-            <h3 className="text-white font-medium text-lg">Algorithmic Aesthetic</h3>
-            <p className="text-zinc-500 text-sm mt-1">Select a style to customize the wallpaper layout and texture.</p>
+            <h3 className="text-white font-medium text-lg">Cinematic Wallpaper Studio</h3>
+            <p className="text-zinc-500 text-sm mt-1">Create an original wallpaper from the title's visual palette, from calm scenery to expressive abstraction.</p>
           </div>
           
           {/* Theme Toggle */}

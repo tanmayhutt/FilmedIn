@@ -7,6 +7,7 @@ const mediaDetailsCache = new NodeCache({ stdTTL: 86400, checkperiod: 3600, maxK
 const mediaDetailsRequests = new Map();
 const MAX_CUSTOM_PLAYLISTS = 50;
 const MAX_ITEMS_PER_PLAYLIST = 500;
+const STATUS_PLAYLISTS = ['Watchlist', 'Currently Watching', 'Watched'];
 
 async function getMediaDetails(tmdbId, mediaType) {
   const cacheKey = `${mediaType}_${tmdbId}_details_v2`;
@@ -164,9 +165,29 @@ exports.addItem = async (req, res) => {
       return res.status(400).json({ error: `A playlist can contain up to ${MAX_ITEMS_PER_PLAYLIST} titles` });
     }
 
+    // A title has one viewing status at a time. Liked and custom collections remain independent.
+    if (playlist.type === 'system' && STATUS_PLAYLISTS.includes(playlist.name)) {
+      const otherStatusPlaylists = await Playlist.find({
+        userId: req.user.id,
+        type: 'system',
+        name: { $in: STATUS_PLAYLISTS.filter(name => name !== playlist.name) },
+      }).select('_id').lean();
+
+      await PlaylistItem.deleteMany({
+        playlistId: { $in: otherStatusPlaylists.map(statusPlaylist => statusPlaylist._id) },
+        tmdbId: Number(tmdbId),
+        mediaType,
+      });
+    }
+
     const newItem = new PlaylistItem({ playlistId, tmdbId: Number(tmdbId), mediaType });
     await newItem.save();
-    res.status(201).json({ success: true });
+    res.status(201).json({
+      success: true,
+      message: playlist.type === 'system' && STATUS_PLAYLISTS.includes(playlist.name)
+        ? `Moved to ${playlist.name}`
+        : `Added to ${playlist.name}`,
+    });
   } catch (err) {
     if (err.code === 11000) return res.status(400).json({ error: 'Item already exists in playlist' });
     console.error(err.message);

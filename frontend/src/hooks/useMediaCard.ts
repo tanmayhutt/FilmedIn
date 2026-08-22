@@ -23,7 +23,7 @@ export function useMediaCard(media: TMDBMovie | TMDBTVShow) {
       if (currentlyIn) {
         toast.success(`Removed from "${playlistName}"`)
       } else {
-        toast.success(`Added to "${playlistName}"`)
+        toast.success(`Saved to "${playlistName}"`)
       }
     } else {
       toast.error('Failed to update list')

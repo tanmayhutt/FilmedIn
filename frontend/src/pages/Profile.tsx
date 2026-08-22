@@ -7,6 +7,7 @@ import { getPlaylists, deletePlaylist } from '@/services/playlist.service'
 import { getPublicProfile, getPublicPlaylists, getFollowers, getFollowing, searchUsers } from '@/services/public.service'
 import { EditProfileModal } from '@/components/features/EditProfileModal'
 import { CreatePlaylistModal } from '@/components/features/CreatePlaylistModal'
+import { LibraryOverview } from '@/components/features/LibraryOverview'
 import { Input } from '@/components/ui/input'
 import { Plus, LogOut, Trash2, Share2, Bookmark, UserPlus, UserMinus, X, Sparkles, Search } from 'lucide-react'
 import { PRESET_AVATARS } from '@/utils/avatars'
@@ -274,6 +275,7 @@ export default function Profile() {
     const themeR = pfpTheme?.r ?? 99
     const themeG = pfpTheme?.g ?? 102
     const themeB = pfpTheme?.b ?? 241
+    const customPlaylists = playlists.filter(playlist => playlist.type === 'custom')
 
     return (
         <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-10 animate-in fade-in relative space-y-10">
@@ -442,10 +444,15 @@ export default function Profile() {
                 </div>
             </div>
 
-            {/* ── Playlists Section ── */}
+            <LibraryOverview playlists={playlists} username={profile.username} isOwner={isOwner} />
+
+            {/* ── Custom collections ── */}
             <section className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h2 className="text-xl font-bold text-white">{isOwner ? 'Your Playlists & Watchlists' : `${profile.username}'s Playlists`}</h2>
+                    <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-500">Curated shelves</p>
+                        <h2 className="mt-1 text-xl font-bold text-white">{isOwner ? 'Your Custom Collections' : `${profile.username}'s Collections`}</h2>
+                    </div>
                     {isOwner && (
                         <button 
                             onClick={() => setIsCreatePlaylistOpen(true)}
@@ -458,7 +465,7 @@ export default function Profile() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {playlists.map((playlist) => (
+                    {customPlaylists.map((playlist) => (
                         <div key={playlist.id} className="group relative clay-card overflow-hidden h-48">
                             {/* Collage Background */}
                             {playlist.preview_posters && playlist.preview_posters.length > 0 ? (
@@ -484,9 +491,6 @@ export default function Profile() {
                             <Link to={`/playlist/${playlist.id}`} className="absolute inset-0 flex flex-col justify-end p-5">
                                 <div className="flex items-center gap-2 mb-1">
                                     <h3 className="font-semibold text-lg group-hover:text-white text-zinc-100 drop-shadow-md">{playlist.name}</h3>
-                                    {playlist.type === 'system' && (
-                                        <Bookmark className="w-4 h-4 text-zinc-400" />
-                                    )}
                                 </div>
                                 <p className="text-sm text-zinc-400 drop-shadow-md">{playlist.playlist_items?.[0]?.count || 0} items</p>
                             </Link>
@@ -501,9 +505,11 @@ export default function Profile() {
                             )}
                         </div>
                     ))}
-                    {playlists.length === 0 && (
-                        <div className="col-span-full py-12 text-center text-zinc-500 italic border border-dashed border-white/10 rounded-xl">
-                            {isOwner ? 'No playlists yet. Create one above!' : 'No playlists yet.'}
+                    {customPlaylists.length === 0 && (
+                        <div className="col-span-full clay-card border border-dashed border-white/10 px-6 py-12 text-center">
+                            <Bookmark className="mx-auto h-6 w-6 text-zinc-500" aria-hidden="true" />
+                            <p className="mt-3 text-sm font-semibold text-zinc-300">{isOwner ? 'Build a collection around any theme.' : 'No custom collections yet.'}</p>
+                            {isOwner && <p className="mt-1 text-xs text-zinc-500">Directors, franchises, comfort watches, or anything else that feels personal.</p>}
                         </div>
                     )}
                 </div>

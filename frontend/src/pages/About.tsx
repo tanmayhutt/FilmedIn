@@ -1,4 +1,4 @@
-import { Film, Users, Shield, Zap, Globe, ArrowRight } from 'lucide-react'
+import { Film, Users, Shield, Zap, Globe, ArrowRight, Bookmark, CheckCircle2, Heart, Library } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function About() {
@@ -15,7 +15,7 @@ export default function About() {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">Perfectly Captured.</span>
         </h1>
         <p className="text-lg sm:text-xl text-zinc-300 max-w-3xl leading-relaxed mb-12 font-medium">
-          We believe that what you watch says a lot about who you are. FilmedIn is the premier social network built explicitly for cinephiles to discover, log, and share their journey through the world of film and television.
+          What you watch becomes part of your story. FilmedIn is a focused social collection space where movies and television live together, organised around your own viewing journey.
         </p>
         <div className="flex items-center gap-5">
           <Link to="/" className="px-8 py-3.5 clay-button-primary text-sm flex items-center gap-2">
@@ -27,24 +27,28 @@ export default function About() {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Product pillars */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-12 w-full">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="clay-card p-6 flex flex-col items-center text-center">
-            <span className="text-4xl sm:text-5xl font-black text-white mb-2">1M+</span>
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Movies Indexed</span>
+            <Library className="h-8 w-8 text-[#caa4df] mb-4" aria-hidden="true" />
+            <span className="text-sm font-bold text-white mb-1">Movies + TV</span>
+            <span className="text-xs text-zinc-400">One unified library</span>
           </div>
           <div className="clay-card p-6 flex flex-col items-center text-center">
-            <span className="text-4xl sm:text-5xl font-black text-white mb-2">150k+</span>
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">TV Shows</span>
+            <CheckCircle2 className="h-8 w-8 text-[#82ac62] mb-4" aria-hidden="true" />
+            <span className="text-sm font-bold text-white mb-1">Viewing states</span>
+            <span className="text-xs text-zinc-400">Next, watching, completed</span>
           </div>
           <div className="clay-card p-6 flex flex-col items-center text-center">
-            <span className="text-4xl sm:text-5xl font-black text-white mb-2">100%</span>
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Free to Use</span>
+            <Bookmark className="h-8 w-8 text-[#7299c6] mb-4" aria-hidden="true" />
+            <span className="text-sm font-bold text-white mb-1">Collections</span>
+            <span className="text-xs text-zinc-400">Curate on your terms</span>
           </div>
           <div className="clay-card p-6 flex flex-col items-center text-center">
-            <span className="text-4xl sm:text-5xl font-black text-white mb-2">24/7</span>
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Community</span>
+            <Heart className="h-8 w-8 text-[#b6789e] mb-4" aria-hidden="true" />
+            <span className="text-sm font-bold text-white mb-1">Taste Blend</span>
+            <span className="text-xs text-zinc-400">Find what connects you</span>
           </div>
         </div>
       </section>
@@ -56,10 +60,10 @@ export default function About() {
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 tracking-tight">Built by film lovers, for film lovers.</h2>
             <div className="space-y-6 text-zinc-300 text-base sm:text-lg leading-relaxed">
               <p>
-                The idea for FilmedIn started with a simple frustration: there was no elegant, unified place to track both the movies we were watching and the TV shows we were binging, while also sharing those thoughts with friends in a beautifully designed environment.
+                The idea for FilmedIn started with a simple frustration: there was no elegant, unified place to track both the movies we were watching and the TV shows we were binging, while still making that collection personal and shareable.
               </p>
               <p>
-                We set out to build a platform that feels as premium as the streaming services we use every day, but focuses entirely on community, curation, and discovery. No algorithms telling you what to watch—just genuine recommendations from people whose taste you trust.
+                We set out to build a platform that feels calmer than a media database and broader than a movie-only diary. Your library stays central, with discovery and people around it rather than competing with it.
               </p>
             </div>
           </div>

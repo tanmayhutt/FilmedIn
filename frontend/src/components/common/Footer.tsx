@@ -14,7 +14,7 @@ export function Footer() {
           <div className="md:col-span-1 space-y-4">
             <Logo />
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Your cinematic identity. Track what you watch, share your thoughts, and discover your next favorite movie or TV show.
+              Your cinematic identity. Keep movies and TV together, organise your viewing journey, and share the collection that feels like you.
             </p>
             <div>
               <a href="https://github.com/tanmayhutt/FilmedIn" target="_blank" rel="noopener noreferrer" className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/10 transition-all">
@@ -28,6 +28,7 @@ export function Footer() {
             <h3 className="text-xs font-bold text-white mb-4 tracking-wider uppercase">Platform</h3>
             <ul className="space-y-3">
               <li><Link to="/" className="text-sm text-zinc-400 hover:text-white transition-colors">Home</Link></li>
+              <li><Link to="/profile" className="text-sm text-zinc-400 hover:text-white transition-colors">My Library</Link></li>
               <li><Link to="/explore?type=movie" className="text-sm text-zinc-400 hover:text-white transition-colors">Movies</Link></li>
               <li><Link to="/explore?type=tv" className="text-sm text-zinc-400 hover:text-white transition-colors">TV Shows</Link></li>
               <li><Link to="/studios" className="text-sm text-zinc-400 hover:text-white transition-colors">Studios & Networks</Link></li>

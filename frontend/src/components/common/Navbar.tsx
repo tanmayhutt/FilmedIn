@@ -322,6 +322,7 @@ export function Navbar() {
             <Search size={13} aria-hidden="true" /> Search
           </Link>
           <Link to="/" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isHome ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Home</Link>
+          <Link to="/profile" className="text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]">My Library</Link>
           <Link to="/explore?type=movie&sort=popular" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveMovie ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Movies</Link>
           <Link to="/explore?type=tv&sort=popular" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveTV ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>TV Shows</Link>
           <Link to="/studios" className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full ${isActiveStudio ? 'bg-white text-black' : 'text-zinc-400 bg-[var(--theme-dark)] hover:bg-[var(--theme-dark-hover)]'}`}>Studios</Link>
