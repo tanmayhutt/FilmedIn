@@ -63,7 +63,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-transparent">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-blue-400 animate-pulse" />
+            <Sparkles className="w-5 h-5 text-zinc-500" />
             <h2 className="text-xl font-bold text-white tracking-tight">Taste Blend</h2>
           </div>
           <button
@@ -79,8 +79,8 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 gap-4">
               <div className="relative w-16 h-16 flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full border-2 border-blue-500/30 border-t-blue-500 animate-spin" />
-                <Sparkles className="w-6 h-6 text-blue-400" />
+                <div className="absolute inset-0 rounded-full border-2 border-white/10 border-t-[#d2b48c] animate-spin" />
+                <Sparkles className="w-6 h-6 text-zinc-500" />
               </div>
               <p className="text-zinc-300 text-sm font-medium animate-pulse">Blending Watchlists & Playlists...</p>
             </div>
@@ -128,7 +128,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
                 {/* Watchlist */}
                 <div className="clay-card p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between text-zinc-400 text-xs">
-                    <span className="font-semibold flex items-center gap-1.5"><Bookmark className="w-3.5 h-3.5 text-blue-400" /> Watchlist</span>
+                    <span className="font-semibold flex items-center gap-1.5"><Bookmark className="w-3.5 h-3.5 text-zinc-500" /> Watchlist</span>
                   </div>
                   <div className="text-lg font-bold text-white mt-1">
                     {blendData.presetBreakdown?.watchlist?.mutualCount || 0} <span className="text-xs font-normal text-zinc-400">Shared</span>
@@ -141,7 +141,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
                 {/* Currently Watching */}
                 <div className="bg-[var(--theme-dark)]/60 border border-white/10 rounded-xl p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between text-zinc-400 text-xs">
-                    <span className="font-semibold flex items-center gap-1.5"><Tv className="w-3.5 h-3.5 text-emerald-400" /> Watching</span>
+                    <span className="font-semibold flex items-center gap-1.5"><Tv className="w-3.5 h-3.5 text-zinc-500" /> Watching</span>
                   </div>
                   <div className="text-lg font-bold text-white mt-1">
                     {blendData.presetBreakdown?.currentlyWatching?.mutualCount || 0} <span className="text-xs font-normal text-zinc-500">Shared</span>
@@ -154,7 +154,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
                 {/* Watched History */}
                 <div className="bg-[var(--theme-dark)]/60 border border-white/10 rounded-xl p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between text-zinc-400 text-xs">
-                    <span className="font-semibold flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" /> Watched</span>
+                    <span className="font-semibold flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-zinc-500" /> Watched</span>
                   </div>
                   <div className="text-lg font-bold text-white mt-1">
                     {blendData.presetBreakdown?.watched?.mutualCount || 0} <span className="text-xs font-normal text-zinc-500">Shared</span>
@@ -167,7 +167,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
                 {/* Custom Playlists */}
                 <div className="bg-[var(--theme-dark)]/60 border border-white/10 rounded-xl p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between text-zinc-400 text-xs">
-                    <span className="font-semibold flex items-center gap-1.5"><FolderHeart className="w-3.5 h-3.5 text-pink-400" /> Custom Lists</span>
+                    <span className="font-semibold flex items-center gap-1.5"><FolderHeart className="w-3.5 h-3.5 text-zinc-500" /> Custom Lists</span>
                   </div>
                   <div className="text-lg font-bold text-white mt-1">
                     {blendData.customBreakdown?.mutualCount || 0} <span className="text-xs font-normal text-zinc-500">Shared</span>
@@ -181,7 +181,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
               {/* All Mutual Titles */}
               <div className="space-y-3">
                 <h4 className="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-                  <Film className="w-4 h-4 text-blue-400" /> Mutual Saved Titles ({blendData.allMutualItems?.length || 0})
+                  <Film className="w-4 h-4 text-zinc-500" /> Mutual Saved Titles ({blendData.allMutualItems?.length || 0})
                 </h4>
                 {renderMediaGrid(
                   blendData.allMutualItems,
@@ -194,7 +194,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
               {blendData.recommendations && blendData.recommendations.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-                    <Compass className="w-4 h-4 text-amber-400" /> Recommended from @{blendData.targetUser.username}'s Lists
+                    <Compass className="w-4 h-4 text-zinc-500" /> Recommended from @{blendData.targetUser.username}'s Lists
                   </h4>
                   {renderMediaGrid(
                     blendData.recommendations,

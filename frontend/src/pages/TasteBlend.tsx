@@ -1,285 +1,75 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, Bookmark, Check, Clapperboard, Copy, Heart, Library, Tv, User } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { getTasteBlend } from '@/services/playlist.service'
 import { MediaCard } from '@/components/features/MediaCard'
-import { ArrowLeft, Sparkles, User, Bookmark, Tv, CheckCircle2, FolderHeart, Compass, Share2, Clapperboard, Layers } from 'lucide-react'
-import toast from 'react-hot-toast'
+
+type BlendItem = Record<string, unknown> & { id: number }
+type CategoryBreakdown = { u1Count?: number; u2Count?: number; mutualCount?: number }
+type BlendData = {
+  currentUser: { username: string; avatarUrl?: string }
+  targetUser: { username: string; avatarUrl?: string }
+  matchPercentage: number
+  synergyTier: string
+  totalSharedCount: number
+  presetBreakdown?: Record<string, CategoryBreakdown>
+  toWatchTogether?: BlendItem[]
+  bothCompleted?: BlendItem[]
+  recommendations?: BlendItem[]
+  error?: string
+}
+
+function Avatar({ user }: { user: BlendData['currentUser'] }) {
+  return <div className="h-16 w-16 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">{user.avatarUrl ? <img src={user.avatarUrl} alt={user.username} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-zinc-500"><User className="h-6 w-6" /></div>}</div>
+}
+
+function MediaShelf({ title, description, items, empty }: { title: string; description: string; items: BlendItem[]; empty: string }) {
+  return <section className="space-y-5"><div className="flex flex-col justify-between gap-2 border-b border-white/[0.08] pb-4 sm:flex-row sm:items-end"><h2 className="text-xl font-semibold tracking-tight text-white">{title}</h2><p className="max-w-lg text-xs leading-5 text-zinc-500">{description}</p></div>{items.length ? <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">{items.map((item) => <MediaCard key={item.id} media={item as never} />)}</div> : <div className="rounded-xl border border-dashed border-white/10 px-5 py-9 text-center text-sm text-zinc-500">{empty}</div>}</section>
+}
 
 export default function TasteBlend() {
   const { username } = useParams<{ username: string }>()
   const navigate = useNavigate()
-
-  const [blendData, setBlendData] = useState<any>(null)
+  const [data, setData] = useState<BlendData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (!username) return
     setLoading(true)
-    setError(null)
-    getTasteBlend(username)
-      .then((data) => {
-        if (data.error) {
-          setError(data.error)
-        } else {
-          setBlendData(data)
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to fetch blend data', err)
-        setError('Failed to load taste comparison')
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+    getTasteBlend(username).then((result) => result.error ? setError(result.error) : setData(result)).catch(() => setError('The comparison could not be loaded.')).finally(() => setLoading(false))
   }, [username])
 
-  const handleShareBlend = async () => {
-    const url = window.location.href
-    try {
-      await navigator.clipboard.writeText(url)
-      toast.success('Link copied to clipboard')
-    } catch {
-      toast.error('Failed to copy link')
-    }
+  const copyLink = async () => {
+    try { await navigator.clipboard.writeText(window.location.href); toast.success('Blend link copied') }
+    catch { toast.error('Could not copy the link') }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[var(--theme-bg)] text-white flex flex-col items-center justify-center p-6">
-        <div className="relative w-16 h-16 flex items-center justify-center mb-6">
-          <div className="absolute inset-0 rounded-full border-2 border-white/10 border-t-zinc-300 animate-spin" />
-          <Clapperboard className="w-6 h-6 text-zinc-400" />
-        </div>
-        <h2 className="text-lg font-medium text-zinc-300 tracking-wide">
-          Analyzing Cinematic Alignment...
-        </h2>
-        <p className="text-zinc-500 text-xs mt-1">Comparing libraries with @{username}</p>
-      </div>
-    )
-  }
+  if (loading) return <div className="flex min-h-[70vh] flex-col items-center justify-center gap-4 text-zinc-500"><span className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-[#d2b48c]" /><p className="text-sm">Comparing both libraries</p></div>
+  if (!data || error) return <div className="mx-auto max-w-xl px-5 py-24 text-center"><h1 className="text-2xl font-semibold">Blend unavailable</h1><p className="mt-3 text-sm text-zinc-500">{error || 'This comparison is unavailable.'}</p><button onClick={() => navigate(-1)} className="mt-7 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black">Go back</button></div>
 
-  if (error || !blendData) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <h2 className="text-xl font-semibold text-white mb-2">Comparison Unavailable</h2>
-        <p className="text-zinc-400 text-sm mb-6">{error || 'Could not load blend comparison.'}</p>
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--theme-dark)] border border-white/10 text-zinc-300 hover:bg-[var(--theme-dark-hover)] transition-colors text-xs font-medium"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" /> Return
-        </button>
-      </div>
-    )
-  }
+  const categories = [
+    { key: 'watchlist', label: 'Watchlist', icon: Bookmark },
+    { key: 'currentlyWatching', label: 'Watching', icon: Tv },
+    { key: 'watched', label: 'Watched', icon: Check },
+    { key: 'liked', label: 'Liked', icon: Heart },
+  ]
+  const watchTogether = data.toWatchTogether || []
+  const completed = data.bothCompleted || []
+  const recommendations = data.recommendations || []
 
-  const matchPercent = blendData.matchPercentage || 75
-  const toWatchTogether = blendData.toWatchTogether || []
-  const bothCompleted = blendData.bothCompleted || []
-  const recommendations = blendData.recommendations || []
+  return <main className="mx-auto w-full max-w-6xl space-y-14 px-4 py-8 sm:px-6 sm:py-12">
+    <header className="flex items-center justify-between border-b border-white/[0.08] pb-5"><button onClick={() => navigate(`/u/${username}`)} className="inline-flex items-center gap-2 text-xs font-medium text-zinc-500 transition-colors hover:text-white"><ArrowLeft className="h-4 w-4" />Back to @{username}</button><button onClick={copyLink} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/[0.05] hover:text-white"><Copy className="h-3.5 w-3.5" />Copy link</button></header>
 
-  return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-12 text-zinc-100">
-      {/* Top Bar Navigation */}
-      <div className="flex items-center justify-between border-b border-white/10/80 pb-4">
-        <button
-          onClick={() => navigate(`/u/${username}`)}
-          className="inline-flex items-center gap-2 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to @{username}
-        </button>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-zinc-500 uppercase tracking-widest font-mono">Taste Alignment</span>
-          <button
-            onClick={handleShareBlend}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 hover:text-white bg-[var(--theme-dark)] border border-white/10 px-3 py-1.5 rounded-lg transition-colors"
-          >
-            <Share2 className="w-3.5 h-3.5" /> Share
-          </button>
-        </div>
-      </div>
+    <section className="grid gap-8 rounded-[1.5rem] border border-white/[0.08] bg-[#171817] p-6 sm:p-10 lg:grid-cols-[1fr_220px] lg:items-center"><div><div className="flex items-center gap-4"><Avatar user={data.currentUser} /><span className="text-zinc-600">and</span><Avatar user={data.targetUser} /></div><p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-[#d2b48c]">Taste Blend</p><h1 className="mt-3 text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">{data.currentUser.username} and {data.targetUser.username}</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400">A direct comparison of saved titles. The score is the percentage of the combined library that appears in both collections.</p></div><div className="border-t border-white/[0.08] pt-6 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"><p className="text-6xl font-semibold tracking-[-0.06em] text-[#e8e0d3]">{data.matchPercentage}<span className="text-2xl text-zinc-600">%</span></p><p className="mt-2 text-sm font-medium text-zinc-300">{data.synergyTier}</p><p className="mt-1 text-xs text-zinc-600">{data.totalSharedCount} shared titles</p></div></section>
 
-      {/* Editorial Hero Header */}
-      <div className="relative overflow-hidden clay-card p-8 sm:p-12 flex flex-col items-center text-center">
-        {/* User Badges */}
-        <div className="flex items-center justify-center -space-x-3 mb-6 relative">
-          <div className="w-16 h-16 rounded-full clay-badge overflow-hidden bg-[var(--theme-bg)] shadow-xl shrink-0 z-10">
-            {blendData.currentUser?.avatarUrl ? (
-              <img src={blendData.currentUser.avatarUrl} alt={blendData.currentUser.username} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-zinc-500 bg-[var(--theme-dark)]"><User size={28} /></div>
-            )}
-          </div>
-          <div className="w-9 h-9 rounded-full clay-badge flex items-center justify-center text-white z-20 text-xs font-mono font-bold">
-            ×
-          </div>
-          <div className="w-16 h-16 rounded-full clay-badge overflow-hidden bg-[var(--theme-bg)] shadow-xl shrink-0 z-10">
-            {blendData.targetUser?.avatarUrl ? (
-              <img src={blendData.targetUser.avatarUrl} alt={blendData.targetUser.username} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-zinc-500 bg-[var(--theme-dark)]"><User size={28} /></div>
-            )}
-          </div>
-        </div>
+    <section><div className="mb-5 flex items-center gap-2"><Library className="h-4 w-4 text-zinc-500" /><h2 className="text-sm font-semibold uppercase tracking-[0.15em] text-zinc-400">Library overlap</h2></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{categories.map(({ key, label, icon: Icon }) => { const category = data.presetBreakdown?.[key] || {}; return <div key={key} className="rounded-xl border border-white/[0.08] bg-[#171817] p-5"><div className="flex items-center justify-between"><span className="flex items-center gap-2 text-sm font-medium text-zinc-300"><Icon className="h-4 w-4 text-zinc-500" />{label}</span><strong className="text-lg font-semibold text-white">{category.mutualCount || 0}</strong></div><div className="mt-5 flex justify-between border-t border-white/[0.07] pt-3 text-[11px] text-zinc-600"><span>You {category.u1Count || 0}</span><span>Them {category.u2Count || 0}</span></div></div> })}</div></section>
 
-        {/* Compatibility Tag & Header */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 clay-badge-blue text-xs font-mono uppercase tracking-wider mb-3">
-          <Sparkles className="w-3.5 h-3.5" /> {matchPercent}% Compatibility · {blendData.synergyTier}
-        </div>
+    <section className="rounded-[1.5rem] border border-[#d2b48c]/20 bg-[#d2b48c]/[0.045] p-6 sm:p-8"><div className="flex items-start gap-4"><Clapperboard className="mt-1 h-5 w-5 shrink-0 text-[#d2b48c]" /><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#d2b48c]">Watch together</p><h2 className="mt-2 text-2xl font-semibold tracking-tight">{watchTogether.length ? `${watchTogether.length} shared pending ${watchTogether.length === 1 ? 'title' : 'titles'}` : 'Nothing pending in both libraries yet'}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">A title appears here when both of you have it in Watchlist or Watching. Moving a title to Watched removes it from this queue and places it in your shared history.</p></div></div></section>
 
-        <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-2">
-          {blendData.currentUser.username} & {blendData.targetUser.username}
-        </h1>
-
-        <p className="text-zinc-400 text-xs sm:text-sm max-w-lg leading-relaxed">
-          {blendData.totalSharedCount > 0
-            ? `Libraries show ${blendData.totalSharedCount} overlapping titles across watchlists and custom collections.`
-            : `Distinct viewing preferences — explore individual libraries for cross-discovery.`}
-        </p>
-
-        {/* Minimal Progress Bar */}
-        <div className="w-full max-w-sm mt-6 clay-input p-0.5 overflow-hidden h-3">
-          <div
-            className="h-full rounded-full bg-blue-500 transition-all duration-1000 shadow-sm"
-            style={{ width: `${matchPercent}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Library Metrics Comparison */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-          <Layers className="w-4 h-4 text-zinc-400" /> Library Breakdown
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Watchlist */}
-          <div className="clay-card p-5 flex flex-col justify-between space-y-2">
-            <div className="flex items-center justify-between text-zinc-400 text-xs">
-              <span className="font-medium flex items-center gap-1.5 text-zinc-300">
-                <Bookmark className="w-3.5 h-3.5 text-blue-400" /> Watchlist
-              </span>
-              <span className="text-[11px] font-mono clay-badge px-2 py-0.5 text-zinc-300">
-                {blendData.presetBreakdown?.watchlist?.mutualCount || 0} Mutual
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between text-xs text-zinc-400 pt-2 border-t border-white/10/40">
-              <span>You: <strong className="text-white">{blendData.presetBreakdown?.watchlist?.u1Count}</strong></span>
-              <span>@{username}: <strong className="text-white">{blendData.presetBreakdown?.watchlist?.u2Count}</strong></span>
-            </div>
-          </div>
-
-          {/* Currently Watching */}
-          <div className="clay-card p-5 flex flex-col justify-between space-y-2">
-            <div className="flex items-center justify-between text-zinc-400 text-xs">
-              <span className="font-medium flex items-center gap-1.5 text-zinc-300">
-                <Tv className="w-3.5 h-3.5 text-emerald-400" /> Watching
-              </span>
-              <span className="text-[11px] font-mono clay-badge px-2 py-0.5 text-zinc-300">
-                {blendData.presetBreakdown?.currentlyWatching?.mutualCount || 0} Mutual
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between text-xs text-zinc-400 pt-2 border-t border-white/10/40">
-              <span>You: <strong className="text-white">{blendData.presetBreakdown?.currentlyWatching?.u1Count}</strong></span>
-              <span>@{username}: <strong className="text-white">{blendData.presetBreakdown?.currentlyWatching?.u2Count}</strong></span>
-            </div>
-          </div>
-
-          {/* Watched History */}
-          <div className="clay-card p-5 flex flex-col justify-between space-y-2">
-            <div className="flex items-center justify-between text-zinc-400 text-xs">
-              <span className="font-medium flex items-center gap-1.5 text-zinc-300">
-                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" /> Watched
-              </span>
-              <span className="text-[11px] font-mono clay-badge px-2 py-0.5 text-zinc-300">
-                {blendData.presetBreakdown?.watched?.mutualCount || 0} Mutual
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between text-xs text-zinc-400 pt-2 border-t border-white/10/40">
-              <span>You: <strong className="text-white">{blendData.presetBreakdown?.watched?.u1Count}</strong></span>
-              <span>@{username}: <strong className="text-white">{blendData.presetBreakdown?.watched?.u2Count}</strong></span>
-            </div>
-          </div>
-
-          {/* Custom Playlists */}
-          <div className="clay-card p-5 flex flex-col justify-between space-y-2">
-            <div className="flex items-center justify-between text-zinc-400 text-xs">
-              <span className="font-medium flex items-center gap-1.5 text-zinc-300">
-                <FolderHeart className="w-3.5 h-3.5 text-pink-400" /> Custom Lists
-              </span>
-              <span className="text-[11px] font-mono clay-badge px-2 py-0.5 text-zinc-300">
-                {blendData.customBreakdown?.mutualCount || 0} Mutual
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between text-xs text-zinc-400 pt-2 border-t border-white/10/40">
-              <span>You: <strong className="text-white">{blendData.customBreakdown?.u1CustomCount} lists</strong></span>
-              <span>@{username}: <strong className="text-white">{blendData.customBreakdown?.u2CustomCount} lists</strong></span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* SECTION 1: Shared Watchlist (Pending in Both Libraries) */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between border-b border-white/10/60 pb-2">
-          <h3 className="text-base font-semibold text-white flex items-center gap-2">
-            <Bookmark className="w-4 h-4 text-zinc-400" /> Shared Watchlist ({toWatchTogether.length})
-          </h3>
-          <p className="text-xs text-zinc-500">Titles pending in both libraries</p>
-        </div>
-
-        {toWatchTogether.length > 0 ? (
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-            {toWatchTogether.map((item: any) => (
-              <MediaCard key={item.id} media={item} />
-            ))}
-          </div>
-        ) : (
-          <div className="py-8 px-4 text-center text-xs text-zinc-500 bg-[var(--theme-dark)]/20 rounded-xl border border-dashed border-white/10/60 italic">
-            No pending watchlists in common. Add upcoming films & shows to your Watchlist to find overlap.
-          </div>
-        )}
-      </div>
-
-      {/* SECTION 2: Mutual Completed (Watched by Both) */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between border-b border-white/10/60 pb-2">
-          <h3 className="text-base font-semibold text-white flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-zinc-400" /> Mutual Completed ({bothCompleted.length})
-          </h3>
-          <p className="text-xs text-zinc-500">Titles watched by both users</p>
-        </div>
-
-        {bothCompleted.length > 0 ? (
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-            {bothCompleted.map((item: any) => (
-              <MediaCard key={item.id} media={item} />
-            ))}
-          </div>
-        ) : (
-          <div className="py-8 px-4 text-center text-xs text-zinc-500 bg-[var(--theme-dark)]/20 rounded-xl border border-dashed border-white/10/60 italic">
-            No completed titles shared in watched history yet.
-          </div>
-        )}
-      </div>
-
-      {/* SECTION 3: Curated Discoveries (From @username's Library) */}
-      {recommendations.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between border-b border-white/10/60 pb-2">
-            <h3 className="text-base font-semibold text-white flex items-center gap-2">
-              <Compass className="w-4 h-4 text-zinc-400" /> Curated Discoveries ({recommendations.length})
-            </h3>
-            <p className="text-xs text-zinc-500">Titles from @{username}'s library to explore</p>
-          </div>
-
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-            {recommendations.map((item: any) => (
-              <MediaCard key={item.id} media={item} />
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
+    <MediaShelf title="Ready to watch together" description="Pending for both of you, whether saved in Watchlist or currently Watching." items={watchTogether} empty="Add the same film or show to both watchlists and it will appear here." />
+    <MediaShelf title="Shared history" description="Films and shows both people have marked as Watched." items={completed} empty="You have not completed the same title yet." />
+    <MediaShelf title={`From ${data.targetUser.username}'s library`} description="Titles they saved that are not currently in your library." items={recommendations} empty="There are no new titles to recommend from this library yet." />
+  </main>
 }

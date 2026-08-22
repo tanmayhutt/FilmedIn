@@ -48,7 +48,7 @@ export default function Onboarding() {
           <form onSubmit={handleSave} className="w-full flex flex-col gap-6">
             <div className="text-left">
               <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2 flex items-center gap-2">
-                <User className="w-4 h-4 text-blue-400" /> Choose a Username
+                <User className="w-4 h-4 text-zinc-500" /> Choose a Username
               </label>
               <div className="relative group">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold select-none">@</span>

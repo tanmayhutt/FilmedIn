@@ -171,7 +171,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
                 <div className="flex-1 flex flex-col gap-4">
                   <div>
                     <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-1.5 block flex items-center gap-2">
-                      <User className="w-4 h-4 text-blue-400" /> Username
+                      <User className="w-4 h-4 text-zinc-500" /> Username
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 select-none font-bold">@</span>
@@ -215,7 +215,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
                       type="button"
                       onClick={() => setAvatar(url)}
                       className={`relative aspect-square rounded-full overflow-hidden border-2 transition-all hover:scale-105 ${
-                        avatar === url ? 'border-blue-500 scale-105 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-white/10 hover:border-zinc-600'
+                        avatar === url ? 'border-[#d2b48c] scale-105' : 'border-white/10 hover:border-zinc-600'
                       }`}
                     >
                       <img src={url} alt="Preset avatar" className="w-full h-full object-cover bg-zinc-100" />
@@ -227,7 +227,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
               {/* Profile Banner Selection */}
               <div>
                 <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2 block flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-purple-400" /> Profile Banner Backdrop
+                  <ImageIcon className="w-4 h-4 text-zinc-500" /> Profile Banner Backdrop
                 </label>
                 <div className="grid grid-cols-3 gap-2.5 max-h-[18vh] overflow-y-auto pr-2 pb-2 custom-scrollbar mb-3">
                   {PRESET_BANNERS.map((preset) => (
@@ -236,7 +236,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
                       type="button"
                       onClick={() => setBanner(preset.url)}
                       className={`relative h-14 rounded-xl overflow-hidden border-2 transition-all group ${
-                        banner === preset.url ? 'border-blue-500 scale-105 shadow-lg' : 'border-white/10 hover:border-zinc-600'
+                        banner === preset.url ? 'border-[#d2b48c] scale-105' : 'border-white/10 hover:border-zinc-600'
                       }`}
                     >
                       <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
@@ -303,7 +303,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
                 <Button onClick={() => setIsOpen(false)} variant="ghost" className="text-zinc-400 hover:text-white hover:bg-white/5 text-xs">
                   Cancel
                 </Button>
-                <Button onClick={handleSave} disabled={loading || deleting} className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-6">
+                <Button onClick={handleSave} disabled={loading || deleting} className="bg-[#e8e0d3] hover:bg-white text-[#111210] text-xs px-6">
                   {loading ? <Spinner className="w-4 h-4" /> : 'Save Changes'}
                 </Button>
               </div>

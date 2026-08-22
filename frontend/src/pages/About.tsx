@@ -12,7 +12,7 @@ export default function About() {
         </div>
         <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight text-white leading-tight mb-8">
           Your Cinematic Identity, <br className="hidden sm:block" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">Perfectly Captured.</span>
+          <span className="text-[#d2b48c]">Perfectly Captured.</span>
         </h1>
         <p className="text-lg sm:text-xl text-zinc-300 max-w-3xl leading-relaxed mb-12 font-medium">
           What you watch becomes part of your story. FilmedIn is a focused social collection space where movies and television live together, organised around your own viewing journey.
@@ -31,7 +31,7 @@ export default function About() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-12 w-full">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="clay-card p-6 flex flex-col items-center text-center">
-            <Library className="h-8 w-8 text-[#caa4df] mb-4" aria-hidden="true" />
+            <Library className="h-8 w-8 text-zinc-500 mb-4" aria-hidden="true" />
             <span className="text-sm font-bold text-white mb-1">Movies + TV</span>
             <span className="text-xs text-zinc-400">One unified library</span>
           </div>
@@ -69,22 +69,22 @@ export default function About() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="clay-card p-6">
-              <Shield className="w-8 h-8 text-blue-400 mb-4" />
+              <Shield className="w-8 h-8 text-zinc-500 mb-4" />
               <h3 className="text-lg font-bold text-white mb-2">Ad-Free Experience</h3>
               <p className="text-sm text-zinc-400">Your cinematic identity shouldn't be interrupted by ads. We keep the UI clean and focused.</p>
             </div>
             <div className="clay-card p-6">
-              <Zap className="w-8 h-8 text-emerald-400 mb-4" />
+              <Zap className="w-8 h-8 text-zinc-500 mb-4" />
               <h3 className="text-lg font-bold text-white mb-2">Lightning Fast</h3>
               <p className="text-sm text-zinc-400">Built on modern web technologies ensuring instant searches and snappy navigation.</p>
             </div>
             <div className="clay-card p-6">
-              <Users className="w-8 h-8 text-purple-400 mb-4" />
+              <Users className="w-8 h-8 text-zinc-500 mb-4" />
               <h3 className="text-lg font-bold text-white mb-2">Community First</h3>
               <p className="text-sm text-zinc-400">Connect with friends, share playlists, and discover niche films together.</p>
             </div>
             <div className="clay-card p-6">
-              <Globe className="w-8 h-8 text-pink-400 mb-4" />
+              <Globe className="w-8 h-8 text-zinc-500 mb-4" />
               <h3 className="text-lg font-bold text-white mb-2">Global Data</h3>
               <p className="text-sm text-zinc-400">Powered by TMDB, offering comprehensive metadata across all languages and regions.</p>
             </div>

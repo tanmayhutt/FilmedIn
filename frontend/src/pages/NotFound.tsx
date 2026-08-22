@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <main className="min-h-[70vh] flex items-center justify-center px-4 py-16">
       <section className="clay-card max-w-2xl w-full p-8 sm:p-12 text-center">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#9062aa]/20 text-[#b98bd2]">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-xl bg-white/[0.05] text-zinc-500">
           <Clapperboard aria-hidden="true" />
         </div>
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-zinc-400">Error 404</p>

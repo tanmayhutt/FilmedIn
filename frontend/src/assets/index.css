@@ -2,21 +2,18 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --theme-bg: #0f1117;
-  --theme-primary: #9a6bc1;
-  --theme-primary-hover: #aa7bce;
-  --theme-dark: #171a22;
-  --theme-dark-hover: #20242f;
-  --theme-comp-green: #82ac62;
-  --theme-comp-orange: #c69b61;
+  --theme-bg: #0d0e0e;
+  --theme-primary: #d2b48c;
+  --theme-primary-hover: #e0c49d;
+  --theme-dark: #171817;
+  --theme-dark-hover: #20211f;
+  --theme-comp-green: #a4aa9a;
+  --theme-comp-orange: #d2b48c;
 }
 
 body {
   background-color: var(--theme-bg);
-  background-image: 
-    radial-gradient(circle at 18% 12%, rgba(154, 107, 193, 0.14), transparent 34%),
-    radial-gradient(circle at 82% 38%, rgba(94, 125, 161, 0.08), transparent 36%),
-    linear-gradient(180deg, #0f1117 0%, #12151d 55%, #0f1117 100%);
+  background-image: linear-gradient(180deg, #0d0e0e 0%, #111210 55%, #0d0e0e 100%);
   background-attachment: fixed;
   color: #f4f4f5;
   font-family: var(--font-sans);
@@ -26,12 +23,12 @@ body {
 }
 
 ::selection {
-  background: rgba(144, 98, 170, 0.55);
-  color: #ffffff;
+  background: rgba(210, 180, 140, 0.7);
+  color: #0d0e0e;
 }
 
 :where(a, button, input, textarea, select, [tabindex]):focus-visible {
-  outline: 3px solid #caa4df;
+  outline: 2px solid #d2b48c;
   outline-offset: 3px;
 }
 
@@ -44,8 +41,8 @@ body {
 /* Flat Organic Cards with Generous Radii */
 .clay-card, .organic-card {
   background-color: var(--theme-dark);
-  border: none;
-  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 1.25rem;
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
@@ -55,35 +52,36 @@ body {
 
 .clay-card-blue {
   background-color: var(--theme-dark);
-  border-radius: 2rem;
+  border-radius: 1.25rem;
   color: #ffffff;
 }
 
 .clay-card-purple {
   background-color: var(--theme-primary);
-  border-radius: 2rem;
-  color: #ffffff;
+  border-radius: 1.25rem;
+  color: #111210;
 }
 
 /* Flat Organic Posters */
 .clay-poster, .organic-poster {
-  border-radius: 1.75rem;
-  border: none;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   overflow: hidden;
   background-color: var(--theme-dark);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.22s ease, border-color 0.22s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .clay-poster:hover, .organic-poster:hover {
-    transform: scale(1.04);
+    transform: translateY(-3px);
+    border-color: rgba(210, 180, 140, 0.35);
   }
 }
 
 /* Solid Pill Buttons */
 .clay-button-primary, .organic-button-primary {
   background: var(--theme-primary);
-  color: #ffffff;
+  color: #111210;
   font-weight: 700;
   border-radius: 9999px;
   border: none;
@@ -112,7 +110,7 @@ body {
 
 .clay-button-purple {
   background: var(--theme-primary);
-  color: #ffffff;
+  color: #111210;
   font-weight: 600;
   border-radius: 9999px;
   border: none;
@@ -145,7 +143,7 @@ body {
 
 .clay-badge-blue, .clay-badge-purple {
   background: var(--theme-primary);
-  color: #ffffff;
+  color: #111210;
   border-radius: 9999px;
   font-weight: 600;
   border: none;
@@ -153,8 +151,8 @@ body {
 
 .clay-modal {
   background-color: var(--theme-dark);
-  border: none;
-  border-radius: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 

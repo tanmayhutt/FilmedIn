@@ -61,7 +61,7 @@ export function LibraryOverview({ playlists, username, isOwner }: { playlists: P
       <div className="clay-card overflow-hidden border border-white/10">
         <div className="flex flex-col gap-5 p-6 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#caa4df]">Personal collection</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#d2b48c]">Personal collection</p>
             <h2 id="library-heading" className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">
               {isOwner ? 'Your Library' : `${username}'s Library`}
             </h2>

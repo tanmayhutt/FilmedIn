@@ -89,22 +89,22 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
               <button
                 type="button"
                 onClick={handleToggleLike}
-                className={`p-1 transition-all hover:scale-110 active:scale-125 focus:outline-none ${isLiked ? 'text-[#9062aa]' : 'text-zinc-400 hover:text-[#9062aa]'}`}
+                className={`p-1 transition-colors focus:outline-none ${isLiked ? 'text-[#d2b48c]' : 'text-zinc-500 hover:text-white'}`}
                 title={isLiked ? 'Liked' : 'Like'}
                 aria-label={isLiked ? `Unlike ${title}` : `Like ${title}`}
               >
-                <Heart className={`w-4 h-4 transition-all ${isLiked ? 'fill-[#9062aa]' : ''}`} />
+                <Heart className={`w-4 h-4 transition-all ${isLiked ? 'fill-[#d2b48c]' : ''}`} />
               </button>
 
               {/* Plain Bookmark Save Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  className={`p-1 transition-all hover:scale-110 active:scale-125 focus:outline-none ${saved ? 'text-[#9062aa]' : 'text-zinc-400 hover:text-[#9062aa]'}`}
+                  className={`p-1 transition-colors focus:outline-none ${saved ? 'text-[#d2b48c]' : 'text-zinc-500 hover:text-white'}`}
                   title={saved ? `Saved in: ${savedPlaylistNames.join(', ')}` : 'Save to list'}
                   aria-label={saved ? `Manage ${title} in your lists` : `Save ${title} to a list`}
                 >
-                  <Bookmark className={`w-4 h-4 transition-all ${saved ? 'fill-[#9062aa]' : ''}`} />
+                  <Bookmark className={`w-4 h-4 transition-all ${saved ? 'fill-[#d2b48c]' : ''}`} />
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent 
@@ -114,7 +114,7 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
                   <div className="px-2.5 py-1.5">
                     <div className="text-xs font-bold text-white truncate max-w-[180px]">{title}</div>
                     {saved ? (
-                      <div className="text-[11px] font-medium text-blue-400 mt-0.5">
+                      <div className="text-[11px] font-medium text-[#d2b48c] mt-0.5">
                         Saved in: {savedPlaylistNames.join(', ')}
                       </div>
                     ) : (
@@ -135,7 +135,7 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
                         >
                           <span className="truncate max-w-[140px] text-xs font-medium">{pl.name}</span>
                           {inPl ? (
-                            <Check className="w-4 h-4 text-blue-400 shrink-0" />
+                            <Check className="w-4 h-4 text-zinc-400 shrink-0" />
                           ) : (
                             <Plus className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
                           )}
@@ -147,7 +147,7 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
                   {hasToken ? (
                     <DropdownMenuItem 
                       onClick={handleOpenCreateModal}
-                      className="text-xs text-blue-400 font-bold cursor-pointer hover:bg-white/5 p-2 flex items-center gap-1.5 mt-1 border-t border-white/5 rounded-xl"
+                      className="text-xs text-[#d2b48c] font-bold cursor-pointer hover:bg-white/5 p-2 flex items-center gap-1.5 mt-1 border-t border-white/5 rounded-xl"
                     >
                       <Plus className="w-3.5 h-3.5" /> Create New List
                     </DropdownMenuItem>

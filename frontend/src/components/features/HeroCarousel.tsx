@@ -41,7 +41,7 @@ export function HeroCarousel() {
   }, [items.length])
 
   if (items.length === 0) {
-    return <div className="w-full h-[60vh] sm:h-[85vh] bg-[var(--theme-dark)] animate-pulse" />
+    return <div className="flex h-[42vh] min-h-[360px] w-full items-end bg-[var(--theme-dark)] px-5 pb-14 sm:px-8"><div className="h-2 w-32 rounded-full bg-white/[0.06]" /></div>
   }
 
   const currentItem = items[currentIndex]
@@ -116,13 +116,6 @@ export function HeroCarousel() {
         <ChevronRight className="w-6 h-6 ml-0.5" />
       </button>
 
-      {/* Subtle Bottom Wave Mask */}
-      <div className="absolute bottom-0 inset-x-0 pointer-events-none z-10">
-        <svg className="w-full h-12 sm:h-20 text-[#444b58] preserve-3d" viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 60C240 100 480 20 720 60C960 100 1200 30 1440 60V120H0V60Z" fill="currentColor"/>
-        </svg>
-      </div>
-
       {/* Pagination Dots */}
       <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
         {items.map((_, idx) => (
@@ -131,7 +124,7 @@ export function HeroCarousel() {
             onClick={() => setCurrentIndex(idx)}
             className={`transition-all duration-300 rounded-full focus:outline-none ${
               idx === currentIndex 
-                ? 'w-8 h-2.5 bg-[#9062aa] shadow-md' 
+                ? 'w-8 h-2.5 bg-[#d2b48c] shadow-md'
                 : 'w-2.5 h-2.5 bg-white/30 hover:bg-white/60'
             }`}
           />

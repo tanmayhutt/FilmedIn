@@ -18,7 +18,7 @@ export default function Home() {
         <section className="clay-card border border-white/10 p-6 sm:p-9 lg:p-10" aria-labelledby="collection-promise">
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="max-w-2xl">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#caa4df]">Movies and TV, finally together</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#d2b48c]">Movies and TV, finally together</p>
               <h2 id="collection-promise" className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
                 One calm place for everything you watch.
               </h2>
@@ -37,19 +37,19 @@ export default function Home() {
 
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: 'Watching', detail: 'In progress', icon: PlayCircle, color: '#c69b61' },
-                { label: 'Watchlist', detail: 'Up next', icon: Bookmark, color: '#7299c6' },
-                { label: 'Watched', detail: 'Completed', icon: CheckCircle2, color: '#82ac62' },
-                { label: 'Liked', detail: 'Favourites', icon: Heart, color: '#b6789e' },
-              ].map(({ label, detail, icon: Icon, color }) => (
-                <div key={label} className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4 sm:p-5">
-                  <Icon className="h-5 w-5" style={{ color }} aria-hidden="true" />
+                { label: 'Watching', detail: 'In progress', icon: PlayCircle },
+                { label: 'Watchlist', detail: 'Up next', icon: Bookmark },
+                { label: 'Watched', detail: 'Completed', icon: CheckCircle2 },
+                { label: 'Liked', detail: 'Favourites', icon: Heart },
+              ].map(({ label, detail, icon: Icon }) => (
+                <div key={label} className="rounded-xl border border-white/[0.08] bg-black/20 p-4 sm:p-5">
+                  <Icon className="h-5 w-5 text-zinc-500" aria-hidden="true" />
                   <p className="mt-5 text-sm font-bold text-white">{label}</p>
                   <p className="mt-0.5 text-xs text-zinc-500">{detail}</p>
                 </div>
               ))}
-              <div className="col-span-2 flex items-center gap-3 rounded-[1.5rem] border border-white/10 bg-[#9062aa]/15 px-5 py-4">
-                <Users className="h-5 w-5 text-[#caa4df]" aria-hidden="true" />
+              <div className="col-span-2 flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-5 py-4">
+                <Users className="h-5 w-5 text-zinc-500" aria-hidden="true" />
                 <p className="text-xs font-semibold text-zinc-300">Follow people whose taste you trust and build a Taste Blend together.</p>
               </div>
             </div>
@@ -72,7 +72,7 @@ export default function Home() {
               <Link
                 key={studio.id}
                 to={`/studio/${studio.id}`}
-                className="bg-[#1b1b22] hover:bg-[#23232c] p-4 h-20 rounded-[1.75rem] flex items-center justify-center group hover:scale-[1.04] transition-all border border-white/10 hover:border-[#9062aa]/40 shadow-xl"
+                className="bg-[#171817] hover:bg-[#20211f] p-4 h-20 rounded-xl flex items-center justify-center group transition-colors border border-white/[0.08] hover:border-[#d2b48c]/30"
               >
                 <img 
                   src={studio.logoUrl} 
@@ -84,16 +84,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Organic wave accent */}
-        <div className="relative h-12 w-full overflow-hidden flex items-center justify-center my-6 opacity-70">
-          <svg className="w-full max-w-2xl h-full text-[#9062aa]" viewBox="0 0 1000 100" preserveAspectRatio="none" fill="none" stroke="currentColor" strokeWidth="4" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,50 C250,100 250,0 500,50 C750,100 750,0 1000,50" />
-          </svg>
-        </div>
-
         {/* Category filter */}
         <div className="space-y-8">
-          <div className="flex max-w-full w-fit items-center gap-2 overflow-x-auto rounded-full border border-white/10 bg-[#1b1b22] p-2 shadow-lg scrollbar-hide">
+          <div className="flex max-w-full w-fit items-center gap-1 overflow-x-auto rounded-xl border border-white/[0.08] bg-[#171817] p-1.5 scrollbar-hide">
             {[
               { id: 'all', label: 'All Trending' },
               { id: 'movies', label: 'Movies' },
@@ -108,7 +101,7 @@ export default function Home() {
                   onClick={() => setActiveCategory(cat.id as any)}
                   className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                     isActive 
-                      ? 'bg-[#9062aa] text-white shadow-lg scale-105' 
+                      ? 'bg-[#e8e0d3] text-[#111210]'
                       : 'text-zinc-400 hover:text-white hover:bg-white/5'
                   }`}
                 >

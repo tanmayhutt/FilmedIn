@@ -148,7 +148,7 @@ export default function Search() {
                   <Link key={user._id} to={`/u/${user.username}`} className="flex items-center gap-4 clay-card p-5 group">
                     <UserAvatar avatarUrl={user.avatarUrl} username={user.username} className="w-12 h-12" />
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-white group-hover:text-blue-400 transition-colors">@{user.username}</div>
+                      <div className="font-bold text-white group-hover:text-[#d2b48c] transition-colors">@{user.username}</div>
                       <div className="text-xs text-zinc-400 truncate">Cinephile Profile</div>
                     </div>
                   </Link>

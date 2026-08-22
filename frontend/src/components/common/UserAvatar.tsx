@@ -13,10 +13,10 @@ export function UserAvatar({ avatarUrl, username = 'Cinephile', className = '' }
   
   // Deterministic color gradient based on username
   const gradients = [
-    'from-rose-500 to-purple-600',
-    'from-amber-500 to-rose-600',
-    'from-indigo-500 to-cyan-500',
-    'from-emerald-500 to-teal-600',
+    'from-stone-500 to-stone-800',
+    'from-zinc-400 to-zinc-700',
+    'from-neutral-500 to-neutral-900',
+    'from-stone-400 to-neutral-700',
     'from-fuchsia-500 to-[#1b1b22]',
     'from-[#f43f5e] to-[#8b5cf6]'
   ]

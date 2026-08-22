@@ -4,9 +4,7 @@ import { Logo } from './Logo'
 export function Footer() {
   return (
     <footer className="mt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 w-full">
-      <div className="clay-card p-10 sm:p-14 border border-white/10 rounded-[2.5rem] relative overflow-hidden">
-        {/* Organic Wave Top Accent */}
-        <div className="absolute top-0 inset-x-0 h-1.5 bg-[#9062aa]" />
+      <div className="clay-card p-10 sm:p-14 relative overflow-hidden">
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
 

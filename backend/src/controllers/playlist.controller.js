@@ -291,21 +291,23 @@ exports.getTasteBlend = async (req, res) => {
       const lower = (plName || '').toLowerCase().trim();
       if (lower.includes('watchlist')) return 'watchlist';
       if (lower.includes('currently watching') || lower.includes('watching')) return 'currentlyWatching';
+      if (lower.includes('liked') || lower.includes('favourite') || lower.includes('favorite')) return 'liked';
       if (lower.includes('watched') || lower.includes('history')) return 'watched';
       return 'custom';
     };
 
     // Helper to group items by preset category for a user
     const categorizeUserItems = (items, plMap) => {
-      const cat = { watchlist: new Set(), currentlyWatching: new Set(), watched: new Set(), custom: new Set() };
+      const cat = { watchlist: new Set(), currentlyWatching: new Set(), watched: new Set(), liked: new Set(), custom: new Set() };
       const itemObjs = new Map();
 
       items.forEach(item => {
-        itemObjs.set(item.tmdbId, item);
+        const mediaKey = `${item.mediaType}:${item.tmdbId}`;
+        itemObjs.set(mediaKey, item);
         const pl = plMap.get(item.playlistId.toString());
         const category = pl ? getPresetCategory(pl.name) : 'custom';
         if (cat[category]) {
-          cat[category].add(item.tmdbId);
+          cat[category].add(mediaKey);
         }
       });
       return { cat, itemObjs };
@@ -318,12 +320,12 @@ exports.getTasteBlend = async (req, res) => {
     const computeCategoryBreakdown = async (set1, set2) => {
       const mutualIds = Array.from(set1).filter(id => set2.has(id));
       const mutualItems = [];
-      for (const tmdbId of mutualIds.slice(0, 6)) {
-        const item = u1ItemObjs.get(tmdbId);
+      for (const mediaKey of mutualIds.slice(0, 6)) {
+        const item = u1ItemObjs.get(mediaKey);
         if (item) {
-          const posterPath = await getPosterPath(tmdbId, item.mediaType);
+          const posterPath = await getPosterPath(item.tmdbId, item.mediaType);
           mutualItems.push({
-            tmdbId,
+            tmdbId: item.tmdbId,
             mediaType: item.mediaType,
             posterPath: posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null
           });
@@ -340,6 +342,7 @@ exports.getTasteBlend = async (req, res) => {
     const watchlistBreakdown = await computeCategoryBreakdown(u1Cat.watchlist, u2Cat.watchlist);
     const currentlyWatchingBreakdown = await computeCategoryBreakdown(u1Cat.currentlyWatching, u2Cat.currentlyWatching);
     const watchedBreakdown = await computeCategoryBreakdown(u1Cat.watched, u2Cat.watched);
+    const likedBreakdown = await computeCategoryBreakdown(u1Cat.liked, u2Cat.liked);
     const customBreakdown = await computeCategoryBreakdown(u1Cat.custom, u2Cat.custom);
 
     // Count custom playlists
@@ -353,10 +356,10 @@ exports.getTasteBlend = async (req, res) => {
     const toWatchIds = Array.from(pendingU1).filter(id => pendingU2.has(id));
 
     const toWatchTogether = [];
-    for (const tmdbId of toWatchIds.slice(0, 12)) {
-      const item = u1ItemObjs.get(tmdbId);
+    for (const mediaKey of toWatchIds.slice(0, 12)) {
+      const item = u1ItemObjs.get(mediaKey);
       if (item) {
-        const details = await getMediaDetails(tmdbId, item.mediaType);
+        const details = await getMediaDetails(item.tmdbId, item.mediaType);
         if (details) toWatchTogether.push(details);
       }
     }
@@ -364,23 +367,23 @@ exports.getTasteBlend = async (req, res) => {
     // 2. Both Completed: Items in Watched for both users
     const completedIds = Array.from(u1Cat.watched).filter(id => u2Cat.watched.has(id));
     const bothCompleted = [];
-    for (const tmdbId of completedIds.slice(0, 12)) {
-      const item = u1ItemObjs.get(tmdbId);
+    for (const mediaKey of completedIds.slice(0, 12)) {
+      const item = u1ItemObjs.get(mediaKey);
       if (item) {
-        const details = await getMediaDetails(tmdbId, item.mediaType);
+        const details = await getMediaDetails(item.tmdbId, item.mediaType);
         if (details) bothCompleted.push(details);
       }
     }
 
     // Overall mutual IDs
-    const allU1Ids = new Set(u1AllItems.map(i => i.tmdbId));
-    const allU2Ids = new Set(u2AllItems.map(i => i.tmdbId));
+    const allU1Ids = new Set(u1AllItems.map(i => `${i.mediaType}:${i.tmdbId}`));
+    const allU2Ids = new Set(u2AllItems.map(i => `${i.mediaType}:${i.tmdbId}`));
     const allMutualIds = Array.from(allU1Ids).filter(id => allU2Ids.has(id));
 
     // 3. Recommendations: Unique titles from U2 with full details
-    const user2UniqueItems = u2AllItems.filter(i => !allU1Ids.has(i.tmdbId));
+    const user2UniqueItems = u2AllItems.filter(i => !allU1Ids.has(`${i.mediaType}:${i.tmdbId}`));
     const user2UniqueMap = new Map();
-    user2UniqueItems.forEach(i => user2UniqueMap.set(i.tmdbId, i));
+    user2UniqueItems.forEach(i => user2UniqueMap.set(`${i.mediaType}:${i.tmdbId}`, i));
 
     const recommendations = [];
     for (const item of Array.from(user2UniqueMap.values()).slice(0, 12)) {
@@ -390,20 +393,18 @@ exports.getTasteBlend = async (req, res) => {
 
     // Match percentage calculation based on preset & custom overlap
     const totalUnique = new Set([...allU1Ids, ...allU2Ids]).size;
-    let matchPercentage = 50;
-    let synergyTier = 'Fresh Perspectives';
+    let matchPercentage = 0;
+    let synergyTier = 'Not enough overlap yet';
 
     if (totalUnique > 0) {
       const jaccard = (allMutualIds.length / totalUnique) * 100;
-      matchPercentage = Math.min(99, Math.round(55 + (jaccard * 0.85) + (allMutualIds.length * 3.5)));
-    } else {
-      matchPercentage = 72; // default friendly initial blend score
+      matchPercentage = Math.round(jaccard);
     }
 
-    if (matchPercentage >= 85) synergyTier = 'High Compatibility';
-    else if (matchPercentage >= 70) synergyTier = 'Strong Overlap';
-    else if (matchPercentage >= 58) synergyTier = 'Moderate Alignment';
-    else synergyTier = 'Distinct Preferences';
+    if (matchPercentage >= 60) synergyTier = 'Very similar libraries';
+    else if (matchPercentage >= 35) synergyTier = 'Strong overlap';
+    else if (matchPercentage >= 15) synergyTier = 'Some common ground';
+    else if (totalUnique > 0) synergyTier = 'Distinct libraries';
 
     res.json({
       currentUser: { id: currentUser._id, username: currentUser.username, avatarUrl: currentUser.avatarUrl },
@@ -414,6 +415,7 @@ exports.getTasteBlend = async (req, res) => {
         watchlist: watchlistBreakdown,
         currentlyWatching: currentlyWatchingBreakdown,
         watched: watchedBreakdown,
+        liked: likedBreakdown,
       },
       customBreakdown: {
         u1CustomCount,

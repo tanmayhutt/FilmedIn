@@ -229,7 +229,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               {/* Dynamic Island */}
               <div className="absolute top-[6px] inset-x-0 mx-auto w-[64px] h-[18px] bg-black rounded-full z-20 flex justify-end items-center px-1.5 shadow-[0_0_1px_rgba(255,255,255,0.1)]">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#111] border border-white/5 shadow-inner flex justify-center items-center">
-                  <div className="w-1 h-1 rounded-full bg-blue-900/40"></div>
+                  <div className="w-1 h-1 rounded-full bg-white/20"></div>
                 </div>
               </div>
               

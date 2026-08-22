@@ -101,7 +101,7 @@ export default function Explore() {
 
       {loading ? (
         <div className="flex flex-col justify-center items-center py-20 clay-card" role="status" aria-live="polite">
-          <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+          <Loader2 className="w-10 h-10 text-zinc-500 animate-spin" />
           <p className="mt-4 text-sm text-zinc-300">Loading the latest titles</p>
         </div>
       ) : error ? (

@@ -50,7 +50,7 @@ export default function Studio() {
       <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh] text-center">
         <h2 className="text-2xl font-semibold mb-2">Studio not found</h2>
         <p className="text-zinc-500 mb-6">We couldn't find the studio you're looking for.</p>
-        <button onClick={() => navigate('/')} className="text-blue-500 hover:underline">
+        <button onClick={() => navigate('/')} className="text-[#d2b48c] hover:underline">
           Go back home
         </button>
       </div>
