@@ -1,5 +1,6 @@
 import { ArrowRight, Bookmark, CheckCircle2, Heart, PlayCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { PlaylistCover } from './PlaylistCover'
 
 type Playlist = {
   id: string
@@ -69,7 +70,7 @@ export function LibraryOverview({ playlists, username, isOwner }: { playlists: P
             const count = getCount(playlist)
             const content = (
               <>
-                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.025] text-zinc-500"><Icon className="h-[18px] w-[18px]" aria-hidden="true" /></span>
+                <PlaylistCover posters={playlist?.preview_posters} fallback={Icon} className="h-16 w-16 sm:h-[4.5rem] sm:w-[4.5rem]" />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1"><h3 className="font-bold text-zinc-100">{name}</h3><span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-600">{label}</span></div>
                   <p className="mt-1 truncate text-xs text-zinc-500">{description}</p>

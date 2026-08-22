@@ -7,6 +7,7 @@ import { ArrowLeft, ListVideo, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { usePageMetadata } from '@/components/common/RouteMetadata'
 import { hasSessionHint } from '@/utils/auth'
+import { PlaylistCover } from '@/components/features/PlaylistCover'
 
 export default function PlaylistDetails() {
     const { id } = useParams<{ id: string }>()
@@ -101,9 +102,7 @@ export default function PlaylistDetails() {
             </button>
 
             <header className="mb-8 flex flex-col gap-5 border-b border-white/[0.08] pb-8 sm:flex-row sm:items-end">
-                <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl border border-white/[0.09] bg-[#1b1c1a] text-zinc-600 shadow-xl sm:h-36 sm:w-36">
-                    <ListVideo className="h-9 w-9" aria-hidden="true" />
-                </div>
+                <PlaylistCover posters={items.slice(0, 4).map(item => item.poster_path ? `https://image.tmdb.org/t/p/w342${item.poster_path}` : '').filter(Boolean)} fallback={ListVideo} className="h-28 w-28 sm:h-36 sm:w-36" />
                 <div className="min-w-0">
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Playlist</p>
                     <h1 className="mt-2 break-words text-3xl font-black tracking-tight text-white sm:text-5xl">{playlist.name}</h1>

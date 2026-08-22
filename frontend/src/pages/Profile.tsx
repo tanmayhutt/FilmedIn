@@ -7,6 +7,7 @@ import { getPublicProfile, getPublicPlaylists, getFollowers, getFollowing, searc
 import { EditProfileModal } from '@/components/features/EditProfileModal'
 import { CreatePlaylistModal } from '@/components/features/CreatePlaylistModal'
 import { LibraryOverview } from '@/components/features/LibraryOverview'
+import { PlaylistCover } from '@/components/features/PlaylistCover'
 import { Input } from '@/components/ui/input'
 import { Plus, Trash2, Share2, Bookmark, UserPlus, UserMinus, X, Sparkles, Search, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -263,9 +264,7 @@ export default function Profile() {
                     {customPlaylists.map((playlist) => (
                         <article key={playlist.id} className="group flex min-w-0 items-center gap-4 px-4 py-4 transition-colors hover:bg-white/[0.03] sm:px-5">
                           <Link to={`/playlist/${playlist.id}`} className="flex min-w-0 flex-1 items-center gap-4">
-                            <div className="relative h-16 w-24 shrink-0">
-                              {playlist.preview_posters?.length ? playlist.preview_posters.slice(0, 3).map((poster: string, index: number) => <img key={poster} src={poster} alt="" className="absolute top-0 h-16 w-11 rounded-md border border-[#171817] object-cover shadow-md" style={{ left: `${index * 22}px`, zIndex: index + 1 }} />) : <span className="flex h-16 w-24 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.025]"><Bookmark className="h-5 w-5 text-zinc-600" aria-hidden="true" /></span>}
-                            </div>
+                            <PlaylistCover posters={playlist.preview_posters} fallback={Bookmark} className="h-16 w-16 sm:h-[4.5rem] sm:w-[4.5rem]" />
                             <div className="min-w-0 flex-1"><h3 className="truncate text-sm font-bold text-zinc-100 sm:text-base">{playlist.name}</h3><p className="mt-1 text-xs text-zinc-500">{playlist.playlist_items?.[0]?.count || 0} titles · Personal playlist</p></div>
                             <ArrowRight className="h-4 w-4 shrink-0 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-white" aria-hidden="true" />
                           </Link>

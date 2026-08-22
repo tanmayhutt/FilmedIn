@@ -69,7 +69,7 @@ async function enrichPlaylists(playlists) {
       count: { $sum: 1 },
       previewItems: { $push: { tmdbId: '$tmdbId', mediaType: '$mediaType' } },
     } },
-    { $project: { count: 1, previewItems: { $slice: ['$previewItems', 3] } } },
+    { $project: { count: 1, previewItems: { $slice: ['$previewItems', 4] } } },
   ]);
   const summariesByPlaylist = new Map(summaries.map(summary => [summary._id.toString(), summary]));
 
