@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { MediaCard } from '@/components/features/MediaCard';
 import { TMDBMovie, TMDBTVShow, fetchByGenre, fetchTrendingMovies, fetchTrendingTV, fetchGenres, fetchTopRated } from '@/services/tmdb.service';
-import { Film, Loader2, RefreshCw, Tv } from 'lucide-react';
+import { Film, Loader2, RefreshCw, Search, Tv } from 'lucide-react';
 import { usePageMetadata } from '@/components/common/RouteMetadata';
+import { Input } from '@/components/ui/input';
 
 const exploreLinks = [
   { label: 'Popular movies', to: '/explore?type=movie', icon: Film },
@@ -13,6 +14,7 @@ const exploreLinks = [
 ];
 
 export default function Explore() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type') as 'movie' | 'tv' | null;
   const genreId = searchParams.get('genre');
@@ -23,6 +25,7 @@ export default function Explore() {
   const [error, setError] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   const [title, setTitle] = useState('Explore Movies and TV Shows');
+  const [searchValue, setSearchValue] = useState('');
 
   usePageMetadata(title, 'Browse popular movies, TV shows, genres, studios, and curated recommendations on FilmedIn.');
 
@@ -89,6 +92,21 @@ export default function Explore() {
         <p className="text-zinc-300 mt-2 text-sm sm:text-base">
           Browse current favorites across film and television, then narrow the collection by format, rating, or genre.
         </p>
+        <form
+          role="search"
+          className="mt-6 flex max-w-2xl gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (searchValue.trim()) navigate(`/search?q=${encodeURIComponent(searchValue.trim())}`);
+          }}
+        >
+          <label htmlFor="explore-title-search" className="sr-only">Search movies and TV shows</label>
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" aria-hidden="true" />
+            <Input id="explore-title-search" value={searchValue} onChange={(event) => setSearchValue(event.target.value)} className="h-12 w-full rounded-xl border border-white/10 bg-black/30 pl-11 pr-4 text-white placeholder:text-zinc-500" placeholder="Find a movie or TV show" autoComplete="off" />
+          </div>
+          <button type="submit" disabled={!searchValue.trim()} className="clay-button-primary h-12 px-5 text-sm disabled:opacity-50">Search</button>
+        </form>
         <nav aria-label="Explore collections" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
           {exploreLinks.map(({ label, to, icon: Icon }) => (
             <Link key={to} to={to} className="clay-button-secondary px-4 py-3 text-sm inline-flex items-center justify-center gap-2">
