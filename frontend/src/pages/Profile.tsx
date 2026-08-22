@@ -296,11 +296,11 @@ export default function Profile() {
                         />
                     )}
                     <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1b1b22] via-transparent to-transparent opacity-95" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#171817] via-transparent to-transparent opacity-95" />
                     
                     {/* Organic Wavy Contour SVG Layer */}
                     <div className="absolute bottom-0 inset-x-0 pointer-events-none opacity-40">
-                        <svg className="w-full h-12 text-[#1b1b22]" viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg className="w-full h-12 text-[#171817]" viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M0 60C240 100 480 20 720 60C960 100 1200 30 1440 60V120H0V60Z" fill="currentColor"/>
                         </svg>
                     </div>
@@ -313,7 +313,7 @@ export default function Profile() {
                         <UserAvatar
                             avatarUrl={profile.avatarUrl}
                             username={profile.username}
-                            className="w-28 h-28 sm:w-36 sm:h-36 border-4 border-[#1b1b22] shadow-2xl shrink-0 text-4xl"
+                            className="w-28 h-28 sm:w-36 sm:h-36 border-4 border-[#171817] shadow-2xl shrink-0 text-4xl"
                         />
 
                         {/* User Details */}
@@ -373,7 +373,7 @@ export default function Profile() {
                         </div>
 
                         {isUserSearchOpen && userQuery.trim().length > 0 && (
-                            <div className="absolute top-full left-0 mt-2 w-72 bg-[#1b1b22] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 animate-in fade-in slide-in-from-top-2">
+                            <div className="absolute top-full left-0 mt-2 w-72 bg-[#171817] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 p-1.5 animate-in fade-in slide-in-from-top-2">
                                 {searchingUsers ? (
                                     <div className="px-3 py-2 text-zinc-500 text-xs">Searching users...</div>
                                 ) : userResults.length > 0 ? (
@@ -413,7 +413,7 @@ export default function Profile() {
                                     <Share2 className="w-3.5 h-3.5" />
                                     Share
                                 </button>
-                                <button onClick={handleSignOut} className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-xs font-semibold text-rose-400 border border-rose-500/20 rounded-xl flex items-center gap-2 transition-all">
+                                <button onClick={handleSignOut} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-4 py-2 text-xs font-semibold text-zinc-400 transition-colors hover:bg-white/[0.07] hover:text-white">
                                     <LogOut className="w-3.5 h-3.5" />
                                     Sign Out
                                 </button>

@@ -17,8 +17,8 @@ export function UserAvatar({ avatarUrl, username = 'Cinephile', className = '' }
     'from-zinc-400 to-zinc-700',
     'from-neutral-500 to-neutral-900',
     'from-stone-400 to-neutral-700',
-    'from-fuchsia-500 to-[#1b1b22]',
-    'from-[#f43f5e] to-[#8b5cf6]'
+    'from-zinc-500 to-neutral-900',
+    'from-stone-500 to-zinc-800'
   ]
 
   let charCodeSum = 0

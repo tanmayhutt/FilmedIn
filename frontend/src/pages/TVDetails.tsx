@@ -25,7 +25,7 @@ function EpisodeCard({ ep }: { ep: TMDBEpisode }) {
         onClick={() => setExpanded(p => !p)}
         className="w-full flex items-start gap-4 p-3 text-left hover:bg-white/5 transition-colors rounded-xl"
       >
-        <div className="w-24 aspect-video clay-poster overflow-hidden shrink-0 relative bg-[#1b1b22]">
+        <div className="w-24 aspect-video clay-poster overflow-hidden shrink-0 relative bg-[#171817]">
           {ep.still_path ? (
             <img src={`https://image.tmdb.org/t/p/w300${ep.still_path}`} alt={ep.name} className="w-full h-full object-cover" />
           ) : (
@@ -89,7 +89,7 @@ function SeasonSection({ tvId, seasonNumber, seasonName, posterPath, seasonRatin
         {posterPath ? (
           <img src={`https://image.tmdb.org/t/p/w200${posterPath}`} alt={seasonName} className="w-12 h-16 object-cover clay-poster shrink-0" />
         ) : (
-          <div className="w-12 h-16 clay-poster bg-[#1b1b22] flex items-center justify-center shrink-0">
+          <div className="w-12 h-16 clay-poster bg-[#171817] flex items-center justify-center shrink-0">
             <Tv className="w-5 h-5 text-zinc-400" />
           </div>
         )}
@@ -181,7 +181,7 @@ export default function TVDetails() {
             {show.poster_path ? (
               <img src={`https://image.tmdb.org/t/p/w500${show.poster_path}`} alt={show.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-zinc-500 bg-[#1b1b22]">No Image</div>
+              <div className="absolute inset-0 flex items-center justify-center text-zinc-500 bg-[#171817]">No Image</div>
             )}
           </div>
           <div className="flex flex-col gap-2">

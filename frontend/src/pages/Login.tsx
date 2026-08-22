@@ -27,7 +27,7 @@ function titleName(item: CatalogueTitle) {
 
 function Poster({ item, className = '' }: { item: CatalogueTitle; className?: string }) {
   return (
-    <div className={`overflow-hidden rounded-2xl bg-[#1a1d26] shadow-2xl ${className}`}>
+    <div className={`overflow-hidden rounded-2xl bg-[#1a1b19] shadow-2xl ${className}`}>
       {item.poster_path ? <img src={`https://image.tmdb.org/t/p/w342${item.poster_path}`} alt={titleName(item)} className="h-full w-full object-cover" loading="lazy" /> : <div className="flex h-full items-center justify-center text-zinc-700"><Film className="h-5 w-5" /></div>}
     </div>
   )
@@ -61,7 +61,7 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0b0d12] text-white">
+    <main className="min-h-screen bg-[#0d0e0e] text-white">
       <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_410px]">
         <div className="order-2 min-w-0 lg:order-none">
           <section className="relative min-h-[760px] overflow-hidden border-b border-white/[0.07] sm:min-h-screen">
@@ -90,11 +90,11 @@ export default function Login() {
                 { label: 'Watching', detail: 'In progress now', icon: Tv, poster: catalogue[1] },
                 { label: 'Watched', detail: 'Your completed history', icon: Check, poster: catalogue[2] },
                 { label: 'Liked', detail: 'The ones worth keeping', icon: Sparkles, poster: catalogue[3] },
-              ].map(({ label, detail, icon: Icon, poster }) => <div key={label} className="group relative min-h-[340px] overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#14171f] p-5"><Poster item={poster} className="absolute inset-0 rounded-none opacity-35 transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-[#11131a] via-[#11131a]/75 to-transparent" /><div className="relative flex h-full flex-col justify-end"><Icon className="h-5 w-5 text-[#d6b2e8]" /><h3 className="mt-4 text-xl font-black">{label}</h3><p className="mt-1 text-xs text-zinc-400">{detail}</p></div></div>)}</div>
+              ].map(({ label, detail, icon: Icon, poster }) => <div key={label} className="group relative min-h-[340px] overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#14171f] p-5"><Poster item={poster} className="absolute inset-0 rounded-none opacity-35 transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-[#11131a] via-[#11131a]/75 to-transparent" /><div className="relative flex h-full flex-col justify-end"><Icon className="h-5 w-5 text-zinc-400" /><h3 className="mt-4 text-xl font-black">{label}</h3><p className="mt-1 text-xs text-zinc-400">{detail}</p></div></div>)}</div>
             </div>
           </section>
 
-          <section className="border-y border-white/[0.07] bg-[#11131a] px-5 py-24 sm:px-10 sm:py-32 lg:px-14">
+          <section className="border-y border-white/[0.07] bg-[#111210] px-5 py-24 sm:px-10 sm:py-32 lg:px-14">
             <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <div><span className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-zinc-400"><Film className="h-3.5 w-3.5" />Movies <span className="text-zinc-700">+</span> <Tv className="h-3.5 w-3.5" />TV shows</span><h2 className="mt-6 text-4xl font-black tracking-[-0.04em] sm:text-6xl">Stop splitting your taste between two apps.</h2><p className="mt-6 text-base leading-8 text-zinc-400">Films, limited series, long-running shows, seasons, episodes, ratings, and watch states live in the same calm library.</p></div>
               <div className="grid grid-cols-3 gap-3 sm:gap-4">{catalogue.slice(4, 10).map((item, index) => <div key={`${item.id}-${index}`} className={index > 2 ? 'translate-y-8' : ''}><Poster item={item} className="aspect-[2/3]" /><p className="mt-3 truncate text-xs font-semibold text-zinc-300">{titleName(item)}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-zinc-600">{'title' in item ? 'Movie' : 'TV show'}</p></div>)}</div>
@@ -104,12 +104,12 @@ export default function Login() {
           <section className="px-5 py-24 sm:px-10 sm:py-32 lg:px-14">
             <div className="mx-auto max-w-6xl">
               <div className="grid gap-12 lg:grid-cols-2 lg:items-end"><div><p className="text-xs font-bold uppercase tracking-[0.22em] text-[#d2b48c]">Follow the work</p><h2 className="mt-5 text-4xl font-black tracking-[-0.04em] sm:text-6xl">A cast name should lead somewhere.</h2></div><p className="text-base leading-8 text-zinc-400">Open anyone in a movie or show. See their biography, every major film and television credit, the roles they played, and jump directly into another title.</p></div>
-              <div className="mt-14 overflow-hidden rounded-[2.25rem] border border-white/[0.08] bg-[#151821] p-6 sm:p-9"><div className="grid gap-8 md:grid-cols-[180px_1fr]"><div className="aspect-[3/4] rounded-[1.5rem] bg-[radial-gradient(circle_at_55%_22%,#d8aa83_0%,#8b5949_26%,#2a2024_58%,#13151c_100%)]" /><div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Cast and filmography</p><h3 className="mt-3 text-3xl font-black">One performance becomes a path.</h3><div className="mt-7 grid grid-cols-4 gap-3">{catalogue.slice(6, 10).map((item) => <div key={item.id}><Poster item={item} className="aspect-[2/3]" /><p className="mt-2 truncate text-[10px] font-semibold text-zinc-400">{titleName(item)}</p></div>)}</div><div className="mt-7 inline-flex items-center gap-2 text-xs font-bold text-[#d6b2e8]">Explore complete credits <ArrowRight className="h-4 w-4" /></div></div></div></div>
+              <div className="mt-14 overflow-hidden rounded-[2.25rem] border border-white/[0.08] bg-[#151821] p-6 sm:p-9"><div className="grid gap-8 md:grid-cols-[180px_1fr]"><div className="aspect-[3/4] rounded-[1.5rem] bg-[radial-gradient(circle_at_55%_22%,#d8aa83_0%,#8b5949_26%,#2a2024_58%,#13151c_100%)]" /><div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Cast and filmography</p><h3 className="mt-3 text-3xl font-black">One performance becomes a path.</h3><div className="mt-7 grid grid-cols-4 gap-3">{catalogue.slice(6, 10).map((item) => <div key={item.id}><Poster item={item} className="aspect-[2/3]" /><p className="mt-2 truncate text-[10px] font-semibold text-zinc-400">{titleName(item)}</p></div>)}</div><div className="mt-7 inline-flex items-center gap-2 text-xs font-bold text-[#d2b48c]">Explore complete credits <ArrowRight className="h-4 w-4" /></div></div></div></div>
             </div>
           </section>
 
-          <section className="relative min-h-[680px] overflow-hidden border-y border-white/[0.07] bg-[linear-gradient(180deg,#34284f_0%,#a65f6e_42%,#dd9d76_58%,#17202b_59%,#0e1117_100%)] px-5 py-24 sm:px-10 sm:py-32 lg:px-14">
-            <div className="absolute left-[12%] top-[18%] h-24 w-24 rounded-full bg-[#ffe0ad]/80 blur-md" /><div className="absolute inset-x-0 bottom-[32%] h-[32%] bg-[#24263b] [clip-path:polygon(0_82%,13%_38%,25%_72%,42%_18%,58%_76%,73%_30%,87%_66%,100%_35%,100%_100%,0_100%)]" /><div className="absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-b from-[#485166]/80 to-[#0b0d12]" />
+          <section className="relative min-h-[680px] overflow-hidden border-y border-white/[0.07] bg-[linear-gradient(180deg,#6f5a43_0%,#b9845d_43%,#d4ad7a_58%,#27302e_59%,#0e1110_100%)] px-5 py-24 sm:px-10 sm:py-32 lg:px-14">
+            <div className="absolute left-[12%] top-[18%] h-24 w-24 rounded-full bg-[#ffe0ad]/80 blur-md" /><div className="absolute inset-x-0 bottom-[32%] h-[32%] bg-[#282b27] [clip-path:polygon(0_82%,13%_38%,25%_72%,42%_18%,58%_76%,73%_30%,87%_66%,100%_35%,100%_100%,0_100%)]" /><div className="absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-b from-[#4a514b]/80 to-[#0b0d0c]" />
             <div className="relative mx-auto flex min-h-[430px] max-w-6xl flex-col justify-between"><div className="max-w-3xl"><p className="text-xs font-bold uppercase tracking-[0.22em] text-white/70">Cinematic wallpaper studio</p><h2 className="mt-5 text-4xl font-black tracking-[-0.04em] sm:text-6xl">Take the atmosphere with you.</h2><p className="mt-6 max-w-xl text-base leading-8 text-white/75">Choose a title and FilmedIn turns its colour palette into an original landscape or abstract wallpaper. Pick desktop or mobile, preview it, and download the finished image.</p></div><div className="flex flex-wrap items-center gap-3"><span className="rounded-full border border-white/20 bg-black/20 px-4 py-2 text-xs font-semibold backdrop-blur">Title palette</span><span className="rounded-full border border-white/20 bg-black/20 px-4 py-2 text-xs font-semibold backdrop-blur">Desktop and mobile</span><span className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-xs font-bold text-zinc-950"><Download className="h-4 w-4" />Download PNG</span></div></div>
           </section>
 
@@ -120,7 +120,7 @@ export default function Login() {
           <section className="border-t border-white/[0.07] px-5 py-24 text-center sm:px-10 sm:py-32 lg:px-14"><Clapperboard className="mx-auto h-8 w-8 text-[#d2b48c]" /><h2 className="mx-auto mt-7 max-w-3xl text-4xl font-black tracking-[-0.04em] sm:text-6xl">Your watch history deserves a better home.</h2><p className="mx-auto mt-6 max-w-xl text-base leading-8 text-zinc-400">Start with Google and build the movie-and-TV collection that actually reflects you.</p><a href="#sign-in" className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-xs font-bold text-zinc-950">Continue to sign in <ArrowRight className="h-4 w-4" /></a></section>
         </div>
 
-        <aside id="sign-in" className="order-1 min-h-[520px] border-t border-white/[0.08] bg-[#11131a] px-6 py-14 lg:order-none lg:sticky lg:top-0 lg:h-screen lg:border-l lg:border-t-0 lg:px-10">
+        <aside id="sign-in" className="order-1 min-h-[520px] border-t border-white/[0.08] bg-[#111210] px-6 py-14 lg:order-none lg:sticky lg:top-0 lg:h-screen lg:border-l lg:border-t-0 lg:px-10">
           <div className="mx-auto flex h-full w-full max-w-sm flex-col justify-center">
             <Logo />
             <h2 className="mt-12 text-3xl font-black tracking-tight">Welcome to FilmedIn</h2>

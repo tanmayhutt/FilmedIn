@@ -46,7 +46,7 @@ export default function PersonDetails() {
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <button type="button" onClick={() => navigate(-1)} className="clay-button-secondary inline-flex items-center gap-2 px-4 py-2 text-xs"><ArrowLeft className="h-4 w-4" /> Back</button>
 
-      <section className="mt-7 grid gap-8 rounded-[2rem] border border-white/[0.08] bg-[#171a22] p-5 sm:p-8 md:grid-cols-[240px_1fr]">
+      <section className="mt-7 grid gap-8 rounded-[1.5rem] border border-white/[0.08] bg-[#171817] p-5 sm:p-8 md:grid-cols-[240px_1fr]">
         <div className="mx-auto aspect-[2/3] w-full max-w-[240px] overflow-hidden rounded-[1.75rem] bg-white/[0.04]">
           {person.profile_path ? <img src={`https://image.tmdb.org/t/p/h632${person.profile_path}`} alt={person.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-zinc-600">No photo</div>}
         </div>

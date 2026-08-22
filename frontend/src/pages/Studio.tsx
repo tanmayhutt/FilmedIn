@@ -75,10 +75,7 @@ export default function Studio() {
   return (
     <main className="flex-1 flex flex-col w-full pb-16">
       {/* ── Studio Hero Header ── */}
-      <div 
-        className={`w-full relative h-[300px] sm:h-[400px] flex items-center justify-center overflow-hidden bg-gradient-to-br ${studio.bgGradient}`}
-        style={{ borderBottom: `1px solid ${studio.accentColor}40` }}
-      >
+      <div className="relative flex h-[300px] w-full items-center justify-center overflow-hidden border-b border-white/[0.08] bg-[#171817] sm:h-[400px]">
         <div className="absolute inset-0 bg-black/60 pointer-events-none" />
         
 

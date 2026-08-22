@@ -13,15 +13,15 @@ import {
 function RatingBadge({ rating, isUnreleased }: { rating: number, isUnreleased: boolean }) {
   if (isUnreleased) {
     return (
-      <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-[#c69b61] z-10 uppercase tracking-wider shadow-md">
+      <div className="absolute top-2.5 left-2.5 z-10 rounded-full border border-white/10 bg-black/75 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-200 backdrop-blur-md">
         Unreleased
       </div>
     )
   }
   if (!rating || rating === 0) return null
   return (
-    <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold text-[#1b1b22] bg-[#82ac62] z-10 shadow-md">
-      <Star className="w-3 h-3 fill-[#1b1b22] text-[#1b1b22]" />
+    <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 rounded-full border border-white/10 bg-black/75 px-2.5 py-0.5 text-[11px] font-bold text-zinc-200 backdrop-blur-md">
+      <Star className="w-3 h-3" />
       {rating.toFixed(1)}
     </div>
   )
@@ -72,7 +72,7 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
           {disableLink ? (
             <h3 className="font-bold text-xs sm:text-sm text-zinc-100 line-clamp-1">{title}</h3>
           ) : (
-            <Link to={href} className="font-bold text-xs sm:text-sm text-zinc-100 line-clamp-1 group-hover:text-rose-400 transition-colors hover:underline">
+            <Link to={href} className="font-bold text-xs sm:text-sm text-zinc-100 line-clamp-1 group-hover:text-white transition-colors hover:underline">
               {title}
             </Link>
           )}
@@ -108,7 +108,7 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent 
-                  className="bg-[#1b1b22] border border-white/10 rounded-2xl shadow-2xl text-zinc-100 min-w-[210px] z-50 p-2"
+                  className="bg-[#171817] border border-white/10 rounded-xl shadow-2xl text-zinc-100 min-w-[210px] z-50 p-2"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="px-2.5 py-1.5">

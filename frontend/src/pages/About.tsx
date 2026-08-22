@@ -36,17 +36,17 @@ export default function About() {
             <span className="text-xs text-zinc-400">One unified library</span>
           </div>
           <div className="clay-card p-6 flex flex-col items-center text-center">
-            <CheckCircle2 className="h-8 w-8 text-[#82ac62] mb-4" aria-hidden="true" />
+            <CheckCircle2 className="h-8 w-8 text-zinc-500 mb-4" aria-hidden="true" />
             <span className="text-sm font-bold text-white mb-1">Viewing states</span>
             <span className="text-xs text-zinc-400">Next, watching, completed</span>
           </div>
           <div className="clay-card p-6 flex flex-col items-center text-center">
-            <Bookmark className="h-8 w-8 text-[#7299c6] mb-4" aria-hidden="true" />
+            <Bookmark className="h-8 w-8 text-zinc-500 mb-4" aria-hidden="true" />
             <span className="text-sm font-bold text-white mb-1">Collections</span>
             <span className="text-xs text-zinc-400">Curate on your terms</span>
           </div>
           <div className="clay-card p-6 flex flex-col items-center text-center">
-            <Heart className="h-8 w-8 text-[#b6789e] mb-4" aria-hidden="true" />
+            <Heart className="h-8 w-8 text-zinc-500 mb-4" aria-hidden="true" />
             <span className="text-sm font-bold text-white mb-1">Taste Blend</span>
             <span className="text-xs text-zinc-400">Find what connects you</span>
           </div>

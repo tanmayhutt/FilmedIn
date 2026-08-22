@@ -122,10 +122,10 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
 
       {isOpen && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 sm:p-6 overflow-y-auto">
-          <div className="clay-modal p-0 max-w-3xl w-full max-h-[85vh] flex flex-col relative animate-in zoom-in-95 overflow-hidden rounded-3xl border border-white/15 shadow-2xl bg-[#1b1b22]">
+          <div className="clay-modal p-0 max-w-3xl w-full max-h-[85vh] flex flex-col relative animate-in zoom-in-95 overflow-hidden rounded-2xl border border-white/15 shadow-2xl bg-[#171817]">
             
             {/* Modal Header */}
-            <div className="flex justify-between items-center px-6 py-5 border-b border-white/10 shrink-0 bg-[#1b1b22]">
+            <div className="flex justify-between items-center px-6 py-5 border-b border-white/10 shrink-0 bg-[#171817]">
               <h2 className="text-xl font-bold text-white tracking-tight">Edit Profile</h2>
               <button 
                 onClick={() => setIsOpen(false)}
@@ -291,7 +291,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
             </div>
 
             {/* Modal Footer (Fixed at bottom) */}
-            <div className="px-6 py-4 border-t border-white/10 flex justify-between items-center bg-[#1b1b22] shrink-0 z-10">
+            <div className="px-6 py-4 border-t border-white/10 flex justify-between items-center bg-[#171817] shrink-0 z-10">
               <button 
                 onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
                 className="text-xs text-zinc-500 hover:text-red-400 transition-colors font-medium"

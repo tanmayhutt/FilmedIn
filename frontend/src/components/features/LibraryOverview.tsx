@@ -15,28 +15,24 @@ const SYSTEM_COLLECTIONS = [
     label: 'In progress',
     description: 'Pick up where you left off.',
     icon: PlayCircle,
-    accent: '#c69b61',
   },
   {
     name: 'Watchlist',
     label: 'Up next',
     description: 'Movies and shows saved for later.',
     icon: Bookmark,
-    accent: '#7299c6',
   },
   {
     name: 'Watched',
     label: 'Completed',
     description: 'Your complete viewing history.',
     icon: CheckCircle2,
-    accent: '#82ac62',
   },
   {
     name: 'Liked',
     label: 'Favourites',
     description: 'The titles that stayed with you.',
     icon: Heart,
-    accent: '#b6789e',
   },
 ]
 
@@ -87,17 +83,17 @@ export function LibraryOverview({ playlists, username, isOwner }: { playlists: P
         </div>
 
         <div className="grid grid-cols-1 gap-px bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
-          {systemPlaylists.map(({ name, label, description, icon: Icon, accent, playlist }) => {
+          {systemPlaylists.map(({ name, label, description, icon: Icon, playlist }) => {
             const count = getCount(playlist)
             const content = (
               <>
                 <div className="flex items-center justify-between">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl" style={{ backgroundColor: `${accent}22`, color: accent }}>
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035] text-zinc-500">
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <span className="text-2xl font-black text-white">{count}</span>
                 </div>
-                <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: accent }}>{label}</p>
+                <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">{label}</p>
                 <h3 className="mt-1 text-lg font-bold text-white">{name}</h3>
                 <p className="mt-1 text-xs leading-5 text-zinc-500">{description}</p>
                 <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-zinc-300 transition-colors group-hover:text-white">
@@ -107,11 +103,11 @@ export function LibraryOverview({ playlists, username, isOwner }: { playlists: P
             )
 
             return playlist ? (
-              <Link key={name} to={`/playlist/${playlist.id}`} className="group bg-[#1b1b22] p-5 transition-colors hover:bg-[#23232c] sm:p-6">
+              <Link key={name} to={`/playlist/${playlist.id}`} className="group bg-[#171817] p-5 transition-colors hover:bg-[#20211f] sm:p-6">
                 {content}
               </Link>
             ) : (
-              <div key={name} className="bg-[#1b1b22] p-5 opacity-70 sm:p-6">
+              <div key={name} className="bg-[#171817] p-5 opacity-70 sm:p-6">
                 {content}
               </div>
             )

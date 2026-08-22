@@ -41,7 +41,7 @@ export function TasteBlendModal({ targetUsername, isOpen, onClose }: Props) {
             key={item.tmdbId}
             to={`/${item.mediaType}/${item.tmdbId}`}
             onClick={onClose}
-            className="group relative aspect-[2/3] clay-poster overflow-hidden bg-[#1b1b22]"
+            className="group relative aspect-[2/3] clay-poster overflow-hidden bg-[#171817]"
           >
             {item.posterPath ? (
               <img src={item.posterPath} alt="Poster" className="w-full h-full object-cover" />

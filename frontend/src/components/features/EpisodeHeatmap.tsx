@@ -74,12 +74,12 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
   }
 
   const getRatingColor = (rating: number | null) => {
-    if (!rating) return 'bg-[var(--theme-dark-hover)] text-zinc-600'; // No rating or aired yet
-    if (rating >= 9.0) return 'bg-[#186a3b] text-white'; // Awesome (Dark Green)
-    if (rating >= 8.0) return 'bg-[#2ecc71] text-zinc-900'; // Great (Bright Green)
-    if (rating >= 7.0) return 'bg-[#f1c40f] text-zinc-900'; // Good (Yellow)
-    if (rating >= 6.0) return 'bg-[#e67e22] text-white'; // Regular (Orange)
-    return 'bg-[#e74c3c] text-white'; // Bad (Red)
+    if (!rating) return 'bg-white/[0.025] text-zinc-700';
+    if (rating >= 9.0) return 'bg-zinc-200 text-zinc-950';
+    if (rating >= 8.0) return 'bg-zinc-400 text-zinc-950';
+    if (rating >= 7.0) return 'bg-zinc-600 text-white';
+    if (rating >= 6.0) return 'bg-zinc-700 text-white';
+    return 'bg-zinc-800 text-zinc-300';
   };
 
   const episodes = Array.from({ length: maxEpisodes }, (_, i) => i + 1);
@@ -93,11 +93,11 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
         </div>
         
         <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-medium text-zinc-300">
-          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-[#186a3b]"></div>Awesome</div>
-          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-[#2ecc71]"></div>Great</div>
-          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-[#f1c40f]"></div>Good</div>
-          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-[#e67e22]"></div>Regular</div>
-          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-[#e74c3c]"></div>Bad</div>
+          <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-full bg-zinc-200"></div>Excellent</div>
+          <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-full bg-zinc-400"></div>Great</div>
+          <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-full bg-zinc-600"></div>Good</div>
+          <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-full bg-zinc-700"></div>Fair</div>
+          <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-full bg-zinc-800"></div>Low</div>
         </div>
       </div>
 
