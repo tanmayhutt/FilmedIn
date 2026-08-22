@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { fetchApi } from '@/services/api.client'
 import { fetchMovieDetails, fetchTVDetails } from '@/services/tmdb.service'
-import { MediaCard } from '@/components/features/MediaCard'
 import { removeFromList } from '@/services/playlist.service'
-import { Trash2 } from 'lucide-react'
+import { ArrowLeft, ListVideo, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { usePageMetadata } from '@/components/common/RouteMetadata'
 import { hasSessionHint } from '@/utils/auth'
@@ -86,8 +85,9 @@ export default function PlaylistDetails() {
     }
 
     return (
-        <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in">
+        <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
             <button
+                type="button"
                 onClick={() => {
                     if (window.history.length > 2) {
                         window.history.back()
@@ -95,57 +95,55 @@ export default function PlaylistDetails() {
                         window.location.href = '/'
                     }
                 }}
-                className="px-4 py-2 clay-button-secondary text-xs inline-flex items-center mb-8"
+                className="mb-8 inline-flex items-center gap-2 text-xs font-semibold text-zinc-500 transition-colors hover:text-white"
             >
-                ← Back
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back
             </button>
 
-            <div className="clay-card p-8 sm:p-10 mb-12">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 clay-badge-blue text-xs font-mono font-bold uppercase tracking-wider mb-3">
-                    Curated Playlist
+            <header className="mb-8 flex flex-col gap-5 border-b border-white/[0.08] pb-8 sm:flex-row sm:items-end">
+                <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl border border-white/[0.09] bg-[#1b1c1a] text-zinc-600 shadow-xl sm:h-36 sm:w-36">
+                    <ListVideo className="h-9 w-9" aria-hidden="true" />
                 </div>
-                <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-2">
-                    {playlist.name}
-                </h1>
-                {playlist.description && (
-                    <p className="text-base sm:text-lg text-zinc-200 mb-4 max-w-2xl font-medium">{playlist.description}</p>
-                )}
-                <p className="text-sm font-semibold text-zinc-400">
-                    {items.length} {items.length === 1 ? 'item' : 'items'}
-                </p>
-            </div>
+                <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Playlist</p>
+                    <h1 className="mt-2 break-words text-3xl font-black tracking-tight text-white sm:text-5xl">{playlist.name}</h1>
+                    {playlist.description && <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">{playlist.description}</p>}
+                    <p className="mt-3 text-xs font-semibold text-zinc-500">{items.length} {items.length === 1 ? 'title' : 'titles'}</p>
+                </div>
+            </header>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+            <section aria-label={`${playlist.name} titles`} className="overflow-hidden rounded-2xl border border-white/[0.09] bg-[#171817]">
+              <div className="hidden grid-cols-[2.5rem_minmax(0,1fr)_8rem_6rem_3rem] gap-4 border-b border-white/[0.07] px-5 py-3 text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-600 md:grid">
+                <span>#</span><span>Title</span><span>Type</span><span>Rating</span><span />
+              </div>
+              <ol className="divide-y divide-white/[0.07]">
                 {items.map((item: any, i) => {
                     const isOwner = currentUser && currentUser._id === playlist.userId
+                    const mediaType = item.media_type || item.mediaType || (item.title ? 'movie' : 'tv')
+                    const title = item.title || item.name
+                    const year = (item.release_date || item.first_air_date || '').slice(0, 4)
                     return (
-                        <MediaCard
-                            key={`${item.id}-${i}`}
-                            media={item}
-                            actionButton={
-                                isOwner ? (
-                                    <button
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            e.stopPropagation()
-                                            handleRemoveItem(item.id, item.media_type || item.mediaType)
-                                        }}
-                                        className="p-2 bg-black/60 hover:bg-red-500/90 text-white rounded-full backdrop-blur-md transition-colors"
-                                        title="Remove from playlist"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                ) : undefined
-                            }
-                        />
+                      <li key={`${item.id}-${i}`} className="group grid grid-cols-[2rem_minmax(0,1fr)_2.5rem] items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] sm:px-5 md:grid-cols-[2.5rem_minmax(0,1fr)_8rem_6rem_3rem] md:gap-4">
+                        <span className="text-xs tabular-nums text-zinc-600">{i + 1}</span>
+                        <Link to={`/${mediaType === 'movie' ? 'movie' : 'tv'}/${item.id}`} className="flex min-w-0 items-center gap-3">
+                          <div className="h-16 w-11 shrink-0 overflow-hidden rounded-md bg-white/[0.04]">{item.poster_path ? <img src={`https://image.tmdb.org/t/p/w92${item.poster_path}`} alt="" className="h-full w-full object-cover" /> : <span className="flex h-full items-center justify-center"><ListVideo className="h-4 w-4 text-zinc-700" /></span>}</div>
+                          <div className="min-w-0"><h2 className="truncate text-sm font-semibold text-zinc-100 group-hover:text-white">{title}</h2>{year && <p className="mt-1 text-xs text-zinc-600">{year}</p>}</div>
+                        </Link>
+                        <span className="hidden text-xs capitalize text-zinc-500 md:block">{mediaType === 'movie' ? 'Movie' : 'TV show'}</span>
+                        <span className="hidden text-xs tabular-nums text-zinc-500 md:block">{item.vote_average ? item.vote_average.toFixed(1) : '—'}</span>
+                        {isOwner ? <button type="button" onClick={() => handleRemoveItem(item.id, mediaType)} className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-white/[0.05] hover:text-zinc-200" aria-label={`Remove ${title} from playlist`}><Trash2 className="h-4 w-4" aria-hidden="true" /></button> : <span />}
+                      </li>
                     )
                 })}
+              </ol>
                 {items.length === 0 && (
-                    <div className="col-span-full py-12 text-center text-zinc-500 italic border border-dashed border-white/10 rounded-xl">
-                        This playlist is empty. Go find some good stuff!
+                    <div className="px-6 py-16 text-center">
+                        <ListVideo className="mx-auto h-6 w-6 text-zinc-700" aria-hidden="true" />
+                        <p className="mt-3 text-sm font-semibold text-zinc-400">This playlist is empty.</p>
+                        <Link to="/explore" className="mt-3 inline-block text-xs font-bold text-[#d2b48c] hover:text-white">Explore titles</Link>
                     </div>
                 )}
-            </div>
+            </section>
         </main>
     )
 }

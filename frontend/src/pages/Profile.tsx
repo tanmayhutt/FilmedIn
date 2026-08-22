@@ -255,24 +255,25 @@ export default function Profile() {
 
             <section className="space-y-5" aria-labelledby="collections-heading">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                    <div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Personal shelves</p><h2 id="collections-heading" className="mt-1 text-2xl font-bold text-white">{isOwner ? 'Your collections' : `${profile.username}'s collections`}</h2><p className="mt-1 text-sm text-zinc-500">Lists built around moods, franchises, people, or anything worth returning to.</p></div>
-                    {isOwner && <button type="button" onClick={() => setIsCreatePlaylistOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e8e0d3] px-4 py-2.5 text-xs font-bold text-[#111210] hover:bg-white"><Plus className="h-4 w-4" aria-hidden="true" />New collection</button>}
+                    <div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Curated lists</p><h2 id="collections-heading" className="mt-1 text-2xl font-bold text-white">{isOwner ? 'Your playlists' : `${profile.username}'s playlists`}</h2><p className="mt-1 text-sm text-zinc-500">Movies and shows grouped around a mood, franchise, person, or idea.</p></div>
+                    {isOwner && <button type="button" onClick={() => setIsCreatePlaylistOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e8e0d3] px-4 py-2.5 text-xs font-bold text-[#111210] hover:bg-white"><Plus className="h-4 w-4" aria-hidden="true" />New playlist</button>}
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="overflow-hidden rounded-2xl border border-white/[0.09] bg-[#171817]">
+                  <div className="divide-y divide-white/[0.07]">
                     {customPlaylists.map((playlist) => (
-                        <article key={playlist.id} className="group overflow-hidden rounded-2xl border border-white/[0.09] bg-[#171817]">
-                            <div className="relative h-40 overflow-hidden bg-[#20211f]">
-                                {playlist.preview_posters?.length ? <div className="flex h-full">{playlist.preview_posters.slice(0, 3).map((poster: string) => <img key={poster} src={poster} alt="" className="min-w-0 flex-1 object-cover opacity-70" />)}</div> : <div className="flex h-full items-center justify-center"><Bookmark className="h-6 w-6 text-zinc-600" aria-hidden="true" /></div>}
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#171817] via-transparent to-transparent" />
-                                {isOwner && <button type="button" onClick={() => handleDeletePlaylist(playlist.id)} aria-label={`Delete ${playlist.name}`} className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-black/60 text-zinc-400 backdrop-blur hover:text-white"><Trash2 className="h-4 w-4" aria-hidden="true" /></button>}
+                        <article key={playlist.id} className="group flex min-w-0 items-center gap-4 px-4 py-4 transition-colors hover:bg-white/[0.03] sm:px-5">
+                          <Link to={`/playlist/${playlist.id}`} className="flex min-w-0 flex-1 items-center gap-4">
+                            <div className="relative h-16 w-24 shrink-0">
+                              {playlist.preview_posters?.length ? playlist.preview_posters.slice(0, 3).map((poster: string, index: number) => <img key={poster} src={poster} alt="" className="absolute top-0 h-16 w-11 rounded-md border border-[#171817] object-cover shadow-md" style={{ left: `${index * 22}px`, zIndex: index + 1 }} />) : <span className="flex h-16 w-24 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.025]"><Bookmark className="h-5 w-5 text-zinc-600" aria-hidden="true" /></span>}
                             </div>
-                            <Link to={`/playlist/${playlist.id}`} className="flex items-center justify-between gap-4 p-5">
-                                <div className="min-w-0"><h3 className="truncate text-base font-bold text-white">{playlist.name}</h3><p className="mt-1 text-xs text-zinc-500">{playlist.playlist_items?.[0]?.count || 0} titles</p></div>
-                                <ArrowRight className="h-4 w-4 shrink-0 text-zinc-500 transition-transform group-hover:translate-x-1 group-hover:text-white" aria-hidden="true" />
-                            </Link>
+                            <div className="min-w-0 flex-1"><h3 className="truncate text-sm font-bold text-zinc-100 sm:text-base">{playlist.name}</h3><p className="mt-1 text-xs text-zinc-500">{playlist.playlist_items?.[0]?.count || 0} titles · Personal playlist</p></div>
+                            <ArrowRight className="h-4 w-4 shrink-0 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-white" aria-hidden="true" />
+                          </Link>
+                          {isOwner && <button type="button" onClick={() => handleDeletePlaylist(playlist.id)} aria-label={`Delete ${playlist.name}`} className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-white/[0.05] hover:text-zinc-200"><Trash2 className="h-4 w-4" aria-hidden="true" /></button>}
                         </article>
                     ))}
-                    {!customPlaylists.length && <div className="col-span-full rounded-2xl border border-dashed border-white/10 px-6 py-12 text-center"><Bookmark className="mx-auto h-6 w-6 text-zinc-600" aria-hidden="true" /><p className="mt-3 text-sm font-semibold text-zinc-300">{isOwner ? 'Create your first personal collection.' : 'No personal collections yet.'}</p>{isOwner && <button type="button" onClick={() => setIsCreatePlaylistOpen(true)} className="mt-4 text-xs font-bold text-[#d2b48c] hover:text-white">Create a collection</button>}</div>}
+                    {!customPlaylists.length && <div className="px-6 py-12 text-center"><Bookmark className="mx-auto h-6 w-6 text-zinc-600" aria-hidden="true" /><p className="mt-3 text-sm font-semibold text-zinc-300">{isOwner ? 'Create your first personal playlist.' : 'No personal playlists yet.'}</p>{isOwner && <button type="button" onClick={() => setIsCreatePlaylistOpen(true)} className="mt-4 text-xs font-bold text-[#d2b48c] hover:text-white">Create a playlist</button>}</div>}
+                  </div>
                 </div>
             </section>
 

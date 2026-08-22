@@ -71,6 +71,7 @@ const browseGroups = [
 
 export function Navbar({ sidebarOpen, onToggleSidebar }: { sidebarOpen: boolean; onToggleSidebar: () => void }) {
   const location = useLocation()
+  const isProfileRoute = location.pathname === '/profile' || location.pathname.startsWith('/u/')
 
   const isActive = (to: string) => {
     const type = new URLSearchParams(location.search).get('type')
@@ -160,9 +161,11 @@ export function Navbar({ sidebarOpen, onToggleSidebar }: { sidebarOpen: boolean;
         </div>
       </aside>
 
-      <div className="fixed right-5 top-4 z-50 hidden rounded-2xl border border-white/[0.08] bg-[#171817]/95 p-2 shadow-xl backdrop-blur-xl lg:block">
-        <NavbarProfile showLibraryLink={false} showLogout />
-      </div>
+      {!isProfileRoute && (
+        <div className="fixed right-5 top-4 z-50 hidden rounded-2xl border border-white/[0.08] bg-[#171817]/95 p-2 shadow-xl backdrop-blur-xl lg:block">
+          <NavbarProfile showLibraryLink={false} showLogout />
+        </div>
+      )}
 
       <header className="sticky top-0 z-40 border-b border-white/[0.07] bg-[#111210]/94 px-4 py-3 backdrop-blur-xl lg:hidden">
         <div className="flex items-center justify-between"><Logo /><NavbarProfile showLibraryLink={false} /></div>

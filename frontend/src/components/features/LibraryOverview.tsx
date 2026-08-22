@@ -53,61 +53,38 @@ export function LibraryOverview({ playlists, username, isOwner }: { playlists: P
   const completionRate = trackedCount > 0 ? Math.round((completedCount / trackedCount) * 100) : 0
 
   return (
-    <section className="space-y-5" aria-labelledby="library-heading">
-      <div className="clay-card overflow-hidden border border-white/10">
-        <div className="flex flex-col gap-5 p-6 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#d2b48c]">Personal collection</p>
-            <h2 id="library-heading" className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">
-              {isOwner ? 'Your Library' : `${username}'s Library`}
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-400 sm:text-base">
-              Movies and shows together, organised by what is next, in progress, completed, and worth remembering.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-black/25 p-2 text-center sm:min-w-80">
-            <div className="rounded-xl px-3 py-2">
-              <span className="block text-lg font-black text-white">{trackedCount}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Tracked</span>
-            </div>
-            <div className="rounded-xl px-3 py-2">
-              <span className="block text-lg font-black text-white">{completedCount}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Completed</span>
-            </div>
-            <div className="rounded-xl px-3 py-2">
-              <span className="block text-lg font-black text-white">{completionRate}%</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Progress</span>
-            </div>
-          </div>
+    <section className="space-y-4" aria-labelledby="library-heading">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Library</p>
+          <h2 id="library-heading" className="mt-1 text-2xl font-bold tracking-tight text-white">{isOwner ? 'Your viewing lists' : `${username}'s viewing lists`}</h2>
+          <p className="mt-1 text-sm text-zinc-500">Four simple states for every movie and show.</p>
         </div>
+        <p className="text-xs text-zinc-500"><span className="font-bold text-zinc-200">{trackedCount}</span> tracked · <span className="font-bold text-zinc-200">{completedCount}</span> completed · <span className="font-bold text-zinc-200">{completionRate}%</span> progress</p>
+      </div>
 
-        <div className="grid grid-cols-1 gap-px bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="overflow-hidden rounded-2xl border border-white/[0.09] bg-[#171817]">
+        <div className="divide-y divide-white/[0.07]">
           {systemPlaylists.map(({ name, label, description, icon: Icon, playlist }) => {
             const count = getCount(playlist)
             const content = (
               <>
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035] text-zinc-500">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <span className="text-2xl font-black text-white">{count}</span>
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.025] text-zinc-500"><Icon className="h-[18px] w-[18px]" aria-hidden="true" /></span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1"><h3 className="font-bold text-zinc-100">{name}</h3><span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-600">{label}</span></div>
+                  <p className="mt-1 truncate text-xs text-zinc-500">{description}</p>
                 </div>
-                <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">{label}</p>
-                <h3 className="mt-1 text-lg font-bold text-white">{name}</h3>
-                <p className="mt-1 text-xs leading-5 text-zinc-500">{description}</p>
-                <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-zinc-300 transition-colors group-hover:text-white">
-                  Open collection <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                </span>
+                <span className="min-w-16 text-right text-sm font-bold text-zinc-200">{count} {count === 1 ? 'title' : 'titles'}</span>
+                <ArrowRight className="h-4 w-4 shrink-0 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-white" aria-hidden="true" />
               </>
             )
 
             return playlist ? (
-              <Link key={name} to={`/playlist/${playlist.id}`} className="group bg-[#171817] p-5 transition-colors hover:bg-[#20211f] sm:p-6">
+              <Link key={name} to={`/playlist/${playlist.id}`} className="group flex items-center gap-4 px-4 py-4 transition-colors hover:bg-white/[0.035] sm:px-5">
                 {content}
               </Link>
             ) : (
-              <div key={name} className="bg-[#171817] p-5 opacity-70 sm:p-6">
+              <div key={name} className="flex items-center gap-4 px-4 py-4 opacity-60 sm:px-5">
                 {content}
               </div>
             )
