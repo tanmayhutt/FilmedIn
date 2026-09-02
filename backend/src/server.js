@@ -22,7 +22,13 @@ app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
 // ─── Security Headers ─────────────────────────────────────────────────────────
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: false,
+  // Google Identity Services completes sign-in through a popup/iframe that
+  // must be able to communicate with the opener. Helmet's default
+  // `same-origin` policy blocks that exchange in production.
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+}));
 
 // ─── NoSQL Injection Sanitizer ────────────────────────────────────────────────
 const sanitizeNoSql = (obj) => {

@@ -12,6 +12,7 @@ const googleClientIds = Array.from(new Set([
 ].map(value => value?.trim()).filter(Boolean)));
 const client = new OAuth2Client();
 const PRESET_PLAYLISTS = ['Watchlist', 'Currently Watching', 'Watched', 'Liked'];
+const GOOGLE_TOKEN_ERROR = /wrong recipient|wrong number of segments|invalid token|invalid signature|token used too late|no pem found|jwt|malformed|audience/i;
 
 async function ensurePresetPlaylists(userId) {
   await Promise.all(PRESET_PLAYLISTS.map(name => Playlist.updateOne(
@@ -109,7 +110,7 @@ exports.googleLogin = async (req, res) => {
     if (err?.name === 'MongoServerSelectionError' || err?.name === 'MongooseServerSelectionError') {
       return res.status(503).json({ error: 'Sign-in is temporarily unavailable. Please try again shortly.' });
     }
-    if (/wrong recipient|invalid token|token used too late|no pem found/i.test(err?.message || '')) {
+    if (GOOGLE_TOKEN_ERROR.test(err?.message || '')) {
       return res.status(401).json({ error: 'Google could not verify this sign-in. Please try again.' });
     }
     res.status(500).json({ error: 'Authentication failed' });

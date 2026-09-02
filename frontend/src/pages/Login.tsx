@@ -60,6 +60,11 @@ export default function Login() {
     window.location.href = res.isNewUser ? `/onboarding?redirect=${encodeURIComponent(redirect)}` : redirect || '/'
   }
 
+  const handleGoogleError = () => {
+    setLoading(false)
+    toast.error('Google sign-in could not start. Please allow pop-ups and try again.')
+  }
+
   return (
     <main className="min-h-screen bg-[#0d0e0e] text-white">
       <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_410px]">
@@ -125,7 +130,7 @@ export default function Login() {
             <Logo />
             <h2 className="mt-12 text-3xl font-black tracking-tight">Welcome to FilmedIn</h2>
             <p className="mt-3 text-sm leading-6 text-zinc-400">Sign in with Google to open your personal movie and TV library.</p>
-            <div className="mt-8 min-h-12">{loading ? <div className="flex h-11 items-center gap-3 rounded-full bg-white/[0.05] px-5 text-sm text-zinc-400"><span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-500 border-t-white" />Signing you in...</div> : <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => toast.error('Google Sign-In could not start. Check that this domain is allowed in Google Cloud.')} theme="filled_black" size="large" shape="pill" width="330" text="continue_with" />}</div>
+            <div className="mt-8 min-h-12">{loading ? <div className="flex h-11 items-center gap-3 rounded-full bg-white/[0.05] px-5 text-sm text-zinc-400"><span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-500 border-t-white" />Signing you in...</div> : <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} theme="filled_black" size="large" shape="pill" width="330" text="continue_with" />}</div>
             <p className="mt-7 text-[11px] leading-5 text-zinc-600">FilmedIn never receives your Google password. By continuing, you agree to the <Link to="/terms" className="text-zinc-400 hover:text-white">Terms of Service</Link> and acknowledge the <Link to="/privacy" className="text-zinc-400 hover:text-white">Privacy Policy</Link>.</p>
             <div className="mt-auto hidden border-t border-white/[0.07] pt-6 text-[10px] leading-5 text-zinc-700 lg:block">Movie and television metadata is provided by TMDB. FilmedIn is not endorsed or certified by TMDB.</div>
           </div>
