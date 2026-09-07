@@ -10,4 +10,8 @@ Run `docker compose up -d --build` from the project directory. Inspect `docker c
 
 Import this directory's Caddyfile from the host Caddy configuration, validate the combined configuration, and reload Caddy. Preserve existing host sites. Point only `filmedin.tanmaytiwari.me` to `15.206.247.203`, replacing its Vercel CNAME. Ensure ports 80 and 443 are reachable. Caddy provisions HTTPS after DNS points here.
 
-The domain and Google client ID remain unchanged. Google login requires HTTPS and must be verified after the DNS switch. Keep Vercel available until the new deployment is verified. Git pushes alone do not update this server; upload updated source and run the Compose build command.
+The domain and Google client ID remain unchanged. Google login requires HTTPS and must be verified after the DNS switch.
+
+Pushes to `main` run the **Deploy to Ubuntu** GitHub Actions workflow. It uses `FILMEDIN_DEPLOY_KEY` and `FILMEDIN_KNOWN_HOSTS` repository secrets. The SSH key is restricted to `/usr/local/bin/filmedin-deploy`, which invokes the root-owned `/usr/local/lib/filmedin/deploy.sh`. These are installed copies of the scripts in this folder; changes to them require installation on the host.
+
+Deployments are serialized, require a clean server checkout, fast-forward to the current main commit, build before replacing the running container, and wait for database health. Failed startup attempts restore the previous image. This is a single-container deployment, so a short interruption can occur during replacement. The workflow also checks public HTTPS health. Application credentials remain in the server's `.env` file.

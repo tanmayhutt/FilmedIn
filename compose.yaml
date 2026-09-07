@@ -1,6 +1,7 @@
 name: filmedin
 services:
   app:
+    image: ${FILMEDIN_IMAGE:-filmedin-app}
     build: .
     restart: unless-stopped
     init: true
