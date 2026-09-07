@@ -1,0 +1,8 @@
+.git
+**/node_modules
+**/dist
+**/.env*
+envs
+context.md
+.vercel
+*.log

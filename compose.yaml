@@ -1,0 +1,25 @@
+name: filmedin
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    init: true
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      SERVE_STATIC: "true"
+      PORT: "5000"
+      ALLOWED_ORIGINS: https://filmedin.tanmaytiwari.me
+    ports:
+      - "127.0.0.1:5050:5000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
