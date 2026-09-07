@@ -8,33 +8,30 @@
 ## Architecture
 
 - **Frontend**: React + Vite + TailwindCSS + Shadcn UI
-- **Backend**: Node.js + Express (serverless on Vercel)
+- **Backend**: Node.js + Express (serving React SPA & `/api` in container)
 - **Database**: MongoDB Atlas
 - **Storage**: Cloudinary (avatars and media uploads)
 - **Authentication**: JWT + Google OAuth
 - **API Integration**: TMDB (The Movie Database)
+- **Hosting**: Docker container + Caddy reverse proxy on Ubuntu (`15.206.247.203`)
 
 ## Deployment
 
-The entire app (frontend + backend) is deployed as a **single Vercel project** at:
-- `https://filmedin.tanmaytiwari.me` *(custom domain)*
-- `https://filmedin.vercel.app` *(Vercel default)*
+The app is deployed on a self-hosted Ubuntu server:
+- **Live URL**: `https://filmedin.tanmaytiwari.me`
 
 ```
 filmedin.tanmaytiwari.me
         │
-        ├── /api/*   → Express serverless function (api/index.js)
-        │               Routes: /api/auth, /api/users, /api/playlists,
-        │                       /api/tmdb, /api/wallpapers
+        ▼ (HTTPS / 443 via Caddy)
+127.0.0.1:5050 (Docker: filmedin-app)
         │
-        └── /*       → React SPA (Vite build, served as static files)
+        ├── /api/*   → Express REST API (/api/auth, /api/users, /api/playlists, /api/tmdb, etc.)
+        │
+        └── /*       → React SPA (Vite static build served by Express)
 ```
 
-Vercel handles HTTPS, global CDN, and zero-config CI/CD on every `git push`.
-
-### Production Configuration Notes
-- **DNS (Cloudflare):** Ensure the Cloudflare proxy (orange cloud) is set to **"DNS only"**. If proxying is enabled, Vercel will trigger a "Proxy Detected" warning, which interferes with SSL certificate generation and DDoS protection.
-- **Serverless Keep-Alive:** A cron job is configured via `cron-job.org` to ping the `/health` endpoint every 5 minutes. This prevents Vercel's serverless containers from going to sleep, eliminating "Cold Start" delays for end users.
+Automatic CI/CD is configured via **GitHub Actions** (`.github/workflows/deploy.yml`). On every push to `main`, the workflow connects to the server, pulls the commit, builds the Docker image, verifies container health, and verifies the public HTTPS endpoint with automatic rollback on failure.
 
 ## Local Development
 

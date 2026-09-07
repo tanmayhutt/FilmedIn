@@ -8,7 +8,7 @@ Provision `.env` in the project directory with the existing production credentia
 
 Run `docker compose up -d --build` from the project directory. Inspect `docker compose ps` and `curl -f http://127.0.0.1:5050/health` before changing DNS.
 
-Import this directory's Caddyfile from the host Caddy configuration, validate the combined configuration, and reload Caddy. Preserve existing host sites. Point only `filmedin.tanmaytiwari.me` to `15.206.247.203`, replacing its Vercel CNAME. Ensure ports 80 and 443 are reachable. Caddy provisions HTTPS after DNS points here.
+Import this directory's Caddyfile from the host Caddy configuration, validate the combined configuration, and reload Caddy. Preserve existing host sites. Point only `filmedin.tanmaytiwari.me` to `15.206.247.203`, replacing any previous CNAME. Ensure ports 80 and 443 are reachable. Caddy provisions HTTPS after DNS points here.
 
 The domain and Google client ID remain unchanged. Google login requires HTTPS and must be verified after the DNS switch.
 

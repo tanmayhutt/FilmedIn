@@ -132,7 +132,7 @@ app.use('/api', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
-// ─── Static Frontend (only in local/Render mode, not on Vercel) ───────────────
+// ─── Static Frontend (SERVE_STATIC mode in Docker / production) ───────────────
 if (process.env.SERVE_STATIC === 'true') {
   const frontendDist = path.join(__dirname, '../../frontend/dist');
   app.use(express.static(frontendDist));
@@ -148,7 +148,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// ─── Start server only when run directly (not when imported by Vercel) ────────
+// ─── Start Server ─────────────────────────────────────────────────────────────
 if (require.main === module) {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
