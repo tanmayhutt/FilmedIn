@@ -180,6 +180,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
                         onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                         className="pl-9 clay-input text-white border-none py-2.5"
                         placeholder="username"
+                        maxLength={30}
                       />
                     </div>
                     <p className="text-[11px] text-zinc-500 mt-1">Letters, numbers, and underscores only.</p>

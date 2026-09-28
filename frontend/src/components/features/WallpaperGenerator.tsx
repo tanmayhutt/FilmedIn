@@ -1,7 +1,5 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { generateWallpaper } from '@/services/wallpaper.service'
 import { Spinner } from '@/components/ui/spinner'
@@ -34,6 +32,9 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
   const [error, setError] = useState('')
   const [activeTag, setActiveTag] = useState<string>(STYLE_TAGS[0])
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark')
+  const location = useLocation()
+  // Only the newest request per format may update the preview, so fast style changes cannot show a stale style.
+  const requestIds = useRef({ desktop: 0, mobile: 0 })
 
   useEffect(() => {
     const syncAuthentication = () => setIsLoggedIn(hasSessionHint())
@@ -52,9 +53,11 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
     setError('')
     if (type === 'desktop') setLoadingDesktop(true)
     else setLoadingMobile(true)
+    const requestId = ++requestIds.current[type]
 
     try {
       const res = await generateWallpaper(tmdbId, mediaType, title, type, currentTag, currentTheme, forceRegenerate)
+      if (requestId !== requestIds.current[type]) return
       if (res.error) {
         setError(res.error)
       } else if (res.url) {
@@ -64,8 +67,10 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
     } catch (e: any) {
       setError(e.message || 'Failed to generate')
     } finally {
-      if (type === 'desktop') setLoadingDesktop(false)
-      else setLoadingMobile(false)
+      if (requestId === requestIds.current[type]) {
+        if (type === 'desktop') setLoadingDesktop(false)
+        else setLoadingMobile(false)
+      }
     }
   }
 
@@ -73,13 +78,16 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
   useEffect(() => {
     if (!isLoggedIn) return
     handleGenerate('desktop', true, activeTag, themeMode)
+    // Invalidate any mobile request for the previous style and wait for an explicit mobile request.
+    requestIds.current.mobile++
+    setLoadingMobile(false)
     setMobileUrl(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTag, themeMode, tmdbId, isLoggedIn])
 
   return (
     <div className="flex flex-col gap-8 w-full">
-      {error && <p className="text-red-500 bg-red-950/50 p-4 rounded border border-red-900">{error}</p>}
+      {error && <p role="alert" className="rounded-xl border border-white/15 bg-white/[0.04] p-4 text-sm text-zinc-200">{error}</p>}
 
       {/* Login Prompt Banner */}
       {showLoginPrompt && (
@@ -95,7 +103,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Link
-              to="/login"
+              to={`/login?redirect=${encodeURIComponent(location.pathname)}`}
               className="px-6 py-2 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-colors"
             >
               Sign in with Google
@@ -177,7 +185,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
                   <img src={desktopUrl} alt="Desktop wallpaper" className={`w-full h-full object-cover transition-all duration-700 ${loadingDesktop ? 'opacity-50 blur-sm scale-110' : 'opacity-100 blur-0 group-hover:scale-105'}`} />
                   {isLoggedIn && (
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 z-20">
-                      <a href={desktopUrl} target="_blank" rel="noreferrer" download="filmedin-desktop-wallpaper.png" className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-6 font-medium shadow-xl">
+                      <a href={desktopUrl} download={`filmedin-${tmdbId}-desktop.png`} className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-6 font-medium shadow-xl">
                         <Download size={18} /> Download
                       </a>
                     </div>
@@ -186,10 +194,14 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               ) : (
                 <div className="w-full h-full bg-[var(--theme-dark)]/50 flex flex-col items-center justify-center shadow-inner text-zinc-600">
                   {isLoggedIn ? (
-                    <>
-                      <Spinner className="w-6 h-6 mb-2" />
-                      <span className="text-sm font-medium text-zinc-500">Generating...</span>
-                    </>
+                    loadingDesktop ? (
+                      <>
+                        <Spinner className="w-6 h-6 mb-2" />
+                        <span className="text-sm font-medium text-zinc-500">Generating...</span>
+                      </>
+                    ) : (
+                      <span className="px-6 text-center text-sm font-medium text-zinc-500">Press Generate to create a desktop preview</span>
+                    )
                   ) : (
                     <>
                       <Lock className="w-6 h-6 mb-2" />
@@ -214,8 +226,13 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               className="flex-1 bg-[var(--theme-dark)] border-white/20 text-zinc-300 hover:bg-[var(--theme-dark-hover)] hover:text-white rounded-full h-12"
             >
               {loadingDesktop ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-              {loadingDesktop ? 'Shuffling...' : 'Shuffle Scene'}
+              {loadingDesktop ? 'Generating...' : desktopUrl ? 'Shuffle Scene' : 'Generate'}
             </Button>
+            {desktopUrl && !loadingDesktop && (
+              <a href={desktopUrl} download={`filmedin-${tmdbId}-desktop.png`} aria-label="Download desktop wallpaper" className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-zinc-900 hover:bg-zinc-200">
+                <Download size={18} aria-hidden="true" />
+              </a>
+            )}
           </div>
         </div>
 
@@ -239,7 +256,7 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
                   <img src={mobileUrl} alt="Mobile wallpaper" className={`w-full h-full object-cover transition-all duration-700 ${loadingMobile ? 'opacity-50 blur-sm scale-110' : 'opacity-100 blur-0 group-hover:scale-105'}`} />
                   {isLoggedIn && (
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-30">
-                      <a href={mobileUrl} target="_blank" rel="noreferrer" download="filmedin-mobile-wallpaper.png" className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-5 font-medium shadow-xl">
+                      <a href={mobileUrl} download={`filmedin-${tmdbId}-mobile.png`} className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-zinc-900 hover:bg-zinc-200 h-10 px-5 font-medium shadow-xl">
                         <Download size={18} /> Download
                       </a>
                     </div>
@@ -248,10 +265,14 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               ) : (
                 <div className="w-full h-full bg-[var(--theme-dark)]/50 flex flex-col items-center justify-center shadow-inner text-zinc-600">
                   {isLoggedIn ? (
-                    <>
-                      <Spinner className="w-5 h-5 mb-2" />
-                      <span className="text-xs font-medium text-zinc-500">Generating...</span>
-                    </>
+                    loadingMobile ? (
+                      <>
+                        <Spinner className="w-5 h-5 mb-2" />
+                        <span className="text-xs font-medium text-zinc-500">Generating...</span>
+                      </>
+                    ) : (
+                      <span className="px-4 text-center text-xs font-medium text-zinc-500">Press Generate to create a phone preview</span>
+                    )
                   ) : (
                     <>
                       <Lock className="w-5 h-5 mb-2" />
@@ -272,8 +293,13 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
               className="flex-1 bg-[var(--theme-dark)] border-white/20 text-zinc-300 hover:bg-[var(--theme-dark-hover)] hover:text-white rounded-full h-12"
             >
               {loadingMobile ? <Spinner className="w-4 h-4 mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-              {loadingMobile ? 'Shuffling...' : 'Shuffle Scene'}
+              {loadingMobile ? 'Generating...' : mobileUrl ? 'Shuffle' : 'Generate'}
             </Button>
+            {mobileUrl && !loadingMobile && (
+              <a href={mobileUrl} download={`filmedin-${tmdbId}-mobile.png`} aria-label="Download phone wallpaper" className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-zinc-900 hover:bg-zinc-200">
+                <Download size={18} aria-hidden="true" />
+              </a>
+            )}
           </div>
         </div>
 

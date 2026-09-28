@@ -9,12 +9,14 @@ import { CreatePlaylistModal } from '@/components/features/CreatePlaylistModal'
 import { LibraryOverview } from '@/components/features/LibraryOverview'
 import { PlaylistCover } from '@/components/features/PlaylistCover'
 import { Input } from '@/components/ui/input'
-import { Plus, Trash2, Share2, Bookmark, UserPlus, UserMinus, X, Sparkles, Search, ArrowRight } from 'lucide-react'
+import { Plus, Trash2, Share2, Bookmark, UserPlus, UserMinus, X, Sparkles, Search, ArrowRight, LogOut, UserX } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { usePageMetadata } from '@/components/common/RouteMetadata'
-import { clearSessionHint, hasSessionHint } from '@/utils/auth'
+import { hasSessionHint } from '@/utils/auth'
+import { signout } from '@/services/auth.service'
+import { useSavedMedia } from '@/context/SavedMediaContext'
 
 export default function Profile() {
     const navigate = useNavigate()
@@ -32,6 +34,9 @@ export default function Profile() {
     const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false)
     const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false)
     const [isCreatePlaylistOpen, setIsCreatePlaylistOpen] = useState(false)
+    const [loadError, setLoadError] = useState('')
+    const [signingOut, setSigningOut] = useState(false)
+    const { refreshSaved } = useSavedMedia()
 
     usePageMetadata(profile?.username ? `@${profile.username}` : undefined, profile?.bio || undefined, profile?.avatarUrl || undefined)
 
@@ -62,6 +67,8 @@ export default function Profile() {
         const initializeProfile = async () => {
             try {
                 setLoading(true)
+                setLoadError('')
+                setProfile(null)
                 let currentUser = null
                 // Force authentication to view ANY profile
                 if (!hasSessionHint()) {
@@ -74,9 +81,12 @@ export default function Profile() {
                 try {
                     currentUser = await fetchApi('/users/me')
                 } catch {
-                    clearSessionHint()
-                    const currentPath = encodeURIComponent(location.pathname)
-                    navigate(`/login?redirect=${currentPath}`, { replace: true })
+                    // A 401 has already cleared the session hint; any other failure is temporary.
+                    if (!hasSessionHint()) {
+                        navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`, { replace: true })
+                    } else {
+                        setLoadError('Your profile could not be loaded. Check your connection and try again.')
+                    }
                     return
                 }
                 // 2. Handle legacy `/profile` route
@@ -90,7 +100,7 @@ export default function Profile() {
                 }
 
                 // 3. Determine if current user is the owner
-                const owner = currentUser && currentUser.username === username
+                const owner = Boolean(currentUser) && currentUser.username === username.toLowerCase()
                 setIsOwner(owner)
 
                 // 4. Fetch profile and playlists
@@ -103,6 +113,7 @@ export default function Profile() {
                 } else {
                     const publicProfile = await getPublicProfile(username)
                     setProfile(publicProfile)
+                    if (!publicProfile) setLoadError(`No member named @${username} was found.`)
                     if (publicProfile) {
                         setFollowersCount(publicProfile.followersCount || 0)
                         setFollowingCount(publicProfile.followingCount || 0)
@@ -175,11 +186,27 @@ export default function Profile() {
         setModalLoading(false)
     }
 
-    const handleDeletePlaylist = async (id: string) => {
+    const handleDeletePlaylist = async (id: string, name: string) => {
+        if (!window.confirm(`Delete "${name}"? The titles stay in your other lists.`)) return
         const res = await deletePlaylist(id)
         if (res.success) {
-            setPlaylists(playlists.filter(p => p.id !== id))
+            setPlaylists(current => current.filter(p => p.id !== id))
+            toast.success(`Deleted "${name}"`)
+            refreshSaved()
+        } else {
+            toast.error(res.error || 'The playlist could not be deleted')
         }
+    }
+
+    const handleSignOut = async () => {
+        if (signingOut) return
+        setSigningOut(true)
+        try {
+            await signout()
+        } catch {
+            // The local session is still cleared when the server is unavailable.
+        }
+        navigate('/login', { replace: true })
     }
 
     if (loading) {
@@ -187,7 +214,15 @@ export default function Profile() {
     }
 
     if (!profile) {
-        return null // Avoid crashing if we are navigating away or profile is missing
+        if (!loadError) return null
+        return (
+            <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-4 text-center">
+                <UserX className="h-8 w-8 text-zinc-600" aria-hidden="true" />
+                <h1 className="mt-4 text-2xl font-bold text-white">Profile unavailable</h1>
+                <p className="mt-2 text-sm text-zinc-400">{loadError}</p>
+                <Link to="/" className="mt-6 rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-zinc-300 hover:bg-white/[0.05] hover:text-white">Go home</Link>
+            </main>
+        )
     }
 
     const customPlaylists = playlists.filter(playlist => playlist.type === 'custom')
@@ -235,6 +270,7 @@ export default function Profile() {
                                 <>
                                     <EditProfileModal currentAvatar={profile.avatarUrl} currentBanner={profile.bannerUrl} currentBio={profile.bio} currentUsername={profile.username} autoOpen={new URLSearchParams(location.search).get('edit') === 'true'} />
                                     <button type="button" onClick={handleShareProfile} className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-zinc-300 hover:bg-white/[0.05] hover:text-white"><Share2 className="h-4 w-4" aria-hidden="true" />Share</button>
+                                    <button type="button" onClick={handleSignOut} disabled={signingOut} className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-zinc-300 hover:bg-white/[0.05] hover:text-white disabled:opacity-50"><LogOut className="h-4 w-4" aria-hidden="true" />{signingOut ? 'Logging out' : 'Log out'}</button>
                                 </>
                             ) : (
                                 <>
@@ -268,7 +304,7 @@ export default function Profile() {
                             <div className="min-w-0 flex-1"><h3 className="truncate text-sm font-bold text-zinc-100 sm:text-base">{playlist.name}</h3><p className="mt-1 text-xs text-zinc-500">{playlist.playlist_items?.[0]?.count || 0} titles · Personal playlist</p></div>
                             <ArrowRight className="h-4 w-4 shrink-0 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-white" aria-hidden="true" />
                           </Link>
-                          {isOwner && <button type="button" onClick={() => handleDeletePlaylist(playlist.id)} aria-label={`Delete ${playlist.name}`} className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-white/[0.05] hover:text-zinc-200"><Trash2 className="h-4 w-4" aria-hidden="true" /></button>}
+                          {isOwner && <button type="button" onClick={() => handleDeletePlaylist(playlist.id, playlist.name)} aria-label={`Delete ${playlist.name}`} className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-white/[0.05] hover:text-zinc-200"><Trash2 className="h-4 w-4" aria-hidden="true" /></button>}
                         </article>
                     ))}
                     {!customPlaylists.length && <div className="px-6 py-12 text-center"><Bookmark className="mx-auto h-6 w-6 text-zinc-600" aria-hidden="true" /><p className="mt-3 text-sm font-semibold text-zinc-300">{isOwner ? 'Create your first personal playlist.' : 'No personal playlists yet.'}</p>{isOwner && <button type="button" onClick={() => setIsCreatePlaylistOpen(true)} className="mt-4 text-xs font-bold text-[#d2b48c] hover:text-white">Create a playlist</button>}</div>}

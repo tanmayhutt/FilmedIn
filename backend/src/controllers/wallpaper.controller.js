@@ -46,7 +46,6 @@ async function extractVividPalette(buffer, count = 6) {
     .raw()
     .toBuffer();
 
-  const meta = await sharp(buffer).metadata();
   const channels = 3; // raw() drops alpha
   
   const pixels = [];
@@ -290,12 +289,12 @@ function buildSvg(palette, width, height, style, themeMode) {
         ${Array.from({length: 10}).map((_, i) => {
           const y = H*0.65 + Math.pow(i/9, 2) * H*0.35;
           return `<line x1="0" y1="${y}" x2="${W}" y2="${y}"/>`;
-        }).join('\\n')}
+        }).join('\n')}
         ${Array.from({length: 11}).map((_, i) => {
           const xTop = W * 0.5 + (i - 5) * (W * 0.05);
           const xBottom = W * 0.5 + (i - 5) * (W * 0.3);
           return `<line x1="${xTop}" y1="${H*0.65}" x2="${xBottom}" y2="${H}"/>`;
-        }).join('\\n')}
+        }).join('\n')}
       </g>
     </svg>`;
   }

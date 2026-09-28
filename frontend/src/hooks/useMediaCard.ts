@@ -1,12 +1,11 @@
 import { TMDBMovie, TMDBTVShow } from '@/services/tmdb.service'
 import { useSavedMedia } from '@/context/SavedMediaContext'
 import { parseMediaDetails, getSavedPlaylistNames } from '@/utils/media.utils'
-import { createPlaylist } from '@/services/playlist.service'
 import toast from 'react-hot-toast'
 import { hasSessionHint } from '@/utils/auth'
 
 export function useMediaCard(media: TMDBMovie | TMDBTVShow) {
-  const { isSaved, isItemInPlaylist, userPlaylists, togglePlaylist, openCreateModal, refreshSaved, itemMap } = useSavedMedia()
+  const { isSaved, isItemInPlaylist, userPlaylists, togglePlaylist, openCreateModal, itemMap } = useSavedMedia()
 
   const details = parseMediaDetails(media)
   const saved = media?.id ? isSaved(media.id, details.mediaType) : false
@@ -42,7 +41,7 @@ export function useMediaCard(media: TMDBMovie | TMDBTVShow) {
     })
   }
 
-  const likedPlaylist = userPlaylists.find(pl => pl.name.toLowerCase() === 'liked')
+  const likedPlaylist = userPlaylists.find(pl => pl.type === 'system' && pl.name === 'Liked')
   const isLiked = likedPlaylist && media?.id ? isItemInPlaylist(media.id, details.mediaType, likedPlaylist.id) : false
 
   const handleToggleLike = async (e: React.MouseEvent) => {
@@ -53,20 +52,12 @@ export function useMediaCard(media: TMDBMovie | TMDBTVShow) {
       return
     }
 
-    let targetPl = likedPlaylist
-    if (!targetPl) {
-      const res = await createPlaylist('Liked', 'Your liked movies and TV shows')
-      if (res.playlist && res.playlist.id) {
-        targetPl = res.playlist
-        await refreshSaved()
-      }
+    // The server creates Liked at sign-in. Creating it here raced the initial load and made duplicate custom lists.
+    if (!likedPlaylist) {
+      toast.error('Your library is still loading. Please try again in a moment.')
+      return
     }
-
-    if (targetPl) {
-      await handleToggle(e, targetPl.id, 'Liked')
-    } else {
-      toast.error('Failed to initialize Liked playlist')
-    }
+    await handleToggle(e, likedPlaylist.id, 'Liked')
   }
 
   return {

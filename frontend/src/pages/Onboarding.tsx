@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { fetchApi } from '@/services/api.client'
+import { hasSessionHint } from '@/utils/auth'
 import { updateProfile } from '@/services/user.service'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
@@ -12,6 +14,18 @@ export default function Onboarding() {
   const [username, setUsername] = useState('')
   const location = useLocation()
   const redirect = getSafeRedirect(new URLSearchParams(location.search).get('redirect'))
+  const navigate = useNavigate()
+
+  // Start from the username generated at sign-in so members can keep it.
+  useEffect(() => {
+    if (!hasSessionHint()) {
+      navigate(`/login?redirect=${encodeURIComponent(`/onboarding?redirect=${encodeURIComponent(redirect)}`)}`, { replace: true })
+      return
+    }
+    fetchApi('/users/me')
+      .then((user) => setUsername((current) => current || user?.username || ''))
+      .catch(() => undefined)
+  }, [navigate, redirect])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()

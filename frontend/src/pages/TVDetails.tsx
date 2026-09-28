@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { fetchTVDetails, fetchSeasonDetails, TMDBTVShow, TMDBSeason, TMDBEpisode } from '@/services/tmdb.service'
 import { AddToListButton } from '@/components/features/AddToListButton'
@@ -8,7 +8,7 @@ import { Star, ChevronDown, ChevronRight, Tv } from 'lucide-react'
 import { usePageMetadata } from '@/components/common/RouteMetadata'
 
 function RatingPill({ rating }: { rating: number }) {
-  const color = rating >= 8.5 ? 'clay-badge-emerald' : rating >= 7.5 ? 'clay-badge-blue' : 'clay-badge-amber'
+  const color = rating >= 7.5 ? 'clay-badge-blue' : 'clay-badge'
   return (
     <span className={`px-2.5 py-0.5 ${color} text-xs font-bold font-mono inline-flex items-center gap-1`}>
       <Star className="w-3 h-3 fill-white stroke-none" />
@@ -133,6 +133,9 @@ export default function TVDetails() {
     show?.poster_path ? `https://image.tmdb.org/t/p/w780${show.poster_path}` : undefined
   )
 
+  // A stable array keeps the heatmap from refetching every season on unrelated re-renders.
+  const seasons = useMemo(() => ((show as any)?.seasons ?? []).filter((s: any) => s.season_number > 0), [show])
+
   useEffect(() => {
     window.scrollTo(0, 0)
     if (id) {
@@ -166,7 +169,6 @@ export default function TVDetails() {
 
   if (!show) return <main className="p-12 text-center">TV Show not found.</main>
 
-  const seasons = (show as any).seasons?.filter((s: any) => s.season_number > 0) ?? []
 
   const isUnreleased = show.first_air_date ? new Date(show.first_air_date).getTime() > Date.now() : false
 
@@ -185,7 +187,7 @@ export default function TVDetails() {
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <AddToListButton tmdbId={show.id} mediaType="tv" />
+            <AddToListButton tmdbId={show.id} mediaType="tv" title={show.name} />
           </div>
         </div>
 
@@ -215,7 +217,7 @@ export default function TVDetails() {
               </span>
             ) : (
               show.vote_average > 0 && (
-                <span className="px-3.5 py-1 clay-badge-amber text-xs font-bold flex items-center gap-1.5">
+                <span className="px-3.5 py-1 clay-badge text-xs font-bold flex items-center gap-1.5">
                   <Star className="w-3.5 h-3.5 fill-white stroke-none" />
                   {show.vote_average.toFixed(1)} / 10
                 </span>

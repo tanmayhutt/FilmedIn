@@ -16,10 +16,13 @@ const GOOGLE_TOKEN_ERROR = /wrong recipient|wrong number of segments|invalid tok
 
 async function ensurePresetPlaylists(userId) {
   await Promise.all(PRESET_PLAYLISTS.map(name => Playlist.updateOne(
-    { userId, name },
+    { userId, name, type: 'system' },
     { $setOnInsert: { userId, name, type: 'system' } },
     { upsert: true }
-  )));
+  ).catch(error => {
+    // A parallel sign-in created the list first.
+    if (error?.code !== 11000) throw error;
+  })));
 }
 
 const JWT_SECRET = process.env.JWT_SECRET;

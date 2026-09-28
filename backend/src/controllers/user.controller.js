@@ -3,10 +3,11 @@ const Playlist = require('../models/Playlist');
 const PlaylistItem = require('../models/PlaylistItem');
 const jwt = require('jsonwebtoken');
 const { uploadImage } = require('../config/cloudinary');
-const { setSessionCookie } = require('../utils/session');
+const { clearSessionCookie, setSessionCookie } = require('../utils/session');
 
 const USERNAME_PATTERN = /^[a-z0-9_]{3,30}$/;
 const MAX_FOLLOWING = 5000;
+const PROFILE_FIELDS = '_id username email avatarUrl bannerUrl bio createdAt';
 const isSafeImageUrl = (value) => {
   if (value === null || value === '') return true;
   if (typeof value !== 'string' || value.length > 2048) return false;
@@ -20,13 +21,16 @@ const isSafeImageUrl = (value) => {
 exports.updateProfile = async (req, res) => {
   try {
     const { username, avatarUrl, bannerUrl, bio } = req.body;
-    
+    if (username !== undefined && typeof username !== 'string') {
+      return res.status(400).json({ error: 'Username must be text' });
+    }
+
     // Find the user
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     // Validate and check username uniqueness
-    if (username && username.toLowerCase() !== user.username) {
+    if (username && username.trim().toLowerCase() !== user.username) {
       const normalizedUsername = username.trim().toLowerCase();
       if (!USERNAME_PATTERN.test(normalizedUsername)) {
         return res.status(400).json({ error: 'Username must be 3–30 characters and use only letters, numbers, or underscores' });
@@ -64,8 +68,9 @@ exports.updateProfile = async (req, res) => {
 
     setSessionCookie(res, token);
 
-    res.json({ user });
+    res.json({ user: await User.findById(user._id).select(PROFILE_FIELDS).lean() });
   } catch (err) {
+    if (err?.code === 11000) return res.status(400).json({ error: 'Username is already taken' });
     console.error(err.message);
     res.status(500).json({ error: 'Server error' });
   }
@@ -73,7 +78,7 @@ exports.updateProfile = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-passwordHash -otp -otpExpires');
+    const user = await User.findById(req.user.id).select('-passwordHash');
     if (!user) return res.status(404).json({ error: 'User not found' });
     
     const userObj = user.toObject();
@@ -116,7 +121,7 @@ exports.toggleFollow = async (req, res) => {
     const targetUsername = req.params.username;
     const currentUserId = req.user.id;
     
-    const targetUser = await User.findOne({ username: targetUsername });
+    const targetUser = await User.findOne({ username: String(targetUsername).toLowerCase() });
     if (!targetUser) return res.status(404).json({ error: 'User not found' });
     if (targetUser._id.toString() === currentUserId) return res.status(400).json({ error: 'Cannot follow yourself' });
 
@@ -180,7 +185,7 @@ exports.updateAvatar = async (req, res) => {
   try {
     const { avatarUrl } = req.body;
     if (!isSafeImageUrl(avatarUrl)) return res.status(400).json({ error: 'Avatar must use a valid secure image URL' });
-    const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl }, { new: true }).select('-passwordHash');
+    const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl }, { new: true }).select(PROFILE_FIELDS);
     res.json(user);
   } catch (err) {
     console.error(err.message);
@@ -196,7 +201,7 @@ exports.uploadAvatar = async (req, res) => {
       transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face', quality: 'auto' }]
     });
     const avatarUrl = upload.secure_url;
-    const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl }, { new: true }).select('-passwordHash');
+    const user = await User.findByIdAndUpdate(req.user.id, { avatarUrl }, { new: true }).select(PROFILE_FIELDS);
     res.json(user);
   } catch (err) {
     console.error(err.message);
@@ -212,7 +217,7 @@ exports.uploadBanner = async (req, res) => {
       transformation: [{ width: 1600, height: 600, crop: 'fill', gravity: 'auto', quality: 'auto' }]
     });
     const bannerUrl = upload.secure_url;
-    const user = await User.findByIdAndUpdate(req.user.id, { bannerUrl }, { new: true }).select('-passwordHash');
+    const user = await User.findByIdAndUpdate(req.user.id, { bannerUrl }, { new: true }).select(PROFILE_FIELDS);
     res.json(user);
   } catch (err) {
     console.error(err.message);
@@ -245,6 +250,7 @@ exports.deleteAccount = async (req, res) => {
     // Delete the user
     await User.findByIdAndDelete(userId);
 
+    clearSessionCookie(res);
     res.json({ success: true, message: 'Account and all related data deleted successfully' });
   } catch (err) {
     console.error('Delete account error:', err.message);

@@ -18,10 +18,6 @@ const userSchema = new mongoose.Schema({
     maxlength: 30,
     match: [/^[a-z0-9_]+$/, 'Username can only contain lowercase letters, numbers, and underscores']
   },
-  passwordHash: {
-    type: String,
-    required: false
-  },
   googleId: {
     type: String,
     default: null,

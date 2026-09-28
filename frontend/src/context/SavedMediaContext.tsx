@@ -3,6 +3,12 @@ import { getSavedMediaData, addToList, removeFromList } from '@/services/playlis
 import { CreatePlaylistModal } from '@/components/features/CreatePlaylistModal';
 import { hasSessionHint } from '@/utils/auth';
 
+export interface SavedPlaylist {
+  id: string;
+  name: string;
+  type?: 'system' | 'custom';
+}
+
 export interface OpenCreateModalOptions {
   mediaToAdd?: {
     tmdbId: number;
@@ -15,7 +21,7 @@ export interface OpenCreateModalOptions {
 interface SavedMediaContextType {
   savedKeys: Set<string>;
   itemMap: Record<string, string[]>;
-  userPlaylists: { id: string; name: string }[];
+  userPlaylists: SavedPlaylist[];
   isSaved: (tmdbId: number, mediaType: 'movie' | 'tv') => boolean;
   isItemInPlaylist: (tmdbId: number, mediaType: 'movie' | 'tv', playlistId: string) => boolean;
   refreshSaved: () => Promise<void>;
@@ -39,7 +45,7 @@ const SavedMediaContext = createContext<SavedMediaContextType>({
 export const SavedMediaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [savedKeys, setSavedKeys] = useState<Set<string>>(new Set());
   const [itemMap, setItemMap] = useState<Record<string, string[]>>({});
-  const [userPlaylists, setUserPlaylists] = useState<{ id: string; name: string }[]>([]);
+  const [userPlaylists, setUserPlaylists] = useState<SavedPlaylist[]>([]);
 
   // Global Create Playlist Modal state
   const [createModalState, setCreateModalState] = useState<{

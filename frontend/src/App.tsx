@@ -1,12 +1,14 @@
-import { lazy, Suspense, useState } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { lazy, Suspense, useState, useSyncExternalStore } from 'react'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Navbar } from '@/components/common/Navbar'
 import { Footer } from '@/components/common/Footer'
 import { ScrollToTop } from '@/components/common/ScrollToTop'
 import { RouteMetadata } from '@/components/common/RouteMetadata'
 import { Spinner } from '@/components/ui/spinner'
 import { Toaster } from 'react-hot-toast'
-import { hasSessionHint } from '@/utils/auth'
+import { hasSessionHint, subscribeToSession } from '@/utils/auth'
+import { getSafeRedirect } from '@/utils/navigation'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
 const Home = lazy(() => import('@/pages/Home'))
 const Search = lazy(() => import('@/pages/Search'))
@@ -36,7 +38,8 @@ function PageFallback() {
 
 export default function App() {
   const location = useLocation()
-  const signedIn = hasSessionHint()
+  const signedIn = useSyncExternalStore(subscribeToSession, hasSessionHint)
+  const loginRedirect = getSafeRedirect(new URLSearchParams(location.search).get('redirect'))
   const isAuthLanding = location.pathname === '/login' || (location.pathname === '/' && !signedIn)
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     try {
@@ -81,10 +84,11 @@ export default function App() {
       {!isAuthLanding && <Navbar sidebarOpen={sidebarOpen} onToggleSidebar={toggleSidebar} />}
       <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ${isAuthLanding ? '' : sidebarOpen ? 'lg:pl-[280px]' : 'lg:pl-0'}`}>
         <div id="main-content" tabIndex={-1} className="flex min-w-0 flex-1 flex-col pb-24 outline-none lg:pb-16">
+          <ErrorBoundary resetKey={location.pathname}>
           <Suspense fallback={<PageFallback />}>
             <Routes>
             <Route path="/" element={signedIn ? <Home /> : <Login />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={signedIn ? <Navigate to={loginRedirect} replace /> : <Login />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/search" element={<Search />} />
             <Route path="/profile" element={<Profile />} />
@@ -104,6 +108,7 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          </ErrorBoundary>
         </div>
         {!isAuthLanding && <Footer />}
       </div>

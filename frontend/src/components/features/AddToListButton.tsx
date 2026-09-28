@@ -1,65 +1,68 @@
-'use client'
-
-import { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Plus } from 'lucide-react'
-import { addToList, getPlaylists } from '@/services/playlist.service'
+import { Check, Lock, Plus } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useSavedMedia } from '@/context/SavedMediaContext'
 import { hasSessionHint } from '@/utils/auth'
 
-export function AddToListButton({ tmdbId, mediaType }: { tmdbId: number, mediaType: 'movie' | 'tv' }) {
-  const [playlists, setPlaylists] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+export function AddToListButton({ tmdbId, mediaType, title }: { tmdbId: number, mediaType: 'movie' | 'tv', title: string }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { userPlaylists, isItemInPlaylist, isSaved, togglePlaylist, openCreateModal } = useSavedMedia()
+  const signedIn = hasSessionHint()
+  const saved = isSaved(tmdbId, mediaType)
 
-  useEffect(() => {
-    if (!hasSessionHint()) {
-      setLoading(false)
-      return
-    }
-    getPlaylists().then((data) => {
-      setPlaylists(data)
-      setLoading(false)
-    })
-  }, [])
-
-  const handleAdd = async (playlistId: string) => {
-    try {
-      const res = await addToList(playlistId, tmdbId, mediaType)
-      toast.success(res.message || "Added to playlist!")
-    } catch {
-      toast.error("Error adding to playlist.")
-    }
+  const handleToggle = async (playlistId: string, playlistName: string) => {
+    const wasInList = isItemInPlaylist(tmdbId, mediaType, playlistId)
+    const success = await togglePlaylist(tmdbId, mediaType, playlistId)
+    if (!success) return toast.error('The list could not be updated')
+    toast.success(wasInList ? `Removed from "${playlistName}"` : `Saved to "${playlistName}"`)
   }
-
-  const hasToken = hasSessionHint();
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 text-sm font-medium transition-colors bg-[var(--theme-dark-hover)] text-white hover:bg-zinc-700 border-0 h-10 px-4 rounded-full">
-        <Plus className="w-4 h-4" /> Add to List
+      <DropdownMenuTrigger className="inline-flex h-10 items-center justify-center gap-2 rounded-full border-0 bg-[var(--theme-dark-hover)] px-4 text-sm font-medium text-white transition-colors hover:bg-zinc-700">
+        {saved ? <Check className="h-4 w-4" aria-hidden="true" /> : <Plus className="h-4 w-4" aria-hidden="true" />}
+        {saved ? 'In your library' : 'Add to List'}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-[var(--theme-dark)] border-white/10 text-zinc-100 min-w-[200px]">
-        {loading ? (
-          <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
-        ) : playlists.length > 0 ? (
-          playlists.map((pl) => (
-            <DropdownMenuItem 
-              key={pl.id} 
-              onClick={() => handleAdd(pl.id)}
-              className="cursor-pointer focus:bg-[var(--theme-dark-hover)] focus:text-zinc-50"
-            >
-              {pl.name}
-            </DropdownMenuItem>
-          ))
-        ) : hasToken ? (
-          <DropdownMenuItem disabled>No lists created yet. Go to profile to create one.</DropdownMenuItem>
+      <DropdownMenuContent className="min-w-[220px] rounded-xl border border-white/10 bg-[#171817] p-2 text-zinc-100">
+        {!signedIn ? (
+          <DropdownMenuItem
+            onClick={() => navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`)}
+            className="flex cursor-pointer items-center gap-2 rounded-lg p-2 text-xs text-zinc-300"
+          >
+            <Lock className="h-3.5 w-3.5" aria-hidden="true" /> Sign in to save
+          </DropdownMenuItem>
         ) : (
-          <DropdownMenuItem disabled>Sign in to add to lists</DropdownMenuItem>
+          <>
+            {userPlaylists.length === 0 && <DropdownMenuItem disabled className="p-2 text-xs">Loading your lists...</DropdownMenuItem>}
+            {userPlaylists.map((playlist) => {
+              const inList = isItemInPlaylist(tmdbId, mediaType, playlist.id)
+              return (
+                <DropdownMenuItem
+                  key={playlist.id}
+                  onClick={() => handleToggle(playlist.id, playlist.name)}
+                  className="flex cursor-pointer items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-xs font-medium text-zinc-200"
+                >
+                  <span className="truncate">{playlist.name}</span>
+                  {inList ? <Check className="h-4 w-4 shrink-0 text-zinc-400" aria-label="Saved" /> : <Plus className="h-3.5 w-3.5 shrink-0 text-zinc-500" aria-hidden="true" />}
+                </DropdownMenuItem>
+              )
+            })}
+            <DropdownMenuSeparator className="my-1 bg-white/10" />
+            <DropdownMenuItem
+              onClick={() => openCreateModal({ mediaToAdd: { tmdbId, mediaType, title } })}
+              className="flex cursor-pointer items-center gap-1.5 rounded-lg p-2 text-xs font-bold text-[#d2b48c]"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Create new list
+            </DropdownMenuItem>
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

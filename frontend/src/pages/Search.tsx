@@ -17,6 +17,7 @@ export default function Search() {
   const [shows, setShows] = useState<TMDBTVShow[]>([])
   const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [searchValue, setSearchValue] = useState(query)
 
   useEffect(() => setSearchValue(query), [query])
@@ -36,12 +37,19 @@ export default function Search() {
       return
     }
 
+    let cancelled = false
     setLoading(true)
+    setError('')
     const promises = []
-    
-    if (query) {
+
+    if (query.trim().length === 1) {
+      setMovies([])
+      setShows([])
+      setError('Type at least two characters to search.')
+    } else if (query) {
       promises.push(
         searchMedia(query).then(results => {
+          if (cancelled) return
           setMovies(results.filter(item => item.media_type === 'movie') as TMDBMovie[])
           setShows(results.filter(item => item.media_type === 'tv') as TMDBTVShow[])
         })
@@ -54,17 +62,24 @@ export default function Search() {
     if (userQuery) {
       promises.push(
         searchUsers(userQuery).then(userResults => {
-          setUsers(userResults)
+          if (!cancelled) setUsers(userResults)
         })
       )
     } else {
       setUsers([])
     }
 
-    Promise.all(promises).then(() => setLoading(false)).catch(e => {
+    Promise.all(promises).then(() => {
+      if (!cancelled) setLoading(false)
+    }).catch(e => {
       console.error(e)
+      if (cancelled) return
+      setMovies([])
+      setShows([])
+      setError('Search is temporarily unavailable. Please try again.')
       setLoading(false)
     })
+    return () => { cancelled = true }
   }, [query, userQuery])
 
   return (
@@ -97,7 +112,11 @@ export default function Search() {
         <div className="clay-card p-10 text-center text-zinc-300">Search by title to find movies and TV shows.</div>
       )}
 
-      {(query || userQuery) && (loading ? (
+      {error && (
+        <div role="alert" className="clay-card p-8 text-center text-sm text-zinc-300">{error}</div>
+      )}
+
+      {(query || userQuery) && !error && (loading ? (
         <div className="space-y-12">
           <section>
             <h2 className="text-2xl font-bold mb-6 text-white">Movies</h2>

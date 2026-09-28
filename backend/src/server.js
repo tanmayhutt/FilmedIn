@@ -39,10 +39,10 @@ const sanitizeNoSql = (obj) => {
     }
   }
 };
+// Express 5 re-parses req.query on every read and its simple parser never builds nested
+// objects, so only the JSON body can carry operator keys.
 app.use((req, res, next) => {
-  if (req.body)   sanitizeNoSql(req.body);
-  if (req.params) sanitizeNoSql(req.params);
-  if (req.query)  sanitizeNoSql(req.query);
+  if (req.body) sanitizeNoSql(req.body);
   next();
 });
 
@@ -71,9 +71,13 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 
 // ─── Rate Limiting ────────────────────────────────────────────────────────────
-const authLimiter = rateLimit({ windowMs: 15*60*1000, max: 20, standardHeaders: true, legacyHeaders: false });
-const apiLimiter  = rateLimit({ windowMs: 15*60*1000, max: 2000, standardHeaders: true, legacyHeaders: false });
-const wallpaperLimiter = rateLimit({ windowMs: 60*60*1000, max: 12, standardHeaders: true, legacyHeaders: false });
+const limiterOptions = (windowMs, max, error) => ({
+  windowMs, max, standardHeaders: true, legacyHeaders: false, message: { error },
+});
+const authLimiter = rateLimit(limiterOptions(15*60*1000, 20, 'Too many sign-in attempts. Please wait a few minutes and try again.'));
+const apiLimiter  = rateLimit(limiterOptions(15*60*1000, 2000, 'Too many requests. Please slow down and try again shortly.'));
+// Every style or theme change renders a new preview, so the hourly budget must cover normal browsing.
+const wallpaperLimiter = rateLimit(limiterOptions(60*60*1000, 60, 'Wallpaper limit reached. Please try again later this hour.'));
 
 // ─── MongoDB — connection cached for serverless cold starts ───────────────────
 let connectionPromise;
@@ -135,16 +139,25 @@ app.use('/api', (req, res) => {
 // ─── Static Frontend (SERVE_STATIC mode in Docker / production) ───────────────
 if (process.env.SERVE_STATIC === 'true') {
   const frontendDist = path.join(__dirname, '../../frontend/dist');
-  app.use(express.static(frontendDist));
-  app.get('/{*splat}', (req, res) => res.sendFile(path.join(frontendDist, 'index.html')));
+  // Vite assets are content-hashed, so they can be cached permanently.
+  app.use('/assets', express.static(path.join(frontendDist, 'assets'), { immutable: true, maxAge: '1y', fallthrough: false }));
+  app.use(express.static(frontendDist, { index: false }));
+  app.get('/{*splat}', (req, res) => {
+    res.set('Cache-Control', 'no-cache');
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
 }
 
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
-  console.error(isProduction ? err.message : err.stack);
+  // A stale tab can request an asset hash that no longer exists after a deploy.
+  if (err.status === 404 || err.statusCode === 404) return res.status(404).end();
+  if (err.type === 'entity.parse.failed') return res.status(400).json({ error: 'Request body must be valid JSON' });
+  if (err.type === 'entity.too.large') return res.status(413).json({ error: 'Request body is too large' });
   if (err.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ error: 'Image must be 5 MB or smaller' });
   if (err.message?.includes('Only JPG')) return res.status(415).json({ error: err.message });
   if (err.message === 'Not allowed by CORS') return res.status(403).json({ error: 'Origin is not allowed' });
+  console.error(isProduction ? err.message : err.stack);
   res.status(500).json({ error: 'Internal server error' });
 });
 

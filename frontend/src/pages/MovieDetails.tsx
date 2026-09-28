@@ -74,7 +74,7 @@ export default function MovieDetails() {
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <AddToListButton tmdbId={movie.id} mediaType="movie" />
+            <AddToListButton tmdbId={movie.id} mediaType="movie" title={movie.title} />
           </div>
         </div>
 
@@ -102,7 +102,7 @@ export default function MovieDetails() {
               </span>
             ) : (
               movie.vote_average > 0 && movie.vote_count > 5 && (
-                <span className="px-3.5 py-1 clay-badge-amber text-xs font-bold flex items-center gap-1.5">
+                <span className="px-3.5 py-1 clay-badge text-xs font-bold flex items-center gap-1.5">
                   <Star className="w-3.5 h-3.5 fill-white stroke-none" />
                   {movie.vote_average.toFixed(1)} / 10
                 </span>

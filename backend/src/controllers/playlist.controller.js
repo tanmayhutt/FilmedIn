@@ -1,6 +1,7 @@
 const Playlist = require('../models/Playlist');
 const PlaylistItem = require('../models/PlaylistItem');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 const NodeCache = require('node-cache');
 const mediaDetailsCache = new NodeCache({ stdTTL: 86400, checkperiod: 3600, maxKeys: 1000 });
@@ -153,6 +154,7 @@ exports.deletePlaylist = async (req, res) => {
 exports.addItem = async (req, res) => {
   try {
     const { playlistId, tmdbId, mediaType } = req.body;
+    if (!mongoose.isValidObjectId(playlistId)) return res.status(400).json({ error: 'Invalid playlist' });
     if (!Number.isInteger(Number(tmdbId)) || Number(tmdbId) <= 0 || !['movie', 'tv'].includes(mediaType)) {
       return res.status(400).json({ error: 'A valid title and media type are required' });
     }
@@ -195,10 +197,35 @@ exports.addItem = async (req, res) => {
   }
 };
 
+// Resolves TMDB details on the server so a playlist page makes one request instead of one per title.
+async function mapWithConcurrency(values, limit, mapper) {
+  const results = new Array(values.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, values.length) }, async () => {
+    while (next < values.length) {
+      const index = next++;
+      results[index] = await mapper(values[index]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 exports.getItems = async (req, res) => {
   try {
     const items = await PlaylistItem.find({ playlistId: req.params.id }).sort({ createdAt: -1 }).limit(MAX_ITEMS_PER_PLAYLIST).lean();
-    const formatted = items.map(i => ({ ...i, id: i._id.toString(), tmdb_id: i.tmdbId, media_type: i.mediaType }));
+    const formatted = await mapWithConcurrency(items, 8, async (item) => {
+      const details = await getMediaDetails(item.tmdbId, item.mediaType);
+      return {
+        ...(details || { title: 'Title unavailable', name: 'Title unavailable', poster_path: null, vote_average: 0 }),
+        id: item.tmdbId,
+        itemId: item._id.toString(),
+        tmdb_id: item.tmdbId,
+        media_type: item.mediaType,
+        mediaType: item.mediaType,
+        addedAt: item.createdAt,
+      };
+    });
     res.json(formatted);
   } catch (err) {
     console.error(err.message);
@@ -240,7 +267,7 @@ exports.getPlaylist = async (req, res) => {
 
 exports.getSavedIds = async (req, res) => {
   try {
-    const playlists = await Playlist.find({ userId: req.user.id }).select('_id name');
+    const playlists = await Playlist.find({ userId: req.user.id }).select('_id name type').sort({ type: -1, createdAt: 1 });
     const playlistIds = playlists.map(p => p._id);
     const items = await PlaylistItem.find({ playlistId: { $in: playlistIds } })
       .select('playlistId tmdbId mediaType')
@@ -257,7 +284,7 @@ exports.getSavedIds = async (req, res) => {
     res.json({
       savedKeys,
       itemMap,
-      playlists: playlists.map(p => ({ id: p._id.toString(), name: p.name }))
+      playlists: playlists.map(p => ({ id: p._id.toString(), name: p.name, type: p.type }))
     });
   } catch (err) {
     console.error(err.message);
@@ -270,7 +297,9 @@ exports.getTasteBlend = async (req, res) => {
     const currentUser = await User.findById(req.user.id).select('_id username avatarUrl');
     const targetUser = await User.findOne({ username: req.params.username.toLowerCase() }).select('_id username avatarUrl');
 
+    if (!currentUser) return res.status(401).json({ error: 'Please sign in again' });
     if (!targetUser) return res.status(404).json({ error: 'User not found' });
+    if (targetUser._id.equals(currentUser._id)) return res.status(400).json({ error: 'Choose another member to compare with' });
 
     // Fetch playlists for both users
     const u1Playlists = await Playlist.find({ userId: currentUser._id }).lean();
@@ -286,15 +315,11 @@ exports.getTasteBlend = async (req, res) => {
     const u1PlMap = new Map(u1Playlists.map(p => [p._id.toString(), p]));
     const u2PlMap = new Map(u2Playlists.map(p => [p._id.toString(), p]));
 
-    // Categorize items by preset type (Watchlist, Currently Watching, Watched) vs Custom
-    const getPresetCategory = (plName) => {
-      const lower = (plName || '').toLowerCase().trim();
-      if (lower.includes('watchlist')) return 'watchlist';
-      if (lower.includes('currently watching') || lower.includes('watching')) return 'currentlyWatching';
-      if (lower.includes('liked') || lower.includes('favourite') || lower.includes('favorite')) return 'liked';
-      if (lower.includes('watched') || lower.includes('history')) return 'watched';
-      return 'custom';
-    };
+    // Only the four system lists are viewing states. A custom list named "Watched with Dad" stays custom.
+    const SYSTEM_CATEGORIES = { 'Watchlist': 'watchlist', 'Currently Watching': 'currentlyWatching', 'Watched': 'watched', 'Liked': 'liked' };
+    const getPresetCategory = (playlist) => (
+      playlist.type === 'system' && SYSTEM_CATEGORIES[playlist.name] ? SYSTEM_CATEGORIES[playlist.name] : 'custom'
+    );
 
     // Helper to group items by preset category for a user
     const categorizeUserItems = (items, plMap) => {
@@ -305,7 +330,7 @@ exports.getTasteBlend = async (req, res) => {
         const mediaKey = `${item.mediaType}:${item.tmdbId}`;
         itemObjs.set(mediaKey, item);
         const pl = plMap.get(item.playlistId.toString());
-        const category = pl ? getPresetCategory(pl.name) : 'custom';
+        const category = pl ? getPresetCategory(pl) : 'custom';
         if (cat[category]) {
           cat[category].add(mediaKey);
         }

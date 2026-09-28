@@ -67,8 +67,7 @@ export async function getSavedMediaData() {
 export async function getTasteBlend(targetUsername: string) {
   try {
     return await fetchApi(`/playlists/blend/${encodeURIComponent(targetUsername)}`)
-  } catch (err) {
-    console.error(err)
-    return null
+  } catch (err: any) {
+    return { error: err?.message || 'The comparison could not be loaded.' }
   }
 }

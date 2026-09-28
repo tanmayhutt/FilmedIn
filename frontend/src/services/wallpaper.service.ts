@@ -1,14 +1,5 @@
 import { fetchApi } from '@/services/api.client'
 
-export async function saveWallpaper(url: string, _tmdbId: number, _mediaType: 'movie' | 'tv') {
-  try {
-    await fetchApi('/users/me') // Check auth
-    return { success: true, url }
-  } catch {
-    return { error: 'Not authenticated' }
-  }
-}
-
 export async function generateWallpaper(tmdbId: number, mediaType: 'movie' | 'tv', title: string, type: 'desktop' | 'mobile', style: string, themeMode: 'light' | 'dark' = 'dark', forceRegenerate: boolean = false): Promise<{ success?: boolean; url?: string; error?: string }> {
   try {
     const res = await fetchApi('/wallpapers/generate', {

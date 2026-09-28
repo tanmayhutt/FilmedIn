@@ -26,5 +26,7 @@ const playlistSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 playlistSchema.index({ userId: 1, createdAt: -1 });
+// Concurrent first sign-ins must not create two copies of a viewing-state list.
+playlistSchema.index({ userId: 1, name: 1 }, { unique: true, partialFilterExpression: { type: 'system' } });
 
 module.exports = mongoose.model('Playlist', playlistSchema);

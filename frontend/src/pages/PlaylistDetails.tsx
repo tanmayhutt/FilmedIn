@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { fetchApi } from '@/services/api.client'
-import { fetchMovieDetails, fetchTVDetails } from '@/services/tmdb.service'
 import { removeFromList } from '@/services/playlist.service'
 import { ArrowLeft, ListVideo, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { usePageMetadata } from '@/components/common/RouteMetadata'
 import { hasSessionHint } from '@/utils/auth'
 import { PlaylistCover } from '@/components/features/PlaylistCover'
+import { useSavedMedia } from '@/context/SavedMediaContext'
 
 export default function PlaylistDetails() {
     const { id } = useParams<{ id: string }>()
@@ -20,6 +20,7 @@ export default function PlaylistDetails() {
 
     const navigate = useNavigate()
     const location = useLocation()
+    const { refreshSaved } = useSavedMedia()
 
     useEffect(() => {
         if (!hasSessionHint()) {
@@ -38,27 +39,10 @@ export default function PlaylistDetails() {
             setPlaylist(playlistData)
 
             if (playlistData) {
+                // The server returns each item with its title details, so this is a single request.
                 fetchApi(`/playlists/${id}/items`).then((itemsData) => {
-                    if (!itemsData || itemsData.length === 0) {
-                        setItems([])
-                        setLoading(false)
-                        return
-                    }
-
-                    Promise.all(itemsData.map(async (item: any) => {
-                        try {
-                            if (item.media_type === 'movie') {
-                                return await fetchMovieDetails(item.tmdb_id.toString())
-                            } else {
-                                return await fetchTVDetails(item.tmdb_id.toString())
-                            }
-                        } catch {
-                            return null
-                        }
-                    })).then(resolvedItems => {
-                        setItems(resolvedItems.filter(Boolean))
-                        setLoading(false)
-                    })
+                    setItems(Array.isArray(itemsData) ? itemsData : [])
+                    setLoading(false)
                 }).catch(() => setLoading(false))
             } else {
                 setLoading(false)
@@ -70,8 +54,9 @@ export default function PlaylistDetails() {
         if (!id) return
         const res = await removeFromList(id, tmdbId, mediaType)
         if (res.success) {
-            setItems(items.filter(item => item.id !== tmdbId))
+            setItems(current => current.filter(item => !(item.id === tmdbId && item.media_type === mediaType)))
             toast.success('Item removed')
+            refreshSaved()
         } else {
             toast.error('Failed to remove item')
         }
@@ -122,7 +107,7 @@ export default function PlaylistDetails() {
                     const title = item.title || item.name
                     const year = (item.release_date || item.first_air_date || '').slice(0, 4)
                     return (
-                      <li key={`${item.id}-${i}`} className="group grid grid-cols-[2rem_minmax(0,1fr)_2.5rem] items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] sm:px-5 md:grid-cols-[2.5rem_minmax(0,1fr)_8rem_6rem_3rem] md:gap-4">
+                      <li key={`${mediaType}-${item.id}`} className="group grid grid-cols-[2rem_minmax(0,1fr)_2.5rem] items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] sm:px-5 md:grid-cols-[2.5rem_minmax(0,1fr)_8rem_6rem_3rem] md:gap-4">
                         <span className="text-xs tabular-nums text-zinc-600">{i + 1}</span>
                         <Link to={`/${mediaType === 'movie' ? 'movie' : 'tv'}/${item.id}`} className="flex min-w-0 items-center gap-3">
                           <div className="h-16 w-11 shrink-0 overflow-hidden rounded-md bg-white/[0.04]">{item.poster_path ? <img src={`https://image.tmdb.org/t/p/w92${item.poster_path}`} alt="" className="h-full w-full object-cover" /> : <span className="flex h-full items-center justify-center"><ListVideo className="h-4 w-4 text-zinc-700" /></span>}</div>

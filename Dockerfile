@@ -1,6 +1,5 @@
 FROM node:24-bookworm-slim AS frontend
 WORKDIR /app/frontend
-ENV PUPPETEER_SKIP_DOWNLOAD=true
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./

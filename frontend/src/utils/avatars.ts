@@ -12,7 +12,3 @@ export const PRESET_AVATARS = [
   'https://api.dicebear.com/9.x/notionists/svg?seed=Jack',
   'https://api.dicebear.com/9.x/notionists/svg?seed=Leah'
 ]
-
-export function getRandomAvatar() {
-  return PRESET_AVATARS[Math.floor(Math.random() * PRESET_AVATARS.length)]
-}

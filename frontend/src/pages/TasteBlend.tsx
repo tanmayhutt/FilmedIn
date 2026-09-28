@@ -38,7 +38,9 @@ export default function TasteBlend() {
   useEffect(() => {
     if (!username) return
     setLoading(true)
-    getTasteBlend(username).then((result) => result.error ? setError(result.error) : setData(result)).catch(() => setError('The comparison could not be loaded.')).finally(() => setLoading(false))
+    setError('')
+    setData(null)
+    getTasteBlend(username).then((result) => result?.error ? setError(result.error) : setData(result)).catch(() => setError('The comparison could not be loaded.')).finally(() => setLoading(false))
   }, [username])
 
   const copyLink = async () => {

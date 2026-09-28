@@ -127,7 +127,9 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
                 const epData = data[s.season_number]?.[ep];
                 const rating = epData?.rating ?? null;
                 const epName = epData?.name ?? '';
-                
+                // Seasons shorter than the longest one have no episode to link to here.
+                if (!epData) return <div key={`${s.season_number}-${ep}`} className="w-14 shrink-0 px-[2px]" aria-hidden="true"><div className="h-9 w-full" /></div>;
+
                 return (
                   <div key={`${s.season_number}-${ep}`} className="w-14 shrink-0 px-[2px]">
                     <a 

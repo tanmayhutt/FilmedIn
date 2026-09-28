@@ -3,8 +3,21 @@ import { fetchApi } from '@/services/api.client'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { UserAvatar } from './UserAvatar'
-import { clearSessionHint, hasSessionHint } from '@/utils/auth'
+import { hasSessionHint } from '@/utils/auth'
 import { signout } from '@/services/auth.service'
+
+// The desktop and mobile headers both mount this component, so they share one profile request.
+let profileRequest: Promise<any> | null = null
+function loadSharedProfile() {
+  if (!profileRequest) {
+    profileRequest = fetchApi('/users/me').catch((error) => {
+      profileRequest = null
+      throw error
+    })
+  }
+  return profileRequest
+}
+if (typeof window !== 'undefined') window.addEventListener('auth-changed', () => { profileRequest = null })
 
 export function NavbarProfile({ showLibraryLink = true, showLogout = false }: { showLibraryLink?: boolean; showLogout?: boolean }) {
   const [profile, setProfile] = useState<any>(null)
@@ -15,12 +28,10 @@ export function NavbarProfile({ showLibraryLink = true, showLogout = false }: { 
   useEffect(() => {
     const loadProfile = () => {
       if (hasSessionHint()) {
-      fetchApi('/users/me')
+      loadSharedProfile()
         .then(data => setProfile(data))
-        .catch(() => {
-          clearSessionHint()
-          setProfile(null)
-        })
+        // fetchApi already ends the session on a 401. Other failures keep the member signed in.
+        .catch(() => setProfile(null))
       } else {
         setProfile(null)
       }
@@ -28,7 +39,7 @@ export function NavbarProfile({ showLibraryLink = true, showLogout = false }: { 
     loadProfile()
     window.addEventListener('auth-changed', loadProfile)
     return () => window.removeEventListener('auth-changed', loadProfile)
-  }, [location])
+  }, [])
 
   const handleSignOut = async () => {
     if (signingOut) return
