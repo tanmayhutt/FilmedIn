@@ -120,7 +120,7 @@ export default function Search() {
         <div className="space-y-12">
           <section>
             <h2 className="text-2xl font-bold mb-6 text-white">Movies</h2>
-            <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide px-2">
+            <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="w-[160px] sm:w-[200px] h-[240px] sm:h-[300px] clay-card animate-pulse shrink-0" />
               ))}
@@ -133,7 +133,7 @@ export default function Search() {
             <>
               <section>
                 <h2 className="text-2xl font-bold mb-6 text-white">Movies</h2>
-                <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide px-2">
+                <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
                   {movies.length > 0 ? (
                     movies.map((movie) => (
                       <MediaCard key={movie.id} media={movie} />
@@ -146,7 +146,7 @@ export default function Search() {
 
               <section>
                 <h2 className="text-2xl font-bold mb-6 text-white">TV Shows</h2>
-                <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide px-2">
+                <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
                   {shows.length > 0 ? (
                     shows.map((show) => (
                       <MediaCard key={show.id} media={show} />

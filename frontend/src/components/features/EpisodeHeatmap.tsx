@@ -85,7 +85,7 @@ export function EpisodeHeatmap({ tvId, seasons }: HeatmapProps) {
   const episodes = Array.from({ length: maxEpisodes }, (_, i) => i + 1);
 
   return (
-    <div className="bg-[var(--theme-bg)] border border-white/10/80 rounded-2xl p-4 sm:p-6 overflow-hidden">
+    <div className="bg-[var(--theme-bg)] border border-white/[0.08] rounded-2xl p-4 sm:p-6 overflow-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
           <h3 className="text-lg font-bold text-white mb-1 tracking-wide font-mono">SERIES GRAPH</h3>

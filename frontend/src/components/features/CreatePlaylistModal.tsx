@@ -104,7 +104,7 @@ export function CreatePlaylistModal({ isOpen, onClose, mediaToAdd, onCreated }: 
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What is this playlist about?"
-                className="w-full h-24 min-h-[5rem] clay-input p-3 text-sm transition-colors placeholder:text-zinc-600 resize-none text-white border-none"
+                className="w-full h-24 min-h-[5rem] clay-input rounded-xl p-3 text-sm transition-colors placeholder:text-zinc-600 resize-none text-white border-none"
                 maxLength={500}
               />
             </div>

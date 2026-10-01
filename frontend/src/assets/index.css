@@ -9,6 +9,23 @@
   --theme-dark-hover: #20211f;
   --theme-comp-green: #a4aa9a;
   --theme-comp-orange: #d2b48c;
+
+  /* Tokens used by the shared UI primitives, mapped onto the ink, parchment, and brass palette. */
+  --color-background: #0d0e0e;
+  --color-foreground: #f4f4f5;
+  --color-card: #171817;
+  --color-popover: #171817;
+  --color-popover-foreground: #f4f4f5;
+  --color-primary: #e8e0d3;
+  --color-primary-foreground: #111210;
+  --color-muted: #20211f;
+  --color-muted-foreground: #a1a1aa;
+  --color-accent: #242522;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #c26b5f;
+  --color-border: rgb(255 255 255 / 0.1);
+  --color-input: rgb(255 255 255 / 0.12);
+  --color-ring: #d2b48c;
 }
 
 body {
@@ -32,6 +49,8 @@ body {
   outline-offset: 3px;
 }
 
+/* Component defaults live in a layer so utility classes on the same element win. */
+@layer components {
 /* Organic wavy design system */
 
 .clay-bg {
@@ -118,9 +137,10 @@ body {
 
 /* Solid Pill Inputs */
 .clay-input {
-  background-color: var(--theme-dark);
+  background-color: #0f100f;
   color: #f4f4f5;
   border: none;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.09);
   border-radius: 9999px;
   transition: background-color 0.2s ease;
   padding-left: 1.25rem;
@@ -163,6 +183,8 @@ body {
 }
 
 /* Hide scrollbar */
+}
+
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 

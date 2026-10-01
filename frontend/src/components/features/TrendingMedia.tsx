@@ -19,7 +19,7 @@ export function TrendingMovies() {
   if (loading) return <TrendingSkeleton />
 
   return (
-    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide px-2">
+    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
       {movies.length > 0 ? (
         movies.map((movie: any) => (
           <MediaCard key={movie.id} media={movie} />
@@ -48,7 +48,7 @@ export function TrendingTV() {
   if (loading) return <TrendingSkeleton />
 
   return (
-    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide px-2">
+    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
       {shows.length > 0 ? (
         shows.map((show: any) => (
           <MediaCard key={show.id} media={show} />
@@ -62,7 +62,7 @@ export function TrendingTV() {
 
 export function TrendingSkeleton() {
   return (
-    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide px-2">
+    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
       {[...Array(5)].map((_, i) => (
         <div key={i} className="w-[160px] sm:w-[200px] h-[240px] sm:h-[300px] bg-[var(--theme-dark)] rounded-lg animate-pulse shrink-0 border border-white/10" />
       ))}

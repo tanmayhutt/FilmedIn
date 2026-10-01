@@ -27,7 +27,7 @@ function RatingBadge({ rating, isUnreleased }: { rating: number, isUnreleased: b
   )
 }
 
-export function MediaCard({ media, disableLink = false, actionButton }: { media: TMDBMovie | TMDBTVShow, disableLink?: boolean, actionButton?: React.ReactNode }) {
+export function MediaCard({ media, disableLink = false, actionButton, fluid = false }: { media: TMDBMovie | TMDBTVShow, disableLink?: boolean, actionButton?: React.ReactNode, fluid?: boolean }) {
   const navigate = useNavigate()
   const {
     isMovie, title, year, isUnreleased, rating, href,
@@ -36,7 +36,7 @@ export function MediaCard({ media, disableLink = false, actionButton }: { media:
   } = useMediaCard(media)
 
   return (
-    <div className="w-[160px] sm:w-[200px] group relative flex flex-col gap-2 shrink-0">
+    <div className={`${fluid ? 'w-full min-w-0' : 'w-[160px] sm:w-[200px] shrink-0'} group relative flex flex-col gap-2`}>
       {/* Poster Image Container */}
       {disableLink ? (
         <div className="relative aspect-[2/3] w-full overflow-hidden clay-poster">

@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchTrendingMovies, fetchTrendingTV, TMDBMovie, TMDBTVShow } from '@/services/tmdb.service'
-import { ChevronLeft, ChevronRight, Info } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Info, Pause, Play } from 'lucide-react'
 
 export function HeroCarousel() {
   const [items, setItems] = useState<(TMDBMovie | TMDBTVShow)[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
+  // Rotation stops for reduced-motion users, while hovered or focused, and when paused manually.
+  const [paused, setPaused] = useState(() => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+  const [interacting, setInteracting] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -33,12 +36,12 @@ export function HeroCarousel() {
   }, [])
 
   useEffect(() => {
-    if (items.length === 0) return
+    if (items.length === 0 || paused || interacting) return
     const interval = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % items.length)
     }, 6000) // Rotate every 6 seconds
     return () => clearInterval(interval)
-  }, [items.length])
+  }, [items.length, paused, interacting])
 
   if (items.length === 0) {
     return <div className="flex h-[42vh] min-h-[360px] w-full items-end bg-[var(--theme-dark)] px-5 pb-14 sm:px-8"><div className="h-2 w-32 rounded-full bg-white/[0.06]" /></div>
@@ -52,7 +55,15 @@ export function HeroCarousel() {
   const handleNext = () => setCurrentIndex(prev => (prev + 1) % items.length)
 
   return (
-    <div className="relative w-full h-[60vh] sm:h-[85vh] overflow-hidden group">
+    <section
+      aria-roledescription="carousel"
+      aria-label="Featured titles"
+      className="relative w-full h-[60vh] sm:h-[85vh] overflow-hidden group"
+      onMouseEnter={() => setInteracting(true)}
+      onMouseLeave={() => setInteracting(false)}
+      onFocus={() => setInteracting(true)}
+      onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setInteracting(false) }}
+    >
       {/* Background Images */}
       {items.map((item, idx) => (
         <div
@@ -104,16 +115,29 @@ export function HeroCarousel() {
 
       {/* Navigation Arrows */}
       <button 
+        type="button"
         onClick={handlePrev}
+        aria-label="Previous featured title"
         className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 border border-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 focus:outline-none hover:bg-black/60"
       >
         <ChevronLeft className="w-6 h-6 -ml-0.5" />
       </button>
       <button 
+        type="button"
         onClick={handleNext}
+        aria-label="Next featured title"
         className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 border border-white/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 focus:outline-none hover:bg-black/60"
       >
         <ChevronRight className="w-6 h-6 ml-0.5" />
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setPaused(value => !value)}
+        aria-label={paused ? 'Resume automatic rotation' : 'Pause automatic rotation'}
+        className="absolute bottom-4 right-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur-md transition-colors hover:bg-black/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d2b48c] sm:bottom-9 sm:right-8"
+      >
+        {paused ? <Play className="h-4 w-4" aria-hidden="true" /> : <Pause className="h-4 w-4" aria-hidden="true" />}
       </button>
 
       {/* Pagination Dots */}
@@ -121,7 +145,10 @@ export function HeroCarousel() {
         {items.map((_, idx) => (
           <button
             key={idx}
+            type="button"
             onClick={() => setCurrentIndex(idx)}
+            aria-label={`Show featured title ${idx + 1} of ${items.length}`}
+            aria-current={idx === currentIndex ? 'true' : undefined}
             className={`transition-all duration-300 rounded-full focus:outline-none ${
               idx === currentIndex 
                 ? 'w-8 h-2.5 bg-[#d2b48c] shadow-md'
@@ -130,6 +157,6 @@ export function HeroCarousel() {
           />
         ))}
       </div>
-    </div>
+    </section>
   )
 }

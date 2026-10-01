@@ -1,4 +1,4 @@
-import { STUDIOS } from '@/lib/studios';
+import { STUDIOS, studioLogoFilter } from '@/lib/studios';
 import { Link } from 'react-router-dom';
 
 export default function StudiosIndex() {
@@ -32,7 +32,7 @@ export default function StudiosIndex() {
                 <img 
                   src={studio.logoUrl} 
                   alt={studio.name} 
-                  className="max-w-full max-h-full object-contain filter brightness-0 invert opacity-90 group-hover:opacity-100 transition-all" 
+                  className={`max-w-full max-h-full object-contain filter ${studioLogoFilter(studio)} opacity-90 group-hover:opacity-100 transition-all`} 
                 />
               </div>
             </div>

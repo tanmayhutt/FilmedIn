@@ -6,8 +6,9 @@ export function PlaylistCover({ posters = [], fallback: Fallback, className = 'h
 
   return (
     <span className={`relative grid shrink-0 overflow-hidden rounded-xl border border-white/[0.09] bg-[#20211f] shadow-md ${layout} ${className}`} aria-hidden="true">
-      {visiblePosters.length ? visiblePosters.map((poster) => (
-        <img key={poster} src={poster} alt="" className="h-full min-h-0 w-full min-w-0 object-cover" />
+      {visiblePosters.length ? visiblePosters.map((poster, index) => (
+        // With three posters the first spans both rows so the collage has no empty quadrant.
+        <img key={poster} src={poster} alt="" className={`h-full min-h-0 w-full min-w-0 object-cover ${visiblePosters.length === 3 && index === 0 ? 'row-span-2' : ''}`} />
       )) : (
         <span className="flex h-full w-full items-center justify-center text-zinc-600"><Fallback className="h-5 w-5" /></span>
       )}

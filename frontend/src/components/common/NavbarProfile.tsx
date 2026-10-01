@@ -80,7 +80,7 @@ export function NavbarProfile({ showLibraryLink = true, showLogout = false }: { 
         <UserAvatar
           avatarUrl={profile?.avatarUrl}
           username={profile?.username}
-          className="w-9 h-9 border border-white/20/80 group-hover:border-white transition-colors"
+          className="w-9 h-9 border border-white/15 group-hover:border-white transition-colors"
         />
         {showLogout && (
           <span className="min-w-0 flex-1 truncate text-xs font-semibold text-zinc-300">@{profile.username}</span>

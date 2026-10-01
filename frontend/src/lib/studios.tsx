@@ -9,6 +9,12 @@ export interface Studio {
   logoUrl: string;
   bgGradient: string;
   accentColor: string;
+  // Lettering cut out of a solid box. A white silhouette filter would erase it.
+  knockoutLogo?: boolean;
+}
+
+export function studioLogoFilter(studio: Studio) {
+  return studio.knockoutLogo ? 'grayscale contrast-125' : 'brightness-0 invert'
 }
 
 export const STUDIOS: Studio[] = [
@@ -19,7 +25,8 @@ export const STUDIOS: Studio[] = [
     type: 'movie',
     bgGradient: 'from-[#EC1D24]/30 to-[#EC1D24]/10',
     accentColor: '#EC1D24',
-    logoUrl: 'https://image.tmdb.org/t/p/w500/hUzeosd33nzE5MCNsZxCGEKTXaQ.png'
+    logoUrl: 'https://image.tmdb.org/t/p/w500/hUzeosd33nzE5MCNsZxCGEKTXaQ.png',
+    knockoutLogo: true
   },
   {
     id: 'pixar',
@@ -123,7 +130,8 @@ export const STUDIOS: Studio[] = [
     type: 'movie',
     bgGradient: 'from-[#0057b7]/30 to-[#0057b7]/10',
     accentColor: '#0057b7',
-    logoUrl: 'https://image.tmdb.org/t/p/w500/zhD3hhtKB5qyv7ZeL4uLpNxgMVU.png'
+    logoUrl: 'https://image.tmdb.org/t/p/w500/zhD3hhtKB5qyv7ZeL4uLpNxgMVU.png',
+    knockoutLogo: true
   },
   {
     id: 'sony',

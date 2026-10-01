@@ -61,7 +61,7 @@ export default function MovieDetails() {
       </Link>
 
       <div className="flex flex-col md:flex-row gap-8 sm:gap-12">
-        <div className="w-full md:w-1/3 lg:w-1/4 shrink-0">
+        <div className="mx-auto w-full max-w-[15rem] shrink-0 md:mx-0 md:w-1/3 md:max-w-none lg:w-1/4">
           <div className="aspect-[2/3] w-full clay-poster overflow-hidden relative mb-6">
             {movie.poster_path ? (
               <img 
@@ -78,7 +78,7 @@ export default function MovieDetails() {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col pt-2">
+        <div className="flex min-w-0 flex-1 flex-col pt-2">
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-4">
             {movie.title}
           </h1>

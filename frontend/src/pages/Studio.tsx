@@ -82,7 +82,8 @@ export default function Studio() {
 
         {/* Logo */}
         <div className="relative z-10 w-[80%] max-w-[400px] h-[150px] flex items-center justify-center drop-shadow-[0_2px_10px_rgba(255,255,255,0.2)] animate-in fade-in zoom-in-95 duration-700">
-          <img src={studio.logoUrl} alt={studio.name} className="max-w-full max-h-full object-contain" />
+          <h1 className="sr-only">{studio.name}</h1>
+          <img src={studio.logoUrl} alt="" className="max-w-full max-h-full object-contain" />
         </div>
       </div>
 
@@ -90,7 +91,7 @@ export default function Studio() {
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
         
         {/* Tabs */}
-        <div className="flex items-center justify-center gap-4 border-b border-white/10/50 pb-4">
+        <div className="flex items-center justify-center gap-4 border-b border-white/[0.06] pb-4">
           <button 
             onClick={() => setActiveTab('movie')}
             className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${

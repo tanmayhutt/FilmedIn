@@ -4,7 +4,7 @@ import { TrendingMovies, TrendingTV } from '@/components/features/TrendingMedia'
 import { GenreRow } from '@/components/features/GenreRow'
 import { HeroCarousel } from '@/components/features/HeroCarousel'
 import { Link } from 'react-router-dom'
-import { STUDIOS } from '@/lib/studios'
+import { STUDIOS, studioLogoFilter } from '@/lib/studios'
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState<'all' | 'movies' | 'tv' | 'action' | 'scifi'>('all')
@@ -77,7 +77,7 @@ export default function Home() {
                 <img 
                   src={studio.logoUrl} 
                   alt={studio.name} 
-                  className="max-h-8 sm:max-h-10 max-w-[80%] object-contain filter brightness-0 invert opacity-90 group-hover:opacity-100 transition-all" 
+                  className={`max-h-8 sm:max-h-10 max-w-[80%] object-contain filter ${studioLogoFilter(studio)} opacity-90 group-hover:opacity-100 transition-all`} 
                 />
               </Link>
             ))}

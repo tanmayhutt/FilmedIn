@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Bookmark, Check, Clapperboard, Copy, Heart, Library, Tv, User } from 'lucide-react'
+import { ArrowLeft, Bookmark, Check, Clapperboard, Copy, Heart, Library, Tv } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getTasteBlend } from '@/services/playlist.service'
 import { MediaCard } from '@/components/features/MediaCard'
+import { UserAvatar } from '@/components/common/UserAvatar'
 
 type BlendItem = Record<string, unknown> & { id: number }
 type CategoryBreakdown = { u1Count?: number; u2Count?: number; mutualCount?: number }
@@ -21,7 +22,7 @@ type BlendData = {
 }
 
 function Avatar({ user }: { user: BlendData['currentUser'] }) {
-  return <div className="h-16 w-16 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">{user.avatarUrl ? <img src={user.avatarUrl} alt={user.username} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-zinc-500"><User className="h-6 w-6" /></div>}</div>
+  return <UserAvatar avatarUrl={user.avatarUrl} username={user.username} className="h-16 w-16 border border-white/10 text-xl" />
 }
 
 function MediaShelf({ title, description, items, empty }: { title: string; description: string; items: BlendItem[]; empty: string }) {

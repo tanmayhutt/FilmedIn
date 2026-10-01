@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState, useSyncExternalStore } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Navbar } from '@/components/common/Navbar'
+import { NavbarProfile } from '@/components/common/NavbarProfile'
 import { Footer } from '@/components/common/Footer'
 import { ScrollToTop } from '@/components/common/ScrollToTop'
 import { RouteMetadata } from '@/components/common/RouteMetadata'
@@ -41,6 +42,10 @@ export default function App() {
   const signedIn = useSyncExternalStore(subscribeToSession, hasSessionHint)
   const loginRedirect = getSafeRedirect(new URLSearchParams(location.search).get('redirect'))
   const isAuthLanding = location.pathname === '/login' || (location.pathname === '/' && !signedIn)
+  const isProfileRoute = location.pathname === '/profile' || location.pathname.startsWith('/u/')
+  // The account control sits in the page flow so it never covers page controls. Only the
+  // full-bleed Home hero lets it float on top.
+  const accountOverlay = location.pathname === '/'
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     try {
       return window.localStorage.getItem('filmedin-sidebar') !== 'closed'
@@ -82,7 +87,14 @@ export default function App() {
       <ScrollToTop />
       <RouteMetadata />
       {!isAuthLanding && <Navbar sidebarOpen={sidebarOpen} onToggleSidebar={toggleSidebar} />}
-      <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ${isAuthLanding ? '' : sidebarOpen ? 'lg:pl-[280px]' : 'lg:pl-0'}`}>
+      <div className={`relative flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ${isAuthLanding ? '' : sidebarOpen ? 'lg:pl-[280px]' : 'lg:pl-0'}`}>
+        {!isAuthLanding && !isProfileRoute && (
+          <div className={`z-40 hidden justify-end px-5 pt-4 lg:flex ${accountOverlay ? 'absolute right-0 top-0' : 'relative -mb-3'}`}>
+            <div className="rounded-2xl border border-white/[0.08] bg-[#171817]/95 p-2 shadow-xl backdrop-blur-xl">
+              <NavbarProfile showLibraryLink={false} showLogout />
+            </div>
+          </div>
+        )}
         <div id="main-content" tabIndex={-1} className="flex min-w-0 flex-1 flex-col pb-24 outline-none lg:pb-16">
           <ErrorBoundary resetKey={location.pathname}>
           <Suspense fallback={<PageFallback />}>

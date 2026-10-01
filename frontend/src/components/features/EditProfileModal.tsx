@@ -5,9 +5,10 @@ import { PRESET_BANNERS } from '@/utils/banners'
 import { updateProfile, uploadCustomAvatar, uploadCustomBanner, deleteAccount } from '@/services/user.service'
 import { signout } from '@/services/auth.service'
 import { Button } from '@/components/ui/button'
+import { UserAvatar } from '@/components/common/UserAvatar'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
-import { Upload, Camera, User, Image as ImageIcon, X } from 'lucide-react'
+import { Upload, Camera, User, Image as ImageIcon, Pencil, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface Props {
@@ -115,9 +116,10 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className="px-6 py-2.5 clay-button-secondary text-xs"
+        type="button"
+        className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-zinc-300 hover:bg-white/[0.05] hover:text-white"
       >
-        Edit Profile
+        <Pencil className="h-4 w-4" aria-hidden="true" />Edit profile
       </button>
 
       {isOpen && typeof document !== 'undefined' && createPortal(
@@ -142,7 +144,7 @@ export function EditProfileModal({ currentAvatar, currentBanner, currentBio, cur
                 {/* Left Side: Avatar */}
                 <div className="flex flex-col items-center gap-3 shrink-0">
                   <div className="relative group cursor-pointer w-28 h-28 rounded-full overflow-hidden border border-white/10 shadow-xl">
-                    <img src={avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=fallback'} alt="Avatar" className="w-full h-full object-cover bg-[var(--theme-dark)]" />
+                    <UserAvatar avatarUrl={avatar} username={username || currentUsername} className="h-full w-full text-3xl" />
                     <div 
                       className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                       onClick={() => fileInputRef.current?.click()}

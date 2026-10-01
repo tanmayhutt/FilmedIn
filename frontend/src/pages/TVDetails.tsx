@@ -178,7 +178,7 @@ export default function TVDetails() {
 
       <div className="flex flex-col md:flex-row gap-8 sm:gap-12">
         {/* Poster */}
-        <div className="w-full md:w-1/3 lg:w-1/4 shrink-0">
+        <div className="mx-auto w-full max-w-[15rem] shrink-0 md:mx-0 md:w-1/3 md:max-w-none lg:w-1/4">
           <div className="aspect-[2/3] w-full clay-poster overflow-hidden relative mb-6">
             {show.poster_path ? (
               <img src={`https://image.tmdb.org/t/p/w500${show.poster_path}`} alt={show.name} className="w-full h-full object-cover" />
@@ -192,7 +192,7 @@ export default function TVDetails() {
         </div>
 
         {/* Info */}
-        <div className="flex-1 flex flex-col pt-2">
+        <div className="flex min-w-0 flex-1 flex-col pt-2">
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-4">{show.name}</h1>
 
           {/* Meta row */}
@@ -237,7 +237,7 @@ export default function TVDetails() {
           <div className="flex overflow-x-auto gap-4 pb-4" style={{ scrollbarWidth: 'none' }}>
             {show.credits?.cast?.slice(0, 12).map((actor: any) => (
               <Link to={`/person/${actor.id}`} key={actor.id} className="w-[100px] shrink-0 flex flex-col gap-2 group" aria-label={`View ${actor.name}'s filmography`}>
-                <div className="aspect-[2/3] w-full rounded-lg bg-[var(--theme-dark)] overflow-hidden relative border border-white/10/50 group-hover:border-white/20 transition-colors">
+                <div className="aspect-[2/3] w-full rounded-lg bg-[var(--theme-dark)] overflow-hidden relative border border-white/[0.06] group-hover:border-white/20 transition-colors">
                   {actor.profile_path ? (
                     <img src={`https://image.tmdb.org/t/p/w200${actor.profile_path}`} alt={actor.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
@@ -256,14 +256,14 @@ export default function TVDetails() {
 
       {/* ── Series Graph Heatmap ── */}
       {seasons.length > 0 && (
-        <section className="mt-16 border-t border-white/10/50 pt-12">
+        <section className="mt-16 border-t border-white/[0.06] pt-12">
           <EpisodeHeatmap tvId={show.id} seasons={seasons} />
         </section>
       )}
 
       {/* ── Seasons & Episodes ── */}
       {seasons.length > 0 && (
-        <section className="mt-16 border-t border-white/10/50 pt-12">
+        <section className="mt-16 border-t border-white/[0.06] pt-12">
           <h2 className="text-2xl font-bold text-zinc-100 mb-6">Seasons & Episodes</h2>
           <div className="space-y-4">
             {seasons.map((s: any) => (
@@ -281,7 +281,7 @@ export default function TVDetails() {
       )}
 
       {/* ── Wallpapers ── */}
-      <div className="mt-16 w-full border-t border-white/10/50 pt-16">
+      <div className="mt-16 w-full border-t border-white/[0.06] pt-16">
         <h2 className="text-3xl font-bold text-zinc-100 mb-8">Generate Wallpapers</h2>
         <WallpaperGenerator tmdbId={show.id} mediaType="tv" title={show.name} />
       </div>

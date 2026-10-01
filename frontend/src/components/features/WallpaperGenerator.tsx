@@ -167,11 +167,11 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
         {/* Desktop Wallpaper Section */}
-        <div className="flex flex-col justify-between items-center bg-[var(--theme-dark)]/30 p-8 rounded-3xl border border-white/10/50 backdrop-blur-sm transition-all hover:bg-[var(--theme-dark)]/50">
+        <div className="flex flex-col items-center bg-[var(--theme-dark)]/30 p-8 rounded-3xl border border-white/[0.06] backdrop-blur-sm transition-all hover:bg-[var(--theme-dark)]/50">
           <h3 className="text-white font-medium text-lg mb-6">Desktop (16:9)</h3>
           
           {/* Laptop Silhouette Mockup */}
-          <div className="relative w-full max-w-[450px] mx-auto mb-8">
+          <div className="relative my-auto w-full max-w-[450px] mx-auto py-8">
             {/* Screen */}
             <div className="relative w-full aspect-video rounded-t-xl border-[4px] border-b-[12px] border-zinc-950 bg-[var(--theme-bg)] shadow-2xl flex items-center justify-center overflow-hidden group">
               {/* MacBook Notch */}
@@ -237,11 +237,11 @@ export function WallpaperGenerator({ tmdbId, mediaType, title }: Props) {
         </div>
 
         {/* Mobile Wallpaper Section */}
-        <div className="flex flex-col justify-between items-center bg-[var(--theme-dark)]/30 p-8 rounded-3xl border border-white/10/50 backdrop-blur-sm transition-all hover:bg-[var(--theme-dark)]/50">
+        <div className="flex flex-col items-center bg-[var(--theme-dark)]/30 p-8 rounded-3xl border border-white/[0.06] backdrop-blur-sm transition-all hover:bg-[var(--theme-dark)]/50">
           <h3 className="text-white font-medium text-lg mb-6">Mobile (9:16)</h3>
           
           {/* Phone Silhouette Mockup */}
-          <div className="relative w-full max-w-[200px] mx-auto mb-8">
+          <div className="relative my-auto w-full max-w-[200px] mx-auto py-8">
             <div className="relative w-full aspect-[9/19.5] rounded-[2rem] border-[6px] border-zinc-950 bg-[var(--theme-bg)] shadow-2xl flex items-center justify-center overflow-hidden group">
               {/* Dynamic Island */}
               <div className="absolute top-[6px] inset-x-0 mx-auto w-[64px] h-[18px] bg-black rounded-full z-20 flex justify-end items-center px-1.5 shadow-[0_0_1px_rgba(255,255,255,0.1)]">
